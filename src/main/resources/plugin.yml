@@ -1,0 +1,9 @@
+name: DiamondCraft
+version: ${project.version}
+main: net.dohaw.diamondcraft.DiamondCraftPlugin
+api-version: 1.16
+
+commands:
+  diamondcraft:
+    permission: diamondcraft.admin
+    description: "The base command for this plugin"
