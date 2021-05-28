@@ -1,6 +1,7 @@
 package net.dohaw.diamondcraft.config;
 
 import net.dohaw.corelib.Config;
+import net.dohaw.diamondcraft.TutorialObjective;
 import net.dohaw.diamondcraft.playerdata.PlayerData;
 
 import java.io.File;
@@ -22,6 +23,7 @@ public class PlayerDataConfig extends Config{
         playerData.setIsManager(config.getBoolean("Is Manager"));
         playerData.setInTutorial(config.getBoolean("Is In Tutorial"));
         playerData.setChamberLocation(config.getLocation("Chamber Location"));
+        playerData.setCurrentTutorialObjective(plugin, TutorialObjective.valueOf(config.getString("Tutorial Objective")));
 
         return playerData;
     }
@@ -31,6 +33,7 @@ public class PlayerDataConfig extends Config{
         config.set("Is Manager", data.isManager());
         config.set("Is In Tutorial", data.isInTutorial());
         config.set("Chamber Location", data.getChamberLocation());
+        config.set("Tutorial Objective", data.getCurrentTutorialObjective().toString());
         saveConfig();
     }
 

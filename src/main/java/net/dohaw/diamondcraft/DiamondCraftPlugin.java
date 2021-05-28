@@ -2,8 +2,12 @@ package net.dohaw.diamondcraft;
 
 import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
+import net.dohaw.corelib.StringUtils;
 import net.dohaw.diamondcraft.config.BaseConfig;
-import net.dohaw.diamondcraft.playerdata.PlayerDataHandler;
+import net.dohaw.diamondcraft.handler.PlayerDataHandler;
+import net.dohaw.diamondcraft.listener.ObjectiveWatcher;
+import net.dohaw.diamondcraft.listener.PlayerWatcher;
+import net.dohaw.diamondcraft.playerdata.PlayerData;
 import net.dohaw.diamondcraft.prompt.IDPrompt;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,6 +15,7 @@ import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
@@ -41,6 +46,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         JPUtils.registerCommand("diamondcraft", new DiamondCraftCommand(this));
         JPUtils.registerEvents(new PlayerWatcher(this));
+        JPUtils.registerEvents(new ObjectiveWatcher(this));
 
         for(Player player : Bukkit.getOnlinePlayers()){
             player.sendMessage("Please re-verify your ID!");
@@ -55,6 +61,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
     public void onDisable() {
         baseConfig.saveChamberLocations(availableChamberLocations);
         baseConfig.saveSpawnLocations(journeySpawnPoints);
+        playerDataHandler.saveAllData();
     }
 
     private void loadConfigValues(){
@@ -83,6 +90,43 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
     public PlayerDataHandler getPlayerDataHandler() {
         return playerDataHandler;
+    }
+
+    public void updateScoreboard(Player player){
+
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        Scoreboard board = manager.getNewScoreboard();
+        Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString("&bObjectives"));
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        Score score = obj.getScore(StringUtils.colorString("&b=-=-=-=-=-=-=-=-=-=-="));
+        score.setScore(3);
+
+        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+        int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
+        int counter = 4;
+        for(TutorialObjective objective : TutorialObjective.values()){
+
+            Score objScore;
+            if(objective.ordinal() > currentObjectiveOrdinal){
+                objScore = obj.getScore(StringUtils.colorString("&8&o" + objective.toProperName()));
+            }else if(objective.ordinal() == currentObjectiveOrdinal){
+                objScore = obj.getScore(StringUtils.colorString("&6&l" + objective.toProperName()));
+            }else {
+                objScore = obj.getScore(StringUtils.colorString("&2&m" + objective.toProperName()));
+            }
+
+            objScore.setScore(counter);
+
+            counter++;
+
+        }
+
+        Score score2 = obj.getScore(StringUtils.colorString("&b=-=-=-=-=-=-=-=-=-=-="));
+        score2.setScore(counter + 1);
+
+        player.setScoreboard(board);
+
     }
 
 }

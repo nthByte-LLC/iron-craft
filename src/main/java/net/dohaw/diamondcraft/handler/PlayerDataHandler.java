@@ -1,13 +1,14 @@
-package net.dohaw.diamondcraft.playerdata;
+package net.dohaw.diamondcraft.handler;
 
 import net.dohaw.diamondcraft.DiamondCraftPlugin;
+import net.dohaw.diamondcraft.TutorialObjective;
 import net.dohaw.diamondcraft.config.PlayerDataConfig;
+import net.dohaw.diamondcraft.playerdata.PlayerData;
+import org.bukkit.Bukkit;
 
-import javax.xml.stream.Location;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,6 +20,11 @@ public class PlayerDataHandler {
 
     public PlayerDataHandler(DiamondCraftPlugin plugin){
         this.plugin = plugin;
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for(PlayerData data : allPlayerData.values()){
+                plugin.updateScoreboard(data.getPlayer());
+            }
+        }, 0L, 20L);
     }
 
     public boolean hasExistingPlayerData(String providedID){
@@ -39,6 +45,7 @@ public class PlayerDataHandler {
         PlayerData playerData = new PlayerData(uuid, providedID);
         playerData.setPlayerDataConfig(new PlayerDataConfig(file.getName()));
         playerData.setInTutorial(true);
+        playerData.setCurrentTutorialObjective(plugin, TutorialObjective.MOVE);
         allPlayerData.put(uuid, playerData);
 
         return hasFileBeenMade;
@@ -54,6 +61,12 @@ public class PlayerDataHandler {
 
     public void saveData(UUID uuid){
         allPlayerData.remove(uuid).saveData();
+    }
+
+    public void saveAllData(){
+        for(PlayerData data : allPlayerData.values()){
+            data.saveData();
+        }
     }
 
     public boolean hasDataLoaded(UUID uuid){

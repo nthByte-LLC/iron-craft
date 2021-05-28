@@ -1,7 +1,8 @@
-package net.dohaw.diamondcraft;
+package net.dohaw.diamondcraft.listener;
 
+import net.dohaw.diamondcraft.DiamondCraftPlugin;
 import net.dohaw.diamondcraft.playerdata.PlayerData;
-import net.dohaw.diamondcraft.playerdata.PlayerDataHandler;
+import net.dohaw.diamondcraft.handler.PlayerDataHandler;
 import net.dohaw.diamondcraft.prompt.IDPrompt;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ import java.util.List;
 public class PlayerWatcher implements Listener {
 
     private final List<Material> BREAKABLE_TUTORIAL_BLOCKS = Arrays.asList(Material.STONE, Material.OAK_LOG,
-        Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE
+        Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT
     );
 
     private DiamondCraftPlugin plugin;

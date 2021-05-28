@@ -21,13 +21,7 @@ public class BaseConfig extends Config {
     }
 
     public List<Location> getChamberLocations(){
-
-        List<Location> chamberLocations = (List<Location>) config.getList("Available Chamber Locations");
-        System.out.println("GET: " + config.get("Available Chamber Locations"));
-
-        System.out.println("CHAMBER LOACTIONS: " + chamberLocations.toString());
-
-        return chamberLocations;
+        return (List<Location>) config.getList("Available Chamber Locations");
     }
 
     public List<Location> getSpawnLocations(){
@@ -45,7 +39,6 @@ public class BaseConfig extends Config {
     }
 
     public void saveChamberLocations(List<Location> chamberLocations){
-        System.out.println("SAVE CHAMBER LOCATIONS: " + chamberLocations.toString());
         config.set("Available Chamber Locations", chamberLocations);
         saveConfig();
     }

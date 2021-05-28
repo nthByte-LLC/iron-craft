@@ -1,9 +1,14 @@
 package net.dohaw.diamondcraft.playerdata;
 
+import net.dohaw.corelib.StringUtils;
+import net.dohaw.diamondcraft.DiamondCraftPlugin;
+import net.dohaw.diamondcraft.TutorialObjective;
 import net.dohaw.diamondcraft.config.PlayerDataConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.UUID;
 
@@ -20,6 +25,10 @@ public class PlayerData {
     private boolean isInTutorial;
 
     private Location chamberLocation;
+
+    private TutorialObjective currentTutorialObjective;
+
+    private BukkitTask objectiveReminder;
 
     public PlayerData(UUID uuid, String providedID){
         this.providedID = providedID;
@@ -68,6 +77,21 @@ public class PlayerData {
 
     public void setChamberLocation(Location chamberLocation) {
         this.chamberLocation = chamberLocation;
+    }
+
+    public TutorialObjective getCurrentTutorialObjective() {
+        return currentTutorialObjective;
+    }
+
+    public void setCurrentTutorialObjective(JavaPlugin plugin, TutorialObjective currentTutorialObjective) {
+        this.currentTutorialObjective = currentTutorialObjective;
+        if(objectiveReminder != null){
+            objectiveReminder.cancel();
+        }
+        this.objectiveReminder = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            String helperMessage = currentTutorialObjective.getHelperMessage();
+            getPlayer().sendMessage(StringUtils.colorString("&a&l[Objective Tip] &f" + helperMessage));
+        }, 0L, 1200L);
     }
 
 }

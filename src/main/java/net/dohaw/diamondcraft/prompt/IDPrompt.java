@@ -1,7 +1,7 @@
 package net.dohaw.diamondcraft.prompt;
 
 import net.dohaw.diamondcraft.DiamondCraftPlugin;
-import net.dohaw.diamondcraft.playerdata.PlayerDataHandler;
+import net.dohaw.diamondcraft.handler.PlayerDataHandler;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -51,6 +51,8 @@ public class IDPrompt extends StringPrompt {
 
             }
         }
+
+        plugin.updateScoreboard(player);
 
         return null;
 
