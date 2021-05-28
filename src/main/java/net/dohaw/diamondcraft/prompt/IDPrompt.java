@@ -39,7 +39,7 @@ public class IDPrompt extends StringPrompt {
                 Location randomChamberLocation = plugin.getRandomChamber();
                 if(randomChamberLocation == null){
                     plugin.getLogger().severe("There has been an error trying to teleport a player to a training chamber");
-                    player.sendMessage("You could not be teleported to a training chamber at this moment. Please contact an administrator...");
+                    player.sendRawMessage("You could not be teleported to a training chamber at this moment. Please contact an administrator...");
                     return null;
                 }
 

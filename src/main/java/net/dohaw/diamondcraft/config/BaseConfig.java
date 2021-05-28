@@ -21,7 +21,7 @@ public class BaseConfig extends Config {
     }
 
     public List<Location> getChamberLocations(){
-        return (List<Location>) config.getList("Available Chamber Locations");
+        return (List<Location>) config.getList("Available Chamber Locations", new ArrayList<>());
     }
 
     public List<Location> getSpawnLocations(){

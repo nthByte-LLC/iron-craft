@@ -5,10 +5,13 @@ import net.dohaw.diamondcraft.DiamondCraftPlugin;
 import net.dohaw.diamondcraft.TutorialObjective;
 import net.dohaw.diamondcraft.handler.PlayerDataHandler;
 import net.dohaw.diamondcraft.playerdata.PlayerData;
+import net.dohaw.diamondcraft.prompt.RepeatTutorialPrompt;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -61,8 +64,10 @@ public class ObjectiveWatcher implements Listener {
         if(playerDataHandler.hasDataLoaded(player.getUniqueId())){
             PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
             if(playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == TutorialObjective.MOVE && !hasMovedForFirstTime.contains(player.getUniqueId())) {
+                hasMovedForFirstTime.add(player.getUniqueId());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     playerData.setCurrentTutorialObjective(plugin, TutorialObjective.COLLECT_WOOD);
+                    hasMovedForFirstTime.remove(player.getUniqueId());
                 }, 20L * 20);
             }
         }
@@ -134,7 +139,7 @@ public class ObjectiveWatcher implements Listener {
         PlayerData playerData = getPlayerData(player);
         if(isOnObjective(playerData, TutorialObjective.SMELT_IRON) && e.getItemType() == Material.IRON_INGOT){
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if(getCountItem(player.getInventory(), Material.IRON_INGOT) >= 3){
+                if(getCountItem(player.getInventory(), Material.IRON_INGOT) + e.getItemAmount() >= 3){
                     playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.SMELT_IRON));
                 }
             }, 1);
@@ -154,12 +159,16 @@ public class ObjectiveWatcher implements Listener {
             if(isOnObjective(playerData, TutorialObjective.COLLECT_DIAMOND) && e.getItem().getItemStack().getType() == Material.DIAMOND){
                 System.out.println("HERE");
                 if(getCountItem(player.getInventory(), Material.DIAMOND) >= 1){
+
                     player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
                     player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);
                     player.sendMessage(StringUtils.colorString("&bCongratulations! &fYou have completed the tutorial. You will now be teleported and given the opportunity to go and find your own diamond! Good luck!"));
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        player.teleport(plugin.getRandomJourneySpawnPoint());
-                    }, 20L * 3);
+
+                    ConversationFactory cf = new ConversationFactory(plugin);
+                    Conversation conversation = cf.withFirstPrompt(new RepeatTutorialPrompt(plugin)).withLocalEcho(false).buildConversation(player);
+                    conversation.begin();
+
+
                 }
             }
 

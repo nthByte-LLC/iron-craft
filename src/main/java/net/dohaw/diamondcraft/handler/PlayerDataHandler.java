@@ -22,7 +22,11 @@ public class PlayerDataHandler {
         this.plugin = plugin;
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for(PlayerData data : allPlayerData.values()){
-                plugin.updateScoreboard(data.getPlayer());
+                if(data.isInTutorial()){
+                    plugin.updateScoreboard(data.getPlayer());
+                }else{
+                    data.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                }
             }
         }, 0L, 20L);
     }

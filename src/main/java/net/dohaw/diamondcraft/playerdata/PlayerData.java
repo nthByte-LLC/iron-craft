@@ -1,18 +1,21 @@
 package net.dohaw.diamondcraft.playerdata;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.DiamondCraftPlugin;
+import net.dohaw.diamondcraft.SurveySession;
 import net.dohaw.diamondcraft.TutorialObjective;
 import net.dohaw.diamondcraft.config.PlayerDataConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.UUID;
 
 public class PlayerData {
+
+    private SurveySession surveySession;
 
     private boolean isManager;
 
@@ -61,6 +64,7 @@ public class PlayerData {
 
     public void saveData(){
         playerDataConfig.saveData(this);
+        objectiveReminder.cancel();
     }
 
     public boolean isInTutorial() {
@@ -84,14 +88,31 @@ public class PlayerData {
     }
 
     public void setCurrentTutorialObjective(JavaPlugin plugin, TutorialObjective currentTutorialObjective) {
+
         this.currentTutorialObjective = currentTutorialObjective;
         if(objectiveReminder != null){
             objectiveReminder.cancel();
         }
-        this.objectiveReminder = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            String helperMessage = currentTutorialObjective.getHelperMessage();
-            getPlayer().sendMessage(StringUtils.colorString("&a&l[Objective Tip] &f" + helperMessage));
-        }, 0L, 1200L);
+        this.objectiveReminder = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if(!isInTutorial){
+                    cancel();
+                    return;
+                }
+                String helperMessage = currentTutorialObjective.getHelperMessage();
+                getPlayer().sendMessage(StringUtils.colorString("&a&l[Objective Tip] &f" + helperMessage));
+            }
+        }.runTaskTimer(plugin, 0L, 2400L);
+
+    }
+
+    public SurveySession getSurveySession() {
+        return surveySession;
+    }
+
+    public void setSurveySession(SurveySession surveySession) {
+        this.surveySession = surveySession;
     }
 
 }
