@@ -18,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
@@ -56,14 +55,7 @@ public class ObjectiveWatcher implements Listener {
             }
 
         }
-    }
 
-    /* Cancels any damage the player takes */
-    @EventHandler
-    public void onPlayerTakeDamage(EntityDamageEvent e){
-        if(e.getEntity() instanceof Player){
-            e.setCancelled(true);
-        }
     }
 
     @EventHandler
@@ -101,6 +93,17 @@ public class ObjectiveWatcher implements Listener {
         PlayerData playerData = getPlayerData(player);
         if(playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == TutorialObjective.PLACE_CRAFTING_TABLE && e.getBlockPlaced().getType() == Material.CRAFTING_TABLE){
             playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.PLACE_CRAFTING_TABLE));
+        }
+
+    }
+
+    @EventHandler
+    public void onPlaceTorch(BlockPlaceEvent e){
+
+        Player player = e.getPlayer();
+        PlayerData playerData = getPlayerData(player);
+        if(playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == TutorialObjective.PLACE_A_TORCH && e.getBlockPlaced().getType() == Material.TORCH){
+            playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.PLACE_A_TORCH));
         }
 
     }
