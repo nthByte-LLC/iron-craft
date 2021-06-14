@@ -13,10 +13,12 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -79,6 +81,14 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e){
         if(!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && hasMoved(e.getTo(), e.getFrom(), true)){
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerTakeDamage(EntityDamageEvent e){
+        Entity entity = e.getEntity();
+        if(entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase("d_crafting")){
             e.setCancelled(true);
         }
     }

@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
@@ -54,6 +55,14 @@ public class ObjectiveWatcher implements Listener {
                 }
             }
 
+        }
+    }
+
+    /* Cancels any damage the player takes */
+    @EventHandler
+    public void onPlayerTakeDamage(EntityDamageEvent e){
+        if(e.getEntity() instanceof Player){
+            e.setCancelled(true);
         }
     }
 
