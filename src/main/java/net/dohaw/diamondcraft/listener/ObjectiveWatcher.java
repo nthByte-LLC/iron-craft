@@ -4,6 +4,7 @@ import net.dohaw.corelib.StringUtils;
 import net.dohaw.diamondcraft.DiamondCraftPlugin;
 import net.dohaw.diamondcraft.TutorialObjective;
 import net.dohaw.diamondcraft.handler.PlayerDataHandler;
+import net.dohaw.diamondcraft.menu.RecipeMenu;
 import net.dohaw.diamondcraft.playerdata.PlayerData;
 import net.dohaw.diamondcraft.prompt.RepeatTutorialPrompt;
 import org.bukkit.Bukkit;
@@ -17,13 +18,17 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashSet;
 import java.util.UUID;
@@ -123,6 +128,38 @@ public class ObjectiveWatcher implements Listener {
             }
 
         }
+
+    }
+
+    @EventHandler
+    public void onPlayerAttemptOpenRecipeMenu(PlayerInteractEvent e){
+
+        Action action = e.getAction();
+        if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK){
+
+            ItemStack item = e.getItem();
+            if(item != null && item.getType() == Material.PAPER){
+
+                ItemMeta itemMeta = item.getItemMeta();
+                String colorLessDisplayName = StringUtils.removeChatColor(itemMeta.getDisplayName());
+                // I know checking via display name is dirty and should use PDC, but 1. i'm lazy and 2. It doesn't really matter much given the context
+                if(colorLessDisplayName.equalsIgnoreCase("Recipe Menu")){
+
+                    Player player = e.getPlayer();
+                    RecipeMenu recipeMenu = new RecipeMenu(plugin);
+                    recipeMenu.initializeItems(player);
+                    recipeMenu.openInventory(player);
+
+                    PlayerData playerData = getPlayerData(player);
+                    if(isOnObjective(getPlayerData(player), TutorialObjective.OPEN_RECIPE_MENU)){
+                        playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.OPEN_RECIPE_MENU));
+                    }
+
+                }
+
+            }
+        }
+
 
     }
 

@@ -18,7 +18,7 @@ import java.util.Map;
 public class RecipeMenu extends Menu implements Listener {
 
     public RecipeMenu(JavaPlugin plugin) {
-        super(plugin, null, "Recipe Menu", 9);
+        super(plugin, null, "Recipe Menu | Click the Items", 9);
         JPUtils.registerEvents(this);
     }
 
