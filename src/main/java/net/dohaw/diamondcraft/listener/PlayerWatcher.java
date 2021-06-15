@@ -2,10 +2,13 @@ package net.dohaw.diamondcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.diamondcraft.DiamondCraftPlugin;
+import net.dohaw.diamondcraft.menu.RecipeMenu;
 import net.dohaw.diamondcraft.playerdata.PlayerData;
 import net.dohaw.diamondcraft.handler.PlayerDataHandler;
 import net.dohaw.diamondcraft.prompt.IDPrompt;
 import net.dohaw.diamondcraft.prompt.autonomysurvey.AutonomySurveyPrompt;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,13 +20,18 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +52,7 @@ public class PlayerWatcher implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e){
 
         Player player = e.getPlayer();
+        player.sendTitle("Press T on Your Keyboard", "Input your ID in chat!", 5, 100, 20);
 
         ConversationFactory conversationFactory = new ConversationFactory(plugin);
         Conversation conversation = conversationFactory.withFirstPrompt(new IDPrompt(plugin)).withLocalEcho(false).buildConversation(player);
@@ -91,6 +100,27 @@ public class PlayerWatcher implements Listener {
         if(entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase("d_crafting")){
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onPlayerAttemptOpenRecipeMenu(PlayerInteractEvent e){
+
+        Action action = e.getAction();
+        if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK){
+            ItemStack item = e.getItem();
+            if(item != null && item.getType() == Material.PAPER){
+                ItemMeta itemMeta = item.getItemMeta();
+                String colorLessDisplayName = StringUtils.removeChatColor(itemMeta.getDisplayName());
+                // I know checking via display name is dirty and should use PDC, but 1. i'm lazy and 2. It doesn't really matter much given the context
+                if(colorLessDisplayName.equalsIgnoreCase("Recipe Menu")){
+                    Player player = e.getPlayer();
+                    RecipeMenu recipeMenu = new RecipeMenu(plugin);
+                    recipeMenu.initializeItems(player);
+                    recipeMenu.openInventory(player);
+                }
+            }
+        }
+
     }
 
     // Doesn't let them move if they haven't answered the autonomy survey

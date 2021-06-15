@@ -4,7 +4,9 @@ import net.dohaw.corelib.Config;
 import net.dohaw.corelib.serializers.LocationSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,26 @@ public class BaseConfig extends Config {
     public BaseConfig() {
         super("config.yml");
     }
+
+//    public List<Tribe> getTribes(){
+//
+//        ConfigurationSection tribeSection = config.getConfigurationSection("Tribes");
+//        // KEYS: Example Tribe, Example Tribe 2
+//        for(String key : tribeSection.getKeys(false)){
+//            // Tribes.Example Tribe.Name
+//            String name = tribeSection.getString(key + ".Name");
+//            Material menuMaterial = Material.valueOf(tribeSection.getString(key + ".Material", "APPLE"));
+//            if(menuMaterial == Material.PLAYER_HEAD){
+//                String playerHeadOwner = tribeSection.getString(key + ".Player Head Owner");
+//            }
+//
+//            int slotNumber = tribeSection.getInt(key + ".Slot Number");
+//            List<String> lore = tribeSection.getStringList(key + ".Lore");
+//
+//
+//        }
+//
+//    }
 
     public World getWorld(){
         String worldName = config.getString("World", "d_crafting");

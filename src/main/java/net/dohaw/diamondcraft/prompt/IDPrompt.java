@@ -1,12 +1,23 @@
 package net.dohaw.diamondcraft.prompt;
 
+import net.dohaw.corelib.StringUtils;
+import net.dohaw.corelib.helpers.ItemStackHelper;
 import net.dohaw.diamondcraft.DiamondCraftPlugin;
 import net.dohaw.diamondcraft.handler.PlayerDataHandler;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class IDPrompt extends StringPrompt {
 
@@ -45,6 +56,8 @@ public class IDPrompt extends StringPrompt {
 
                 player.teleport(randomChamberLocation);
                 playerDataHandler.getData(player.getUniqueId()).setChamberLocation(randomChamberLocation);
+                giveEssentialItems(player);
+
                 player.sendRawMessage("Welcome to the training chamber! This is where you will be taught to mine a diamond!");
                 player.sendRawMessage("If you look to the right of your screen, you will see (in order) the objectives you need to complete");
                 player.sendRawMessage("If you ever get confused, just look in chat. We will be giving you helpful tips along your training session!");
@@ -57,4 +70,25 @@ public class IDPrompt extends StringPrompt {
         return null;
 
     }
+
+    private void giveEssentialItems(Player player){
+        PlayerInventory inv = player.getInventory();
+        inv.addItem(createMenuPaper());
+        inv.addItem(new ItemStack(Material.TORCH, 64));
+    }
+
+    private ItemStack createMenuPaper(){
+
+        ItemStack menuPaper = new ItemStack(Material.PAPER);
+        ItemMeta meta = menuPaper.getItemMeta();
+        meta.setDisplayName(StringUtils.colorString("&b&lRecipe Menu"));
+
+        List<String> lore = Arrays.asList(ChatColor.RED + "Right-click with me in hand to see the recipe menu!");
+        meta.setLore(lore);
+        menuPaper.setItemMeta(meta);
+
+        ItemStackHelper.addGlowToItem(menuPaper);
+        return menuPaper;
+    }
+
 }

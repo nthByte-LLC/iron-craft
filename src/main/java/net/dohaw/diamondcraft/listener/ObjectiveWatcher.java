@@ -67,7 +67,7 @@ public class ObjectiveWatcher implements Listener {
             if(playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == TutorialObjective.MOVE && !hasMovedForFirstTime.contains(player.getUniqueId())) {
                 hasMovedForFirstTime.add(player.getUniqueId());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    playerData.setCurrentTutorialObjective(plugin, TutorialObjective.COLLECT_WOOD);
+                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.MOVE));
                     hasMovedForFirstTime.remove(player.getUniqueId());
                 }, 20L * 20);
             }

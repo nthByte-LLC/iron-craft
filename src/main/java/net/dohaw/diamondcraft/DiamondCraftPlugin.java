@@ -55,6 +55,9 @@ public final class DiamondCraftPlugin extends JavaPlugin {
             conversation.begin();
         }
 
+        // Reminder every 10 seconds
+        new Reminder(this).runTaskTimer(this, 0L,200L);
+
     }
 
     @Override
@@ -99,9 +102,6 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString("&bObjectives"));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        Score score = obj.getScore(StringUtils.colorString("&b=-=-=-=-=-=-=-=-=-=-="));
-        score.setScore(3);
-
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
         int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
         int counter = 4;
@@ -122,8 +122,8 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         }
 
-        Score score2 = obj.getScore(StringUtils.colorString("&b=-=-=-=-=-=-=-=-=-=-="));
-        score2.setScore(counter + 1);
+        //Score score2 = obj.getScore(StringUtils.colorString("&b=-=-=-=-=-=-=-=-=-=-="));
+        //score2.setScore(counter + 1);
 
         player.setScoreboard(board);
 
