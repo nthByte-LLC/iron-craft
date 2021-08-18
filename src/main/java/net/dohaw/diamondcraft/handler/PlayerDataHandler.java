@@ -20,6 +20,7 @@ public class PlayerDataHandler {
 
     public PlayerDataHandler(DiamondCraftPlugin plugin) {
         this.plugin = plugin;
+        // Updates player's scoreboards every second
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (PlayerData data : allPlayerData.values()) {
                 if (data.isInTutorial()) {

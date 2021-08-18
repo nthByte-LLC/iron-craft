@@ -25,10 +25,20 @@ import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
+/**
+ * Plugin for Max Planck Society.
+ * Teaches people to obtain an iron pickaxe.
+ */
 public final class DiamondCraftPlugin extends JavaPlugin {
 
+    /**
+     * The spawn points at which the player can spawn after they finish the tutorial and go out on their own.
+     */
     private List<Location> journeySpawnPoints;
 
+    /**
+     * The available locations at which a chamber is located.
+     */
     private List<Location> availableChamberLocations = new ArrayList<>();
 
     private PlayerDataHandler playerDataHandler;
@@ -54,6 +64,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         JPUtils.registerEvents(new PlayerWatcher(this));
         JPUtils.registerEvents(new ObjectiveWatcher(this));
 
+        // Only useful if there are players on the server, and /plugman reload DiamondCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage("Please re-verify your ID!");
             ConversationFactory conversationFactory = new ConversationFactory(this);
@@ -62,7 +73,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         }
 
         // Reminder every 10 seconds
-        new Reminder(this).runTaskTimer(this, 0L, 200L);
+        new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
 
     }
 
@@ -78,14 +89,6 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         this.journeySpawnPoints = baseConfig.getSpawnLocations();
     }
 
-    public List<Location> getJourneySpawnPoints() {
-        return journeySpawnPoints;
-    }
-
-    public List<Location> getAvailableChamberLocations() {
-        return availableChamberLocations;
-    }
-
     public Location getRandomChamber() {
         if (availableChamberLocations.isEmpty()) {
             return null;
@@ -94,12 +97,8 @@ public final class DiamondCraftPlugin extends JavaPlugin {
     }
 
     public Location getRandomJourneySpawnPoint() {
-        System.out.println("JOURNEY SPANW: " + journeySpawnPoints.toString());
+        //System.out.println("JOURNEY SPANW: " + journeySpawnPoints.toString());
         return journeySpawnPoints.get(new Random().nextInt(journeySpawnPoints.size()));
-    }
-
-    public PlayerDataHandler getPlayerDataHandler() {
-        return playerDataHandler;
     }
 
     public void updateScoreboard(Player player) {
@@ -129,20 +128,17 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         }
 
-        //Score score2 = obj.getScore(StringUtils.colorString("&b=-=-=-=-=-=-=-=-=-=-="));
-        //score2.setScore(counter + 1);
-
         player.setScoreboard(board);
 
     }
 
     public void giveEssentialItems(Player player) {
         PlayerInventory inv = player.getInventory();
-        inv.addItem(createMenuPaper());
+        inv.addItem(createRecipeMenuPaper());
         inv.addItem(new ItemStack(Material.TORCH, 64));
     }
 
-    private ItemStack createMenuPaper() {
+    private ItemStack createRecipeMenuPaper() {
 
         ItemStack menuPaper = new ItemStack(Material.PAPER);
         ItemMeta meta = menuPaper.getItemMeta();
@@ -154,6 +150,19 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         ItemStackHelper.addGlowToItem(menuPaper);
         return menuPaper;
+
+    }
+
+    public List<Location> getJourneySpawnPoints() {
+        return journeySpawnPoints;
+    }
+
+    public List<Location> getAvailableChamberLocations() {
+        return availableChamberLocations;
+    }
+
+    public PlayerDataHandler getPlayerDataHandler() {
+        return playerDataHandler;
     }
 
 }
