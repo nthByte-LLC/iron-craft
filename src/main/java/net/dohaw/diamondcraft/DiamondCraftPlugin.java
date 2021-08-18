@@ -3,6 +3,7 @@ package net.dohaw.diamondcraft;
 import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.corelib.helpers.ItemStackHelper;
 import net.dohaw.diamondcraft.config.BaseConfig;
 import net.dohaw.diamondcraft.handler.PlayerDataHandler;
 import net.dohaw.diamondcraft.listener.ObjectiveWatcher;
@@ -10,10 +11,15 @@ import net.dohaw.diamondcraft.listener.PlayerWatcher;
 import net.dohaw.diamondcraft.playerdata.PlayerData;
 import net.dohaw.diamondcraft.prompt.IDPrompt;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.*;
 
@@ -35,9 +41,9 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         JPUtils.validateFiles("config.yml");
         JPUtils.validateFilesOrFolders(
-            new HashMap<String, Object>(){{
-                put("player_data", getDataFolder());
-            }}, true
+                new HashMap<String, Object>() {{
+                    put("player_data", getDataFolder());
+                }}, true
         );
         this.baseConfig = new BaseConfig();
         loadConfigValues();
@@ -48,7 +54,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         JPUtils.registerEvents(new PlayerWatcher(this));
         JPUtils.registerEvents(new ObjectiveWatcher(this));
 
-        for(Player player : Bukkit.getOnlinePlayers()){
+        for (Player player : Bukkit.getOnlinePlayers()) {
             player.sendMessage("Please re-verify your ID!");
             ConversationFactory conversationFactory = new ConversationFactory(this);
             Conversation conversation = conversationFactory.withFirstPrompt(new IDPrompt(this)).withLocalEcho(false).buildConversation(player);
@@ -56,7 +62,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         }
 
         // Reminder every 10 seconds
-        new Reminder(this).runTaskTimer(this, 0L,200L);
+        new Reminder(this).runTaskTimer(this, 0L, 200L);
 
     }
 
@@ -67,7 +73,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         playerDataHandler.saveAllData();
     }
 
-    private void loadConfigValues(){
+    private void loadConfigValues() {
         this.availableChamberLocations = baseConfig.getChamberLocations();
         this.journeySpawnPoints = baseConfig.getSpawnLocations();
     }
@@ -80,14 +86,15 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         return availableChamberLocations;
     }
 
-    public Location getRandomChamber(){
-        if(availableChamberLocations.isEmpty()){
+    public Location getRandomChamber() {
+        if (availableChamberLocations.isEmpty()) {
             return null;
         }
         return availableChamberLocations.remove(new Random().nextInt(availableChamberLocations.size()));
     }
 
-    public Location getRandomJourneySpawnPoint(){
+    public Location getRandomJourneySpawnPoint() {
+        System.out.println("JOURNEY SPANW: " + journeySpawnPoints.toString());
         return journeySpawnPoints.get(new Random().nextInt(journeySpawnPoints.size()));
     }
 
@@ -95,7 +102,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         return playerDataHandler;
     }
 
-    public void updateScoreboard(Player player){
+    public void updateScoreboard(Player player) {
 
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard board = manager.getNewScoreboard();
@@ -105,14 +112,14 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
         int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
         int counter = 4;
-        for(TutorialObjective objective : TutorialObjective.values()){
+        for (TutorialObjective objective : TutorialObjective.values()) {
 
             Score objScore;
-            if(objective.ordinal() > currentObjectiveOrdinal){
+            if (objective.ordinal() > currentObjectiveOrdinal) {
                 objScore = obj.getScore(StringUtils.colorString("&8&o" + objective.toProperName()));
-            }else if(objective.ordinal() == currentObjectiveOrdinal){
+            } else if (objective.ordinal() == currentObjectiveOrdinal) {
                 objScore = obj.getScore(StringUtils.colorString("&6&l" + objective.toProperName()));
-            }else {
+            } else {
                 objScore = obj.getScore(StringUtils.colorString("&2&m" + objective.toProperName()));
             }
 
@@ -127,6 +134,26 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         player.setScoreboard(board);
 
+    }
+
+    public void giveEssentialItems(Player player) {
+        PlayerInventory inv = player.getInventory();
+        inv.addItem(createMenuPaper());
+        inv.addItem(new ItemStack(Material.TORCH, 64));
+    }
+
+    private ItemStack createMenuPaper() {
+
+        ItemStack menuPaper = new ItemStack(Material.PAPER);
+        ItemMeta meta = menuPaper.getItemMeta();
+        meta.setDisplayName(StringUtils.colorString("&b&lRecipe Menu"));
+
+        List<String> lore = Arrays.asList(ChatColor.RED + "Right-click with me in hand to see the recipe menu!");
+        meta.setLore(lore);
+        menuPaper.setItemMeta(meta);
+
+        ItemStackHelper.addGlowToItem(menuPaper);
+        return menuPaper;
     }
 
 }

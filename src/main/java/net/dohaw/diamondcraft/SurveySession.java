@@ -7,11 +7,12 @@ public class SurveySession {
 
     private int currentNumQuestion = 0;
 
-    private Map<String, String> questionsAndAnswers = new HashMap<>();
+    private final Map<String, String> questionsAndAnswers = new HashMap<>();
 
-    public SurveySession(){}
+    public SurveySession() {
+    }
 
-    public void addEntry(String question, String answer){
+    public void addEntry(String question, String answer) {
         this.questionsAndAnswers.put(question, answer);
     }
 
@@ -19,7 +20,7 @@ public class SurveySession {
         return currentNumQuestion;
     }
 
-    public void increaseNumQuestion(){
+    public void increaseNumQuestion() {
         this.currentNumQuestion++;
     }
 

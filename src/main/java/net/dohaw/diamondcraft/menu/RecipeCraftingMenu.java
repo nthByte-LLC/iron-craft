@@ -17,7 +17,7 @@ public class RecipeCraftingMenu extends Menu implements Listener {
 
     private int[] recipeGrid;
 
-    private Recipe recipe;
+    private final Recipe recipe;
 
     public RecipeCraftingMenu(JavaPlugin plugin, Menu previousMenu, String menuTitle, Recipe recipe) {
         super(plugin, previousMenu, menuTitle, 54);
@@ -28,13 +28,13 @@ public class RecipeCraftingMenu extends Menu implements Listener {
     @Override
     public void initializeItems(Player p) {
 
-        if(recipe.isCraftedInTable()){
+        if (recipe.isCraftedInTable()) {
             recipeGrid = new int[]{12, 13, 14, 21, 22, 23, 30, 31, 32};
-        }else{
+        } else {
             recipeGrid = new int[]{16, 15, 24, 25};
         }
 
-        for(Map.Entry<Integer, Material> entry : recipe.getIngredients().entrySet()){
+        for (Map.Entry<Integer, Material> entry : recipe.getIngredients().entrySet()) {
             int indexRecipeGrid = entry.getKey();
             Material ingredientMaterial = entry.getValue();
             inv.setItem(recipeGrid[indexRecipeGrid], new ItemStack(ingredientMaterial));
@@ -63,9 +63,9 @@ public class RecipeCraftingMenu extends Menu implements Listener {
 
         e.setCancelled(true);
 
-        if(this.fillerMat == clickedItem.getType()) return;
+        if (this.fillerMat == clickedItem.getType()) return;
 
-        if(clickedItem.getType() == backMat){
+        if (clickedItem.getType() == backMat) {
             player.closeInventory();
             previousMenu.openInventory(player);
         }

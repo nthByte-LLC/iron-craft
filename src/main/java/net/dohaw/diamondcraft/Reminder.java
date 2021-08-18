@@ -16,12 +16,12 @@ import java.util.List;
  */
 public class Reminder extends BukkitRunnable {
 
-    private DiamondCraftPlugin plugin;
+    private final DiamondCraftPlugin plugin;
 
     private int currentIndexReminder = 0;
-    private List<String> reminders = new ArrayList<>();
+    private final List<String> reminders = new ArrayList<>();
 
-    public Reminder(DiamondCraftPlugin plugin){
+    public Reminder(DiamondCraftPlugin plugin) {
         this.plugin = plugin;
         compileReminders();
     }
@@ -29,21 +29,21 @@ public class Reminder extends BukkitRunnable {
     @Override
     public void run() {
 
-        if(currentIndexReminder >= reminders.size()){
+        if (currentIndexReminder >= reminders.size()) {
             currentIndexReminder = 0;
         }
 
-        for(Player player : Bukkit.getOnlinePlayers()){
+        for (Player player : Bukkit.getOnlinePlayers()) {
 
             PlayerData data = plugin.getPlayerDataHandler().getData(player.getUniqueId());
             String message = null;
-            if(data != null && data.isInTutorial() && !player.isConversing()){
+            if (data != null && data.isInTutorial() && !player.isConversing()) {
                 message = "&b" + reminders.get(currentIndexReminder);
-            }else if(data != null && !data.isInTutorial()){
+            } else if (data != null && !data.isInTutorial()) {
                 message = "&cYour manager is watching you!";
             }
 
-            if(message != null){
+            if (message != null) {
                 message = StringUtils.colorString(message);
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
             }
@@ -54,7 +54,7 @@ public class Reminder extends BukkitRunnable {
 
     }
 
-    private void compileReminders(){
+    private void compileReminders() {
         reminders.add("Press T to open chat so that you can read messages!");
         reminders.add("Use your number keys to switch between items!");
         reminders.add("Press E to open your inventory!");

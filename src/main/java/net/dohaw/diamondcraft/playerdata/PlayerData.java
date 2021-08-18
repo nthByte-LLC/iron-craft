@@ -20,9 +20,9 @@ public class PlayerData {
 
     private boolean isManager;
 
-    private UUID uuid;
+    private final UUID uuid;
 
-    private String providedID;
+    private final String providedID;
 
     private PlayerDataConfig playerDataConfig;
 
@@ -34,7 +34,7 @@ public class PlayerData {
 
     private BukkitTask objectiveReminder;
 
-    public PlayerData(UUID uuid, String providedID){
+    public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
     }
@@ -55,7 +55,7 @@ public class PlayerData {
         return providedID;
     }
 
-    public Player getPlayer(){
+    public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
 
@@ -63,7 +63,7 @@ public class PlayerData {
         this.playerDataConfig = playerDataConfig;
     }
 
-    public void saveData(){
+    public void saveData() {
         playerDataConfig.saveData(this);
         objectiveReminder.cancel();
     }
@@ -91,16 +91,18 @@ public class PlayerData {
     public void setCurrentTutorialObjective(JavaPlugin plugin, TutorialObjective currentTutorialObjective) {
 
         Player player = getPlayer();
-        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
+        if (player != null) {
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
+        }
 
         this.currentTutorialObjective = currentTutorialObjective;
-        if(objectiveReminder != null){
+        if (objectiveReminder != null) {
             objectiveReminder.cancel();
         }
         this.objectiveReminder = new BukkitRunnable() {
             @Override
             public void run() {
-                if(!isInTutorial){
+                if (!isInTutorial) {
                     cancel();
                     return;
                 }

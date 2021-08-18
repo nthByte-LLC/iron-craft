@@ -3,7 +3,6 @@ package net.dohaw.diamondcraft.listener;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.diamondcraft.DiamondCraftPlugin;
 import net.dohaw.diamondcraft.handler.PlayerDataHandler;
-import net.dohaw.diamondcraft.menu.RecipeMenu;
 import net.dohaw.diamondcraft.playerdata.PlayerData;
 import net.dohaw.diamondcraft.prompt.IDPrompt;
 import net.dohaw.diamondcraft.prompt.autonomysurvey.AutonomySurveyPrompt;
@@ -18,15 +17,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -36,17 +31,17 @@ import java.util.List;
 public class PlayerWatcher implements Listener {
 
     private final List<Material> BREAKABLE_TUTORIAL_BLOCKS = Arrays.asList(Material.STONE, Material.OAK_LOG,
-        Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
+            Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
     );
 
-    private DiamondCraftPlugin plugin;
+    private final DiamondCraftPlugin plugin;
 
-    public PlayerWatcher(DiamondCraftPlugin plugin){
+    public PlayerWatcher(DiamondCraftPlugin plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e){
+    public void onPlayerJoin(PlayerJoinEvent e) {
 
         Player player = e.getPlayer();
         player.sendTitle("Press T on Your Keyboard", "Input your ID in chat!", 5, 100, 20);
@@ -58,23 +53,23 @@ public class PlayerWatcher implements Listener {
     }
 
     @EventHandler
-    public void onPlayerLeave(PlayerQuitEvent e){
+    public void onPlayerLeave(PlayerQuitEvent e) {
         Player player = e.getPlayer();
         plugin.getPlayerDataHandler().saveData(player.getUniqueId());
     }
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent e){
+    public void onBlockBreak(BlockBreakEvent e) {
 
         Player player = e.getPlayer();
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
-        if(!playerDataHandler.hasDataLoaded(player.getUniqueId())){
+        if (!playerDataHandler.hasDataLoaded(player.getUniqueId())) {
             e.setCancelled(true);
             return;
         }
 
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-        if(playerData.isInTutorial() && !BREAKABLE_TUTORIAL_BLOCKS.contains(e.getBlock().getType())){
+        if (playerData.isInTutorial() && !BREAKABLE_TUTORIAL_BLOCKS.contains(e.getBlock().getType())) {
             e.setCancelled(true);
             player.sendMessage("You can't break that block. Focus on the objectives!");
         }
@@ -85,26 +80,26 @@ public class PlayerWatcher implements Listener {
         Doesn't let them move if they don't have player data loaded.
      */
     @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e){
-        if(!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && hasMoved(e.getTo(), e.getFrom(), true)){
+    public void onPlayerMove(PlayerMoveEvent e) {
+        if (!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && hasMoved(e.getTo(), e.getFrom(), true)) {
             e.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onPlayerTakeDamage(EntityDamageEvent e){
+    public void onPlayerTakeDamage(EntityDamageEvent e) {
         Entity entity = e.getEntity();
-        if(entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase("d_crafting")){
+        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase("d_crafting")) {
             e.setCancelled(true);
         }
     }
 
     // Doesn't let them move if they haven't answered the autonomy survey
     @EventHandler
-    public void onPlayerMoveDuringSurvey(PlayerMoveEvent e){
+    public void onPlayerMoveDuringSurvey(PlayerMoveEvent e) {
         PersistentDataContainer pdc = e.getPlayer().getPersistentDataContainer();
         NamespacedKey key = NamespacedKey.minecraft("is-answering-survey");
-        if(pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)){
+        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
             e.setCancelled(true);
         }
     }
@@ -113,14 +108,14 @@ public class PlayerWatcher implements Listener {
         Endgame
      */
     @EventHandler
-    public void onPlayerMineDiamond(BlockBreakEvent e){
+    public void onPlayerMineDiamond(BlockBreakEvent e) {
 
         Player player = e.getPlayer();
         Block blockMined = e.getBlock();
-        if(blockMined.getType() == Material.DIAMOND_ORE){
+        if (blockMined.getType() == Material.DIAMOND_ORE) {
             PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
             PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-            if(!playerData.isInTutorial()){
+            if (!playerData.isInTutorial()) {
                 player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully mined a diamond!"));
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -133,10 +128,10 @@ public class PlayerWatcher implements Listener {
 
     }
 
-    public boolean hasMoved(Location to, Location from, boolean checkY){
-        if(to != null){
+    public boolean hasMoved(Location to, Location from, boolean checkY) {
+        if (to != null) {
             boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
-            if(!hasMovedHorizontally && checkY){
+            if (!hasMovedHorizontally && checkY) {
                 return from.getY() != to.getY();
             }
             return hasMovedHorizontally;

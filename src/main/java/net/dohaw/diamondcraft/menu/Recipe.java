@@ -6,12 +6,12 @@ import java.util.Map;
 
 public class Recipe {
 
-    private Material result;
-    private Map<Integer, Material> ingredients;
+    private final Material result;
+    private final Map<Integer, Material> ingredients;
 
-    private boolean isCraftedInTable;
+    private final boolean isCraftedInTable;
 
-    public Recipe(Material result, Map<Integer, Material> ingredients, boolean isCraftedInTable){
+    public Recipe(Material result, Map<Integer, Material> ingredients, boolean isCraftedInTable) {
         this.result = result;
         this.ingredients = ingredients;
         this.isCraftedInTable = isCraftedInTable;

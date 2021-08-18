@@ -14,29 +14,29 @@ import java.util.UUID;
 
 public class PlayerDataHandler {
 
-    private DiamondCraftPlugin plugin;
+    private final DiamondCraftPlugin plugin;
 
-    private Map<UUID, PlayerData> allPlayerData = new HashMap<>();
+    private final Map<UUID, PlayerData> allPlayerData = new HashMap<>();
 
-    public PlayerDataHandler(DiamondCraftPlugin plugin){
+    public PlayerDataHandler(DiamondCraftPlugin plugin) {
         this.plugin = plugin;
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            for(PlayerData data : allPlayerData.values()){
-                if(data.isInTutorial()){
+            for (PlayerData data : allPlayerData.values()) {
+                if (data.isInTutorial()) {
                     plugin.updateScoreboard(data.getPlayer());
-                }else{
+                } else {
                     data.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
                 }
             }
         }, 0L, 20L);
     }
 
-    public boolean hasExistingPlayerData(String providedID){
+    public boolean hasExistingPlayerData(String providedID) {
         File file = new File(plugin.getDataFolder() + File.separator + "player_data", providedID + ".yml");
         return file.exists();
     }
 
-    public boolean createData(UUID uuid, String providedID){
+    public boolean createData(UUID uuid, String providedID) {
 
         File file = new File(plugin.getDataFolder() + File.separator + "player_data", providedID + ".yml");
         boolean hasFileBeenMade = false;
@@ -56,28 +56,28 @@ public class PlayerDataHandler {
 
     }
 
-    public void loadData(String providedID){
+    public void loadData(String providedID) {
         String fileName = providedID + ".yml";
         PlayerDataConfig playerDataConfig = new PlayerDataConfig(fileName);
         PlayerData pd = playerDataConfig.loadData();
         allPlayerData.put(pd.getUuid(), pd);
     }
 
-    public void saveData(UUID uuid){
+    public void saveData(UUID uuid) {
         allPlayerData.remove(uuid).saveData();
     }
 
-    public void saveAllData(){
-        for(PlayerData data : allPlayerData.values()){
+    public void saveAllData() {
+        for (PlayerData data : allPlayerData.values()) {
             data.saveData();
         }
     }
 
-    public boolean hasDataLoaded(UUID uuid){
+    public boolean hasDataLoaded(UUID uuid) {
         return allPlayerData.containsKey(uuid);
     }
 
-    public PlayerData getData(UUID uuid){
+    public PlayerData getData(UUID uuid) {
         return allPlayerData.get(uuid);
     }
 

@@ -51,11 +51,11 @@ public class RecipeMenu extends Menu implements Listener {
 
         e.setCancelled(true);
 
-        if(this.fillerMat == clickedItem.getType()) return;
+        if (this.fillerMat == clickedItem.getType()) return;
 
         Material clickedItemType = clickedItem.getType();
         Map<Integer, Material> recipeIncredients = getRecipeIngredients(clickedItemType);
-        if(recipeIncredients.isEmpty()) return;
+        if (recipeIncredients.isEmpty()) return;
 
         boolean isCraftedInTable = recipeIncredients.size() > 4;
         Recipe recipe = new Recipe(clickedItemType, recipeIncredients, isCraftedInTable);
@@ -67,9 +67,9 @@ public class RecipeMenu extends Menu implements Listener {
 
     }
 
-    private Map<Integer, Material> getRecipeIngredients(Material result){
+    private Map<Integer, Material> getRecipeIngredients(Material result) {
         Map<Integer, Material> recipe = new HashMap<>();
-        switch(result){
+        switch (result) {
             case OAK_PLANKS:
                 recipe.put(2, Material.OAK_LOG);
                 break;

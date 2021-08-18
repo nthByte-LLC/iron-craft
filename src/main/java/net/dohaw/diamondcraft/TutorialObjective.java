@@ -21,8 +21,9 @@ public enum TutorialObjective {
     MAKE_IRON_PICKAXE("It's time to use the crafting table again. Open the crafting table, and put a stick in the bottom-middle and middle slots. After that, put an iron ingot in each slot of the top row."),
     COLLECT_DIAMOND("Now that you have a iron pickaxe, you can finally mine diamonds. Keep mining in the stone area until you find diamonds. This is the last step of the tutorial!");
 
-    private String helperMessage;
-    TutorialObjective(String helperMessage){
+    private final String helperMessage;
+
+    TutorialObjective(String helperMessage) {
         this.helperMessage = helperMessage;
     }
 
@@ -30,7 +31,7 @@ public enum TutorialObjective {
         return helperMessage;
     }
 
-    public String toProperName(){
+    public String toProperName() {
         return StringUtils.capitalize(name().replace("_", " "));
     }
 

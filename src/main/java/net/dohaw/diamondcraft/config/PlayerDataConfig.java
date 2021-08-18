@@ -7,13 +7,13 @@ import net.dohaw.diamondcraft.playerdata.PlayerData;
 import java.io.File;
 import java.util.UUID;
 
-public class PlayerDataConfig extends Config{
+public class PlayerDataConfig extends Config {
 
     public PlayerDataConfig(String fileName) {
         super("player_data" + File.separator + fileName);
     }
 
-    public PlayerData loadData(){
+    public PlayerData loadData() {
 
         UUID uuid = UUID.fromString(config.getString("uuid"));
         String providedID = file.getName().replace(".yml", "");
@@ -28,7 +28,7 @@ public class PlayerDataConfig extends Config{
         return playerData;
     }
 
-    public void saveData(PlayerData data){
+    public void saveData(PlayerData data) {
         config.set("uuid", data.getUuid().toString());
         config.set("Is Manager", data.isManager());
         config.set("Is In Tutorial", data.isInTutorial());
