@@ -208,6 +208,7 @@ public class ObjectiveWatcher implements Listener {
                 System.out.println("HERE");
                 if (getCountItem(player.getInventory(), Material.DIAMOND) >= 1) {
 
+                    System.out.println("PLAYER HAS DIAMONDS");
                     player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
                     player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);
                     player.sendMessage(StringUtils.colorString("&bCongratulations! &fYou have completed the tutorial. You will now be teleported and given the opportunity to go and find your own diamond! Good luck!"));

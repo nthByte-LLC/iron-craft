@@ -27,6 +27,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class PlayerWatcher implements Listener {
 
@@ -55,7 +56,11 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         Player player = e.getPlayer();
-        plugin.getPlayerDataHandler().saveData(player.getUniqueId());
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        UUID playerUUID = player.getUniqueId();
+        if(playerDataHandler.hasDataLoaded(playerUUID)){
+            plugin.getPlayerDataHandler().saveData(playerUUID);
+        }
     }
 
     @EventHandler
