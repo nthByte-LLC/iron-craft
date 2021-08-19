@@ -5,6 +5,7 @@ import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.corelib.helpers.ItemStackHelper;
 import net.dohaw.diamondcraft.config.BaseConfig;
+import net.dohaw.diamondcraft.data_collection.DataCollector;
 import net.dohaw.diamondcraft.handler.PlayerDataHandler;
 import net.dohaw.diamondcraft.listener.ObjectiveWatcher;
 import net.dohaw.diamondcraft.listener.PlayerWatcher;
@@ -75,6 +76,8 @@ public final class DiamondCraftPlugin extends JavaPlugin {
         // Reminder every 10 seconds
         new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
 
+        // Store inventory data every tick
+        new DataCollector(this).runTaskTimer(this, 0, 1);
     }
 
     @Override

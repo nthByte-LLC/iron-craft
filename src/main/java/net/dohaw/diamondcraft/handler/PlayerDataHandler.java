@@ -82,4 +82,7 @@ public class PlayerDataHandler {
         return allPlayerData.get(uuid);
     }
 
+    public Map<UUID, PlayerData> getAllPlayerData() {
+        return allPlayerData;
+    }
 }

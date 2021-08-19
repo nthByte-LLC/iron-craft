@@ -12,6 +12,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerData {
@@ -33,6 +36,11 @@ public class PlayerData {
     private TutorialObjective currentTutorialObjective;
 
     private BukkitTask objectiveReminder;
+
+    /**
+     * Stores a list of inventoryData.
+     */
+     private List<Map<String, Integer>> inventoryDataList = new ArrayList<>();
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -119,6 +127,10 @@ public class PlayerData {
 
     public void setSurveySession(SurveySession surveySession) {
         this.surveySession = surveySession;
+    }
+
+    public void addInventoryData(Map<String, Integer> inventoryData) {
+        this.inventoryDataList.add(inventoryData);
     }
 
 }
