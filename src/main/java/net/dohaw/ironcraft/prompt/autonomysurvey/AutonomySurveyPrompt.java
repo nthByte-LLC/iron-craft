@@ -1,9 +1,9 @@
-package net.dohaw.diamondcraft.prompt.autonomysurvey;
+package net.dohaw.ironcraft.prompt.autonomysurvey;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.SurveySession;
-import net.dohaw.diamondcraft.handler.PlayerDataHandler;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.SurveySession;
+import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.NamespacedKey;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -16,23 +16,22 @@ import java.util.List;
 public class AutonomySurveyPrompt extends StringPrompt {
 
     private final List<String> QUESTIONS = Arrays.asList(
-            "Did you enjoy this task?",
-            "Did you put a lot of effort into this task?",
-            "Did you feel pressured while doing this task?",
-            "Did you feel that you have some choice about doing this task?",
-            "Did you like your manager?"
+        "Did you enjoy this task?",
+        "Did you put a lot of effort into this task?",
+        "Did you feel pressured while doing this task?",
+        "Did you feel that you have some choice about doing this task?",
+        "Did you like your manager?"
     );
 
     private final List<String> VALID_ANSWERS = Arrays.asList(
-            "Not at all",
-            "Slightly",
-            "Moderately",
-            "Very",
-            "Extremely"
+        "Not at all",
+        "Slightly",
+        "Moderately",
+        "Very",
+        "Extremely"
     );
 
     private final String question;
-
     private final PlayerDataHandler playerDataHandler;
 
     public AutonomySurveyPrompt(int questionIndex, PlayerDataHandler playerDataHandler) {

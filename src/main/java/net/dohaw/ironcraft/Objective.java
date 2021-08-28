@@ -1,8 +1,8 @@
-package net.dohaw.diamondcraft;
+package net.dohaw.ironcraft;
 
 import org.apache.commons.lang.StringUtils;
 
-public enum TutorialObjective {
+public enum Objective {
 
     MOVE("Hello! Welcome to Minecraft. In this training session, you will be taught how to mine a diamond. To get started, use WASD on your keyboard to start moving. You can also use your mouse to look around"),
     PLACE_A_TORCH("When you get out on your own, it may get a little dark. Use the numbers on your keyboard to switch to your torch and right-click the ground to put a torch down"),
@@ -23,7 +23,7 @@ public enum TutorialObjective {
 
     private final String helperMessage;
 
-    TutorialObjective(String helperMessage) {
+    Objective(String helperMessage) {
         this.helperMessage = helperMessage;
     }
 

@@ -1,9 +1,9 @@
-package net.dohaw.diamondcraft.prompt;
+package net.dohaw.ironcraft.prompt;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.DiamondCraftPlugin;
-import net.dohaw.diamondcraft.TutorialObjective;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;
@@ -13,9 +13,9 @@ import org.bukkit.entity.Player;
 
 public class RepeatTutorialPrompt extends StringPrompt {
 
-    private final DiamondCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
-    public RepeatTutorialPrompt(DiamondCraftPlugin plugin) {
+    public RepeatTutorialPrompt(IronCraftPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -43,7 +43,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
                 player.sendRawMessage("Very well then! You will be teleported to a new training chamber shortly. Good luck!");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.getInventory().clear();
-                    playerData.setCurrentTutorialObjective(plugin, TutorialObjective.MOVE);
+                    playerData.setCurrentTutorialObjective(plugin, Objective.MOVE);
                     player.teleport(randomChamberLocation);
                 }, 20 * 3);
 

@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.dohaw</groupId>
-    <artifactId>DiamondCraft</artifactId>
+    <artifactId>IronCraft</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>DiamondCraft</name>
+    <name>Iron Craft</name>
 
     <properties>
         <java.version>1.8</java.version>
@@ -23,7 +23,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3.1</version>
                 <configuration>
-                    <outputDirectory>D:\Minecraft Servers\1.16.4\plugins</outputDirectory>
+                    <outputDirectory>D:\Minecraft Servers\1.17\plugins</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -50,7 +50,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>net.dohaw.corelib</pattern>
-                                    <shadedPattern>reloc.dc.net.dohaw.corelib</shadedPattern>
+                                    <shadedPattern>reloc.ic.net.dohaw.corelib</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

@@ -1,4 +1,4 @@
-package net.dohaw.diamondcraft.config;
+package net.dohaw.ironcraft.config;
 
 import net.dohaw.corelib.Config;
 import net.dohaw.corelib.serializers.LocationSerializer;

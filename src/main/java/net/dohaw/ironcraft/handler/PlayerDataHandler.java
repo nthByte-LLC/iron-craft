@@ -1,9 +1,9 @@
-package net.dohaw.diamondcraft.handler;
+package net.dohaw.ironcraft.handler;
 
-import net.dohaw.diamondcraft.DiamondCraftPlugin;
-import net.dohaw.diamondcraft.TutorialObjective;
-import net.dohaw.diamondcraft.config.PlayerDataConfig;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.config.PlayerDataConfig;
+import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Bukkit;
 
 import java.io.File;
@@ -14,11 +14,11 @@ import java.util.UUID;
 
 public class PlayerDataHandler {
 
-    private final DiamondCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
     private final Map<UUID, PlayerData> allPlayerData = new HashMap<>();
 
-    public PlayerDataHandler(DiamondCraftPlugin plugin) {
+    public PlayerDataHandler(IronCraftPlugin plugin) {
         this.plugin = plugin;
         // Updates player's scoreboards every second
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -50,7 +50,7 @@ public class PlayerDataHandler {
         PlayerData playerData = new PlayerData(uuid, providedID);
         playerData.setPlayerDataConfig(new PlayerDataConfig(file.getName()));
         playerData.setInTutorial(true);
-        playerData.setCurrentTutorialObjective(plugin, TutorialObjective.MOVE);
+        playerData.setCurrentTutorialObjective(plugin, Objective.MOVE);
         allPlayerData.put(uuid, playerData);
 
         return hasFileBeenMade;

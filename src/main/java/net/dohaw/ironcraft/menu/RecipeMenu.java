@@ -1,4 +1,4 @@
-package net.dohaw.diamondcraft.menu;
+package net.dohaw.ironcraft.menu;
 
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.menus.Menu;

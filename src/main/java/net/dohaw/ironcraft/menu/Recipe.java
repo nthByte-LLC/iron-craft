@@ -1,4 +1,4 @@
-package net.dohaw.diamondcraft.menu;
+package net.dohaw.ironcraft.menu;
 
 import org.bukkit.Material;
 

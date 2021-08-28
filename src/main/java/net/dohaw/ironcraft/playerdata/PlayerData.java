@@ -1,9 +1,9 @@
-package net.dohaw.diamondcraft.playerdata;
+package net.dohaw.ironcraft.playerdata;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.SurveySession;
-import net.dohaw.diamondcraft.TutorialObjective;
-import net.dohaw.diamondcraft.config.PlayerDataConfig;
+import net.dohaw.ironcraft.SurveySession;
+import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.config.PlayerDataConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -30,7 +30,7 @@ public class PlayerData {
 
     private Location chamberLocation;
 
-    private TutorialObjective currentTutorialObjective;
+    private Objective currentTutorialObjective;
 
     private BukkitTask objectiveReminder;
 
@@ -84,11 +84,11 @@ public class PlayerData {
         this.chamberLocation = chamberLocation;
     }
 
-    public TutorialObjective getCurrentTutorialObjective() {
+    public Objective getCurrentTutorialObjective() {
         return currentTutorialObjective;
     }
 
-    public void setCurrentTutorialObjective(JavaPlugin plugin, TutorialObjective currentTutorialObjective) {
+    public void setCurrentTutorialObjective(JavaPlugin plugin, Objective currentTutorialObjective) {
 
         Player player = getPlayer();
         if (player != null) {

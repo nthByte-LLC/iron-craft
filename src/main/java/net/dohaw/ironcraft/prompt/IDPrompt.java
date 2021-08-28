@@ -1,7 +1,7 @@
-package net.dohaw.diamondcraft.prompt;
+package net.dohaw.ironcraft.prompt;
 
-import net.dohaw.diamondcraft.DiamondCraftPlugin;
-import net.dohaw.diamondcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -10,9 +10,9 @@ import org.bukkit.entity.Player;
 
 public class IDPrompt extends StringPrompt {
 
-    private final DiamondCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
-    public IDPrompt(DiamondCraftPlugin plugin) {
+    public IDPrompt(IronCraftPlugin plugin) {
         this.plugin = plugin;
     }
 

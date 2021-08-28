@@ -1,4 +1,4 @@
-package net.dohaw.diamondcraft;
+package net.dohaw.ironcraft;
 
 import java.util.HashMap;
 import java.util.Map;

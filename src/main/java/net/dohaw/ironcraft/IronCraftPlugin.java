@@ -1,15 +1,15 @@
-package net.dohaw.diamondcraft;
+package net.dohaw.ironcraft;
 
 import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.corelib.helpers.ItemStackHelper;
-import net.dohaw.diamondcraft.config.BaseConfig;
-import net.dohaw.diamondcraft.handler.PlayerDataHandler;
-import net.dohaw.diamondcraft.listener.ObjectiveWatcher;
-import net.dohaw.diamondcraft.listener.PlayerWatcher;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
-import net.dohaw.diamondcraft.prompt.IDPrompt;
+import net.dohaw.ironcraft.config.BaseConfig;
+import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.listener.ObjectiveWatcher;
+import net.dohaw.ironcraft.listener.PlayerWatcher;
+import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.prompt.IDPrompt;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,7 +29,7 @@ import java.util.*;
  * Plugin for Max Planck Society.
  * Teaches people to obtain an iron pickaxe.
  */
-public final class DiamondCraftPlugin extends JavaPlugin {
+public final class IronCraftPlugin extends JavaPlugin {
 
     /**
      * The spawn points at which the player can spawn after they finish the tutorial and go out on their own.
@@ -60,7 +60,7 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         this.playerDataHandler = new PlayerDataHandler(this);
 
-        JPUtils.registerCommand("diamondcraft", new DiamondCraftCommand(this));
+        JPUtils.registerCommand("diamondcraft", new IronCraftCommand(this));
         JPUtils.registerEvents(new PlayerWatcher(this));
         JPUtils.registerEvents(new ObjectiveWatcher(this));
 
@@ -105,13 +105,13 @@ public final class DiamondCraftPlugin extends JavaPlugin {
 
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard board = manager.getNewScoreboard();
-        Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString("&bObjectives"));
+        org.bukkit.scoreboard.Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString("&bObjectives"));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
         int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
         int counter = 4;
-        for (TutorialObjective objective : TutorialObjective.values()) {
+        for (Objective objective : Objective.values()) {
 
             Score objScore;
             if (objective.ordinal() > currentObjectiveOrdinal) {

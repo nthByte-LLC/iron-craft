@@ -1,7 +1,7 @@
-package net.dohaw.diamondcraft;
+package net.dohaw.ironcraft;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -16,12 +16,12 @@ import java.util.List;
  */
 public class Reminder extends BukkitRunnable {
 
-    private final DiamondCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
     private int currentIndexReminder = 0;
     private final List<String> reminders = new ArrayList<>();
 
-    public Reminder(DiamondCraftPlugin plugin) {
+    public Reminder(IronCraftPlugin plugin) {
         this.plugin = plugin;
         compileReminders();
     }

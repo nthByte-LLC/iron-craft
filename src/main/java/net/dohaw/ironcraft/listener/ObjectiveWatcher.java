@@ -1,12 +1,12 @@
-package net.dohaw.diamondcraft.listener;
+package net.dohaw.ironcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.DiamondCraftPlugin;
-import net.dohaw.diamondcraft.TutorialObjective;
-import net.dohaw.diamondcraft.handler.PlayerDataHandler;
-import net.dohaw.diamondcraft.menu.RecipeMenu;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
-import net.dohaw.diamondcraft.prompt.RepeatTutorialPrompt;
+import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.menu.RecipeMenu;
+import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.prompt.RepeatTutorialPrompt;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -36,10 +36,10 @@ public class ObjectiveWatcher implements Listener {
 
     private final HashSet<UUID> hasMovedForFirstTime = new HashSet<>();
 
-    private final DiamondCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
     private final PlayerDataHandler playerDataHandler;
 
-    public ObjectiveWatcher(DiamondCraftPlugin plugin) {
+    public ObjectiveWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
         this.playerDataHandler = plugin.getPlayerDataHandler();
     }
@@ -52,9 +52,9 @@ public class ObjectiveWatcher implements Listener {
 
             Player player = (Player) entity;
             PlayerData playerData = getPlayerData(player);
-            if (isOnObjective(playerData, TutorialObjective.COLLECT_WOOD) && e.getItem().getItemStack().getType() == Material.OAK_LOG) {
+            if (isOnObjective(playerData, Objective.COLLECT_WOOD) && e.getItem().getItemStack().getType() == Material.OAK_LOG) {
                 if (getCountItem(player.getInventory(), Material.OAK_LOG) >= 4) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.COLLECT_WOOD));
+                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.COLLECT_WOOD));
                 }
             }
 
@@ -68,10 +68,10 @@ public class ObjectiveWatcher implements Listener {
         Player player = e.getPlayer();
         if (playerDataHandler.hasDataLoaded(player.getUniqueId())) {
             PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-            if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == TutorialObjective.MOVE && !hasMovedForFirstTime.contains(player.getUniqueId())) {
+            if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == Objective.MOVE && !hasMovedForFirstTime.contains(player.getUniqueId())) {
                 hasMovedForFirstTime.add(player.getUniqueId());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.MOVE));
+                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.MOVE));
                     hasMovedForFirstTime.remove(player.getUniqueId());
                 }, 20L * 20);
             }
@@ -81,13 +81,13 @@ public class ObjectiveWatcher implements Listener {
 
     @EventHandler
     public void onCraftSticks(CraftItemEvent e) {
-        checkIfPassedCraftingObjective(e, TutorialObjective.MAKE_STICKS, Material.STICK);
-        checkIfPassedCraftingObjective(e, TutorialObjective.MAKE_PLANKS, Material.OAK_PLANKS);
-        checkIfPassedCraftingObjective(e, TutorialObjective.MAKE_CRAFTING_TABLE, Material.CRAFTING_TABLE);
-        checkIfPassedCraftingObjective(e, TutorialObjective.MAKE_WOODEN_PICKAXE, Material.WOODEN_PICKAXE);
-        checkIfPassedCraftingObjective(e, TutorialObjective.MAKE_STONE_PICKAXE, Material.STONE_PICKAXE);
-        checkIfPassedCraftingObjective(e, TutorialObjective.MAKE_FURNACE, Material.FURNACE);
-        checkIfPassedCraftingObjective(e, TutorialObjective.MAKE_IRON_PICKAXE, Material.IRON_PICKAXE);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_STICKS, Material.STICK);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_PLANKS, Material.OAK_PLANKS);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_CRAFTING_TABLE, Material.CRAFTING_TABLE);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_WOODEN_PICKAXE, Material.WOODEN_PICKAXE);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_STONE_PICKAXE, Material.STONE_PICKAXE);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_FURNACE, Material.FURNACE);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_IRON_PICKAXE, Material.IRON_PICKAXE);
     }
 
     @EventHandler
@@ -95,8 +95,8 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
-        if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == TutorialObjective.PLACE_CRAFTING_TABLE && e.getBlockPlaced().getType() == Material.CRAFTING_TABLE) {
-            playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.PLACE_CRAFTING_TABLE));
+        if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == Objective.PLACE_CRAFTING_TABLE && e.getBlockPlaced().getType() == Material.CRAFTING_TABLE) {
+            playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.PLACE_CRAFTING_TABLE));
         }
 
     }
@@ -106,8 +106,8 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
-        if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == TutorialObjective.PLACE_A_TORCH && e.getBlockPlaced().getType() == Material.TORCH) {
-            playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.PLACE_A_TORCH));
+        if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && e.getBlockPlaced().getType() == Material.TORCH) {
+            playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.PLACE_A_TORCH));
         }
 
     }
@@ -120,9 +120,9 @@ public class ObjectiveWatcher implements Listener {
 
             Player player = (Player) entity;
             PlayerData playerData = getPlayerData(player);
-            if (isOnObjective(playerData, TutorialObjective.COLLECT_STONE) && e.getItem().getItemStack().getType() == Material.COBBLESTONE) {
+            if (isOnObjective(playerData, Objective.COLLECT_STONE) && e.getItem().getItemStack().getType() == Material.COBBLESTONE) {
                 if (getCountItem(player.getInventory(), Material.COBBLESTONE) >= 15) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.COLLECT_STONE));
+                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.COLLECT_STONE));
                 }
             }
 
@@ -150,8 +150,8 @@ public class ObjectiveWatcher implements Listener {
                     recipeMenu.openInventory(player);
 
                     PlayerData playerData = getPlayerData(player);
-                    if (isOnObjective(getPlayerData(player), TutorialObjective.OPEN_RECIPE_MENU)) {
-                        playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.OPEN_RECIPE_MENU));
+                    if (isOnObjective(getPlayerData(player), Objective.OPEN_RECIPE_MENU)) {
+                        playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.OPEN_RECIPE_MENU));
                     }
 
                 }
@@ -170,9 +170,9 @@ public class ObjectiveWatcher implements Listener {
 
             Player player = (Player) entity;
             PlayerData playerData = getPlayerData(player);
-            if (isOnObjective(playerData, TutorialObjective.COLLECT_IRON) && e.getItem().getItemStack().getType() == Material.IRON_ORE) {
+            if (isOnObjective(playerData, Objective.COLLECT_IRON) && e.getItem().getItemStack().getType() == Material.IRON_ORE) {
                 if (getCountItem(player.getInventory(), Material.IRON_ORE) >= 3) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.COLLECT_IRON));
+                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.COLLECT_IRON));
                 }
             }
 
@@ -185,10 +185,10 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
-        if (isOnObjective(playerData, TutorialObjective.SMELT_IRON) && e.getItemType() == Material.IRON_INGOT) {
+        if (isOnObjective(playerData, Objective.SMELT_IRON) && e.getItemType() == Material.IRON_INGOT) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (getCountItem(player.getInventory(), Material.IRON_INGOT) + e.getItemAmount() >= 3) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(TutorialObjective.SMELT_IRON));
+                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.SMELT_IRON));
                 }
             }, 1);
         }
@@ -204,7 +204,7 @@ public class ObjectiveWatcher implements Listener {
             Player player = (Player) entity;
             PlayerData playerData = getPlayerData(player);
             System.out.println("OBJ: " + playerData.getCurrentTutorialObjective());
-            if (isOnObjective(playerData, TutorialObjective.COLLECT_DIAMOND) && e.getItem().getItemStack().getType() == Material.DIAMOND) {
+            if (isOnObjective(playerData, Objective.COLLECT_DIAMOND) && e.getItem().getItemStack().getType() == Material.DIAMOND) {
                 System.out.println("HERE");
                 if (getCountItem(player.getInventory(), Material.DIAMOND) >= 1) {
 
@@ -216,7 +216,6 @@ public class ObjectiveWatcher implements Listener {
                     ConversationFactory cf = new ConversationFactory(plugin);
                     Conversation conversation = cf.withFirstPrompt(new RepeatTutorialPrompt(plugin)).withLocalEcho(false).buildConversation(player);
                     conversation.begin();
-
 
                 }
             }
@@ -239,7 +238,7 @@ public class ObjectiveWatcher implements Listener {
         return count;
     }
 
-    private void checkIfPassedCraftingObjective(CraftItemEvent e, TutorialObjective objective, Material checkedMaterial) {
+    private void checkIfPassedCraftingObjective(CraftItemEvent e, Objective objective, Material checkedMaterial) {
 
         HumanEntity whoClicked = e.getWhoClicked();
         if (whoClicked instanceof Player) {
@@ -257,9 +256,9 @@ public class ObjectiveWatcher implements Listener {
 
     }
 
-    private TutorialObjective getNextObjective(TutorialObjective currentObjective) {
+    private Objective getNextObjective(Objective currentObjective) {
         int ordinal = currentObjective.ordinal();
-        TutorialObjective[] values = TutorialObjective.values();
+        Objective[] values = Objective.values();
         return values[ordinal + 1];
     }
 
@@ -267,7 +266,7 @@ public class ObjectiveWatcher implements Listener {
         return playerDataHandler.getData(player.getUniqueId());
     }
 
-    private boolean isOnObjective(PlayerData playerData, TutorialObjective objective) {
+    private boolean isOnObjective(PlayerData playerData, Objective objective) {
         return playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == objective;
     }
 

@@ -1,8 +1,8 @@
-package net.dohaw.diamondcraft.config;
+package net.dohaw.ironcraft.config;
 
 import net.dohaw.corelib.Config;
-import net.dohaw.diamondcraft.TutorialObjective;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.playerdata.PlayerData;
 
 import java.io.File;
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class PlayerDataConfig extends Config {
         playerData.setIsManager(config.getBoolean("Is Manager"));
         playerData.setInTutorial(config.getBoolean("Is In Tutorial"));
         playerData.setChamberLocation(config.getLocation("Chamber Location"));
-        playerData.setCurrentTutorialObjective(plugin, TutorialObjective.valueOf(config.getString("Tutorial Objective")));
+        playerData.setCurrentTutorialObjective(plugin, Objective.valueOf(config.getString("Tutorial Objective")));
 
         return playerData;
     }
