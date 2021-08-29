@@ -195,34 +195,34 @@ public class ObjectiveWatcher implements Listener {
 
     }
 
-    @EventHandler
-    public void onCollectionDiamond(EntityPickupItemEvent e) {
-
-        LivingEntity entity = e.getEntity();
-        if (entity instanceof Player) {
-
-            Player player = (Player) entity;
-            PlayerData playerData = getPlayerData(player);
-            System.out.println("OBJ: " + playerData.getCurrentTutorialObjective());
-            if (isOnObjective(playerData, Objective.COLLECT_DIAMOND) && e.getItem().getItemStack().getType() == Material.DIAMOND) {
-                System.out.println("HERE");
-                if (getCountItem(player.getInventory(), Material.DIAMOND) >= 1) {
-
-                    System.out.println("PLAYER HAS DIAMONDS");
-                    player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
-                    player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);
-                    player.sendMessage(StringUtils.colorString("&bCongratulations! &fYou have completed the tutorial. You will now be teleported and given the opportunity to go and find your own diamond! Good luck!"));
-
-                    ConversationFactory cf = new ConversationFactory(plugin);
-                    Conversation conversation = cf.withFirstPrompt(new RepeatTutorialPrompt(plugin)).withLocalEcho(false).buildConversation(player);
-                    conversation.begin();
-
-                }
-            }
-
-        }
-
-    }
+//    @EventHandler
+//    public void onCollectionDiamond(EntityPickupItemEvent e) {
+//
+//        LivingEntity entity = e.getEntity();
+//        if (entity instanceof Player) {
+//
+//            Player player = (Player) entity;
+//            PlayerData playerData = getPlayerData(player);
+//            System.out.println("OBJ: " + playerData.getCurrentTutorialObjective());
+//            if (isOnObjective(playerData, Objective.COLLECT_DIAMOND) && e.getItem().getItemStack().getType() == Material.DIAMOND) {
+//                System.out.println("HERE");
+//                if (getCountItem(player.getInventory(), Material.DIAMOND) >= 1) {
+//
+//                    System.out.println("PLAYER HAS DIAMONDS");
+//                    player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
+//                    player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);
+//                    player.sendMessage(StringUtils.colorString("&bCongratulations! &fYou have completed the tutorial. You will now be teleported and given the opportunity to go and find your own diamond! Good luck!"));
+//
+//                    ConversationFactory cf = new ConversationFactory(plugin);
+//                    Conversation conversation = cf.withFirstPrompt(new RepeatTutorialPrompt(plugin)).withLocalEcho(false).buildConversation(player);
+//                    conversation.begin();
+//
+//                }
+//            }
+//
+//        }
+//
+//    }
 
 
     private int getCountItem(PlayerInventory playerInventory, Material material) {
@@ -248,8 +248,16 @@ public class ObjectiveWatcher implements Listener {
             System.out.println("OBJECTIVE: " + objective);
             System.out.println("PLAYER OBJECTIVE: " + playerData.getCurrentTutorialObjective());
             System.out.println("RESULT: " + e.getRecipe().getResult().getType());
-            if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == objective && e.getRecipe().getResult().getType() == checkedMaterial) {
-                playerData.setCurrentTutorialObjective(plugin, getNextObjective(objective));
+            Objective currentObjective = playerData.getCurrentTutorialObjective();
+            if (playerData.isInTutorial() && currentObjective == objective && e.getRecipe().getResult().getType() == checkedMaterial) {
+
+                if(currentObjective == Objective.MAKE_IRON_PICKAXE){
+                    // End of the tutorial. They have just crafted an iron pickaxe
+                    concludeTutorial(player);
+                }else{
+                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(objective));
+                }
+
             }
 
         }
@@ -258,8 +266,7 @@ public class ObjectiveWatcher implements Listener {
 
     private Objective getNextObjective(Objective currentObjective) {
         int ordinal = currentObjective.ordinal();
-        Objective[] values = Objective.values();
-        return values[ordinal + 1];
+        return Objective.values()[ordinal + 1];
     }
 
     private PlayerData getPlayerData(Player player) {
@@ -268,6 +275,18 @@ public class ObjectiveWatcher implements Listener {
 
     private boolean isOnObjective(PlayerData playerData, Objective objective) {
         return playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == objective;
+    }
+
+    private void concludeTutorial(Player player){
+
+        player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
+        player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);
+        player.sendMessage(StringUtils.colorString("&bCongratulations! &fYou have completed the tutorial. You will now be teleported and given the opportunity to play on your own. Good luck!"));
+
+        ConversationFactory cf = new ConversationFactory(plugin);
+        Conversation conversation = cf.withFirstPrompt(new RepeatTutorialPrompt(plugin)).withLocalEcho(false).buildConversation(player);
+        conversation.begin();
+
     }
 
 }

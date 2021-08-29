@@ -4,7 +4,7 @@ import org.apache.commons.lang.StringUtils;
 
 public enum Objective {
 
-    MOVE("Hello! Welcome to Minecraft. In this training session, you will be taught how to mine a diamond. To get started, use WASD on your keyboard to start moving. You can also use your mouse to look around"),
+    MOVE("Hello! Welcome to Minecraft. In this tutorial, you will be taught how to obtain an iron pickaxe. To get started, use WASD on your keyboard to start moving. You can also use your mouse to look around"),
     PLACE_A_TORCH("When you get out on your own, it may get a little dark. Use the numbers on your keyboard to switch to your torch and right-click the ground to put a torch down"),
     OPEN_RECIPE_MENU("The Recipe Menu is your best friend. Put the white paper in your hand and right-click with it."),
     COLLECT_WOOD("Good job! Now, head on over to the room with the trees. You'll need to put your crosshair (The thing in the middle of your screen) on to the wood and hold left click to fully mine it. \nDon't be afraid to break some leaves to get to the wood!\nCollect 4 logs to move on to the next objective"),
@@ -18,8 +18,7 @@ public enum Objective {
     COLLECT_IRON("It's time to get busy! Go to the place with the stone, and keep mining until you find an ore with some orange-ish color to it. Get 3 of these ores to move on to the next objective."),
     MAKE_FURNACE("In order to turn these ores into something that can make an iron pickaxe, we need to make a furnace. Use your crafting table, and put cobblestone in the outer slots of the crafting table.\nYou should be placing 1 cobblestone in every single slot, except the middle one."),
     SMELT_IRON("Place the furnace down and right-click it to use it. You'll see that there are 2 slots to the left of the arrow. The bottom slot is the furnace fuel. The top slot is the thing you want to cook/smelt.\nThere are a lot of things you can use to fuel a furnace in Minecraft. You can use coal, logs, wood, etc. For now, place some of your wood in the fuel slot. After that, put the iron ore in the top slot and it'll start smelting the iron."),
-    MAKE_IRON_PICKAXE("It's time to use the crafting table again. Open the crafting table, and put a stick in the bottom-middle and middle slots. After that, put an iron ingot in each slot of the top row."),
-    COLLECT_DIAMOND("Now that you have a iron pickaxe, you can finally mine diamonds. Keep mining in the stone area until you find diamonds. This is the last step of the tutorial!");
+    MAKE_IRON_PICKAXE("It's time to use the crafting table again. Open the crafting table, and put a stick in the bottom-middle and middle slots. After that, put an iron ingot in each slot of the top row.");
 
     private final String helperMessage;
 

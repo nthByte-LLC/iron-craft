@@ -21,7 +21,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
 
     @Override
     public String getPromptText(ConversationContext context) {
-        return StringUtils.colorString("Would you like to do the tutorial again?\nPress \"T\" and type in &cno &fif you wish to go venture on your own and find diamonds.\nType &ayes &fif you want to do the tutorial again");
+        return StringUtils.colorString("Would you like to do the tutorial again?\nPress \"T\" and type in &cno &fif you wish to go venture on your own. \nType &ayes &fif you want to do the tutorial again");
     }
 
     @Override
@@ -49,7 +49,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
 
             } else if (input.equalsIgnoreCase("no")) {
 
-                player.sendRawMessage("Looks like you want to start your diamond mining journey. You will be teleported shortly. Good luck!");
+                player.sendRawMessage("Looks like you want to start your journey. You will be teleported shortly. Good luck!");
 
                 Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
                 if (randomSpawnPoint == null) {

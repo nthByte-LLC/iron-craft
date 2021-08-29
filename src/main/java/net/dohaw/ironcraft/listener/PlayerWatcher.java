@@ -46,7 +46,7 @@ public class PlayerWatcher implements Listener {
 
         Player player = e.getPlayer();
         player.sendTitle("Input your ID", "Press T on your keyboard", 5, 100, 20);
-        player.sendMessage("Once you press T, you should be allowed to type in chat and input your ID!");
+        //player.sendMessage("Once you press T, you should be allowed to type in chat and input your ID!");
 
         ConversationFactory conversationFactory = new ConversationFactory(plugin);
         Conversation conversation = conversationFactory.withFirstPrompt(new IDPrompt(plugin)).withLocalEcho(false).buildConversation(player);
@@ -94,10 +94,13 @@ public class PlayerWatcher implements Listener {
 
     @EventHandler
     public void onPlayerTakeDamage(EntityDamageEvent e) {
+
+        String applicableWorld = plugin.getBaseConfig().getWorld().getName();
         Entity entity = e.getEntity();
-        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase("d_crafting")) {
+        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld)) {
             e.setCancelled(true);
         }
+
     }
 
     // Doesn't let them move if they haven't answered the autonomy survey
@@ -124,7 +127,7 @@ public class PlayerWatcher implements Listener {
             PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
             if (!playerData.isInTutorial()) {
                 System.out.println("IN TUTORIAL");
-                player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully mined a diamond!"));
+                player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     System.out.println("RUNNABLE RAN");

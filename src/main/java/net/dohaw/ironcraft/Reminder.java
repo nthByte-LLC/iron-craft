@@ -19,17 +19,21 @@ public class Reminder extends BukkitRunnable {
     private final IronCraftPlugin plugin;
 
     private int currentIndexReminder = 0;
-    private final List<String> reminders = new ArrayList<>();
+    private final List<String> REMINDERS = new ArrayList<String>(){{
+        add("Press T to open chat so that you can read messages!");
+        add("Use your number keys to switch between items!");
+        add("Press E to open your inventory!");
+        add("Right-Click with the Paper in your hand to see recipes!");
+    }};
 
     public Reminder(IronCraftPlugin plugin) {
         this.plugin = plugin;
-        compileReminders();
     }
 
     @Override
     public void run() {
 
-        if (currentIndexReminder >= reminders.size()) {
+        if (currentIndexReminder >= REMINDERS.size()) {
             currentIndexReminder = 0;
         }
 
@@ -38,7 +42,7 @@ public class Reminder extends BukkitRunnable {
             PlayerData data = plugin.getPlayerDataHandler().getData(player.getUniqueId());
             String message = null;
             if (data != null && data.isInTutorial() && !player.isConversing()) {
-                message = "&b" + reminders.get(currentIndexReminder);
+                message = "&b" + REMINDERS.get(currentIndexReminder);
             } else if (data != null && !data.isInTutorial()) {
                 message = "&cYour manager is watching you!";
             }
@@ -52,13 +56,6 @@ public class Reminder extends BukkitRunnable {
 
         currentIndexReminder++;
 
-    }
-
-    private void compileReminders() {
-        reminders.add("Press T to open chat so that you can read messages!");
-        reminders.add("Use your number keys to switch between items!");
-        reminders.add("Press E to open your inventory!");
-        reminders.add("Right-Click with the Paper in your hand to see recipes!");
     }
 
 }

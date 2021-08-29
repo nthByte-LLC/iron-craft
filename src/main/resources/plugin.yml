@@ -4,6 +4,9 @@ main: net.dohaw.ironcraft.IronCraftPlugin
 api-version: 1.16
 
 commands:
-  diamondcraft:
+  ironcraft:
     permission: ironcraft.admin
     description: "The base command for this plugin"
+    aliases:
+      - ic
+      - ironc

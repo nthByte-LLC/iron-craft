@@ -60,7 +60,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         this.playerDataHandler = new PlayerDataHandler(this);
 
-        JPUtils.registerCommand("diamondcraft", new IronCraftCommand(this));
+        JPUtils.registerCommand("ironcraft", new IronCraftCommand(this));
         JPUtils.registerEvents(new PlayerWatcher(this));
         JPUtils.registerEvents(new ObjectiveWatcher(this));
 
@@ -163,6 +163,10 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     public PlayerDataHandler getPlayerDataHandler() {
         return playerDataHandler;
+    }
+
+    public BaseConfig getBaseConfig(){
+        return baseConfig;
     }
 
 }
