@@ -1,5 +1,7 @@
 package net.dohaw.ironcraft.listener;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
@@ -19,12 +21,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -56,12 +60,14 @@ public class PlayerWatcher implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
+
         Player player = e.getPlayer();
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         UUID playerUUID = player.getUniqueId();
         if(playerDataHandler.hasDataLoaded(playerUUID)){
             plugin.getPlayerDataHandler().saveData(playerUUID);
         }
+
     }
 
     @EventHandler

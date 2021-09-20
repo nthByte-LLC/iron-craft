@@ -32,7 +32,7 @@ public class PlayerData {
 
     private Objective currentTutorialObjective;
 
-    private BukkitTask objectiveReminder;
+//    private BukkitTask objectiveReminder;
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -65,7 +65,7 @@ public class PlayerData {
 
     public void saveData() {
         playerDataConfig.saveData(this);
-        objectiveReminder.cancel();
+//        objectiveReminder.cancel();
     }
 
     public boolean isInTutorial() {
@@ -96,20 +96,22 @@ public class PlayerData {
         }
 
         this.currentTutorialObjective = currentTutorialObjective;
-        if (objectiveReminder != null) {
-            objectiveReminder.cancel();
-        }
-        this.objectiveReminder = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!isInTutorial) {
-                    cancel();
-                    return;
-                }
-                String helperMessage = currentTutorialObjective.getHelperMessage();
-                getPlayer().sendMessage(StringUtils.colorString("&a&l[Objective Tip] &f" + helperMessage));
-            }
-        }.runTaskTimer(plugin, 0L, 2400L);
+//        if (objectiveReminder != null) {
+//            objectiveReminder.cancel();
+//        }
+
+        String helperMessage = currentTutorialObjective.getHelperMessage();
+        getPlayer().sendMessage(StringUtils.colorString("&a&l[Objective Tip] &f" + helperMessage));
+
+//        this.objectiveReminder = new BukkitRunnable() {
+//            @Override
+//            public void run() {
+//                if (!isInTutorial) {
+//                    cancel();
+//                    return;
+//                }
+//            }
+//        }.runTaskTimer(plugin, 0L, 2400L);
 
     }
 

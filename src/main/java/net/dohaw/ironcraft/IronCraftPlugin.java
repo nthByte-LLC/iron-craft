@@ -1,5 +1,12 @@
 package net.dohaw.ironcraft;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.events.PacketEvent;
 import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
@@ -44,10 +51,13 @@ public final class IronCraftPlugin extends JavaPlugin {
     private PlayerDataHandler playerDataHandler;
     private BaseConfig baseConfig;
 
+    private ProtocolManager protocolManager;
+
     @Override
     public void onEnable() {
 
         CoreLib.setInstance(this);
+        this.protocolManager = ProtocolLibrary.getProtocolManager();
 
         JPUtils.validateFiles("config.yml");
         JPUtils.validateFilesOrFolders(
@@ -75,6 +85,8 @@ public final class IronCraftPlugin extends JavaPlugin {
         // Reminder every 10 seconds
         new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
 
+        formPacketListeners();
+
     }
 
     @Override
@@ -82,6 +94,43 @@ public final class IronCraftPlugin extends JavaPlugin {
         baseConfig.saveChamberLocations(availableChamberLocations);
         baseConfig.saveSpawnLocations(journeySpawnPoints);
         playerDataHandler.saveAllData();
+    }
+
+    private void formPacketListeners(){
+
+        // Listener for when the player clicks on the recipe book in their inventory.
+        protocolManager.addPacketListener(
+            new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Client.RECIPE_SETTINGS) {
+                @Override
+                public void onPacketReceiving(PacketEvent event) {
+                    if (event.getPacketType() == PacketType.Play.Client.RECIPE_SETTINGS) {
+
+                        Player player = event.getPlayer();
+                        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+
+                        if(playerData != null){
+
+                            if (playerData.getCurrentTutorialObjective() == Objective.OPEN_RECIPE_MENU) {
+
+                                boolean isRecipeMenuOpen = event.getPacket().getBooleans().read(0);
+
+                                // Maggie will have multiple people on the same account. If 1 player leaves the recipe menu open, then it'll stay open for the next person.
+                                // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
+                                if(isRecipeMenuOpen){
+                                    playerData.setCurrentTutorialObjective((JavaPlugin) plugin, getNextObjective(Objective.OPEN_RECIPE_MENU));
+                                }else{
+                                    player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            });
+
     }
 
     private void loadConfigValues() {
@@ -153,6 +202,11 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     }
 
+    public Objective getNextObjective(Objective currentObjective) {
+        int ordinal = currentObjective.ordinal();
+        return Objective.values()[ordinal + 1];
+    }
+
     public List<Location> getJourneySpawnPoints() {
         return journeySpawnPoints;
     }
@@ -167,6 +221,10 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     public BaseConfig getBaseConfig(){
         return baseConfig;
+    }
+
+    public ProtocolManager getProtocolManager() {
+        return protocolManager;
     }
 
 }

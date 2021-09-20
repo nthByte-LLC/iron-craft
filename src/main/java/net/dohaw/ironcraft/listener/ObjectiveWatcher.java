@@ -4,7 +4,6 @@ import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
-import net.dohaw.ironcraft.menu.RecipeMenu;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.dohaw.ironcraft.prompt.RepeatTutorialPrompt;
 import org.bukkit.Bukkit;
@@ -18,7 +17,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -27,7 +25,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashSet;
 import java.util.UUID;
@@ -54,7 +51,7 @@ public class ObjectiveWatcher implements Listener {
             PlayerData playerData = getPlayerData(player);
             if (isOnObjective(playerData, Objective.COLLECT_WOOD) && e.getItem().getItemStack().getType() == Material.OAK_LOG) {
                 if (getCountItem(player.getInventory(), Material.OAK_LOG) >= 4) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.COLLECT_WOOD));
+                    playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(Objective.COLLECT_WOOD));
                 }
             }
 
@@ -71,7 +68,7 @@ public class ObjectiveWatcher implements Listener {
             if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == Objective.MOVE && !hasMovedForFirstTime.contains(player.getUniqueId())) {
                 hasMovedForFirstTime.add(player.getUniqueId());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.MOVE));
+                    playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(Objective.MOVE));
                     hasMovedForFirstTime.remove(player.getUniqueId());
                 }, 20L * 20);
             }
@@ -96,7 +93,7 @@ public class ObjectiveWatcher implements Listener {
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
         if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == Objective.PLACE_CRAFTING_TABLE && e.getBlockPlaced().getType() == Material.CRAFTING_TABLE) {
-            playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.PLACE_CRAFTING_TABLE));
+            playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(Objective.PLACE_CRAFTING_TABLE));
         }
 
     }
@@ -107,7 +104,7 @@ public class ObjectiveWatcher implements Listener {
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
         if (playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && e.getBlockPlaced().getType() == Material.TORCH) {
-            playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.PLACE_A_TORCH));
+            playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(Objective.PLACE_A_TORCH));
         }
 
     }
@@ -122,7 +119,7 @@ public class ObjectiveWatcher implements Listener {
             PlayerData playerData = getPlayerData(player);
             if (isOnObjective(playerData, Objective.COLLECT_STONE) && e.getItem().getItemStack().getType() == Material.COBBLESTONE) {
                 if (getCountItem(player.getInventory(), Material.COBBLESTONE) >= 15) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.COLLECT_STONE));
+                    playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(Objective.COLLECT_STONE));
                 }
             }
 
@@ -133,31 +130,32 @@ public class ObjectiveWatcher implements Listener {
     @EventHandler
     public void onPlayerAttemptOpenRecipeMenu(PlayerInteractEvent e) {
 
-        Action action = e.getAction();
-        if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
 
-            ItemStack item = e.getItem();
-            if (item != null && item.getType() == Material.PAPER) {
-
-                ItemMeta itemMeta = item.getItemMeta();
-                String colorLessDisplayName = StringUtils.removeChatColor(itemMeta.getDisplayName());
-                // I know checking via display name is dirty and should use PDC, but 1. i'm lazy and 2. It doesn't really matter much given the context
-                if (colorLessDisplayName.equalsIgnoreCase("Recipe Menu")) {
-
-                    Player player = e.getPlayer();
-                    RecipeMenu recipeMenu = new RecipeMenu(plugin);
-                    recipeMenu.initializeItems(player);
-                    recipeMenu.openInventory(player);
-
-                    PlayerData playerData = getPlayerData(player);
-                    if (isOnObjective(getPlayerData(player), Objective.OPEN_RECIPE_MENU)) {
-                        playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.OPEN_RECIPE_MENU));
-                    }
-
-                }
-
-            }
-        }
+//        Action action = e.getAction();
+//        if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
+//
+//            ItemStack item = e.getItem();
+//            if (item != null && item.getType() == Material.PAPER) {
+//
+//                ItemMeta itemMeta = item.getItemMeta();
+//                String colorLessDisplayName = StringUtils.removeChatColor(itemMeta.getDisplayName());
+//                // I know checking via display name is dirty and should use PDC, but 1. i'm lazy and 2. It doesn't really matter much given the context
+//                if (colorLessDisplayName.equalsIgnoreCase("Recipe Menu")) {
+//
+//                    Player player = e.getPlayer();
+//                    RecipeMenu recipeMenu = new RecipeMenu(plugin);
+//                    recipeMenu.initializeItems(player);
+//                    recipeMenu.openInventory(player);
+//
+//                    PlayerData playerData = getPlayerData(player);
+//                    if (isOnObjective(getPlayerData(player), Objective.OPEN_RECIPE_MENU)) {
+//                        playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.OPEN_RECIPE_MENU));
+//                    }
+//
+//                }
+//
+//            }
+//        }
 
 
     }
@@ -172,7 +170,7 @@ public class ObjectiveWatcher implements Listener {
             PlayerData playerData = getPlayerData(player);
             if (isOnObjective(playerData, Objective.COLLECT_IRON) && e.getItem().getItemStack().getType() == Material.IRON_ORE) {
                 if (getCountItem(player.getInventory(), Material.IRON_ORE) >= 3) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.COLLECT_IRON));
+                    playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(Objective.COLLECT_IRON));
                 }
             }
 
@@ -188,7 +186,7 @@ public class ObjectiveWatcher implements Listener {
         if (isOnObjective(playerData, Objective.SMELT_IRON) && e.getItemType() == Material.IRON_INGOT) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (getCountItem(player.getInventory(), Material.IRON_INGOT) + e.getItemAmount() >= 3) {
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(Objective.SMELT_IRON));
+                    playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(Objective.SMELT_IRON));
                 }
             }, 1);
         }
@@ -255,18 +253,13 @@ public class ObjectiveWatcher implements Listener {
                     // End of the tutorial. They have just crafted an iron pickaxe
                     concludeTutorial(player);
                 }else{
-                    playerData.setCurrentTutorialObjective(plugin, getNextObjective(objective));
+                    playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(objective));
                 }
 
             }
 
         }
 
-    }
-
-    private Objective getNextObjective(Objective currentObjective) {
-        int ordinal = currentObjective.ordinal();
-        return Objective.values()[ordinal + 1];
     }
 
     private PlayerData getPlayerData(Player player) {
