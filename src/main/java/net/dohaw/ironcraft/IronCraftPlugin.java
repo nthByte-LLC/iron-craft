@@ -5,7 +5,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
@@ -28,7 +27,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.*;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.util.*;
 
@@ -96,30 +98,32 @@ public final class IronCraftPlugin extends JavaPlugin {
         playerDataHandler.saveAllData();
     }
 
-    private void formPacketListeners(){
+    private void formPacketListeners() {
 
         // Listener for when the player clicks on the recipe book in their inventory.
         protocolManager.addPacketListener(
-            new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Client.RECIPE_SETTINGS) {
-                @Override
-                public void onPacketReceiving(PacketEvent event) {
-                    if (event.getPacketType() == PacketType.Play.Client.RECIPE_SETTINGS) {
+                new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Client.RECIPE_SETTINGS) {
+                    @Override
+                    public void onPacketReceiving(PacketEvent event) {
+                        if (event.getPacketType() == PacketType.Play.Client.RECIPE_SETTINGS) {
 
-                        Player player = event.getPlayer();
-                        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+                            Player player = event.getPlayer();
+                            PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
 
-                        if(playerData != null){
+                            if (playerData != null) {
 
-                            if (playerData.getCurrentTutorialObjective() == Objective.OPEN_RECIPE_MENU) {
+                                if (playerData.getCurrentTutorialObjective() == Objective.OPEN_RECIPE_MENU) {
 
-                                boolean isRecipeMenuOpen = event.getPacket().getBooleans().read(0);
+                                    boolean isRecipeMenuOpen = event.getPacket().getBooleans().read(0);
 
-                                // Maggie will have multiple people on the same account. If 1 player leaves the recipe menu open, then it'll stay open for the next person.
-                                // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
-                                if(isRecipeMenuOpen){
-                                    playerData.setCurrentTutorialObjective((JavaPlugin) plugin, getNextObjective(Objective.OPEN_RECIPE_MENU));
-                                }else{
-                                    player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
+                                    // Maggie will have multiple people on the same account. If 1 player leaves the recipe menu open, then it'll stay open for the next person.
+                                    // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
+                                    if (isRecipeMenuOpen) {
+                                        playerData.setCurrentTutorialObjective((JavaPlugin) plugin, getNextObjective(Objective.OPEN_RECIPE_MENU));
+                                    } else {
+                                        player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
+                                    }
+
                                 }
 
                             }
@@ -127,9 +131,7 @@ public final class IronCraftPlugin extends JavaPlugin {
                         }
 
                     }
-
-                }
-            });
+                });
 
     }
 
@@ -219,7 +221,7 @@ public final class IronCraftPlugin extends JavaPlugin {
         return playerDataHandler;
     }
 
-    public BaseConfig getBaseConfig(){
+    public BaseConfig getBaseConfig() {
         return baseConfig;
     }
 

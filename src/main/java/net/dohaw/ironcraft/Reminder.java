@@ -16,10 +16,10 @@ import java.util.List;
  */
 public class Reminder extends BukkitRunnable {
 
-    private final IronCraftPlugin plugin;
+    private IronCraftPlugin plugin;
 
     private int currentIndexReminder = 0;
-    private final List<String> REMINDERS = new ArrayList<String>(){{
+    private final List<String> REMINDERS = new ArrayList<String>() {{
         add("Press T to open chat so that you can read messages!");
         add("Use your number keys to switch between items!");
         add("Press E to open your inventory!");

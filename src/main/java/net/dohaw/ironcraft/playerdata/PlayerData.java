@@ -1,38 +1,27 @@
 package net.dohaw.ironcraft.playerdata;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.UUID;
 
 public class PlayerData {
 
     private SurveySession surveySession;
-
     private boolean isManager;
-
-    private final UUID uuid;
-
-    private final String providedID;
-
+    private UUID uuid;
+    private String providedID;
     private PlayerDataConfig playerDataConfig;
-
     private boolean isInTutorial;
-
     private Location chamberLocation;
-
     private Objective currentTutorialObjective;
-
-//    private BukkitTask objectiveReminder;
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;

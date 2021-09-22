@@ -14,9 +14,8 @@ import java.util.UUID;
 
 public class PlayerDataHandler {
 
-    private final IronCraftPlugin plugin;
-
-    private final Map<UUID, PlayerData> allPlayerData = new HashMap<>();
+    private IronCraftPlugin plugin;
+    private Map<UUID, PlayerData> allPlayerData = new HashMap<>();
 
     public PlayerDataHandler(IronCraftPlugin plugin) {
         this.plugin = plugin;

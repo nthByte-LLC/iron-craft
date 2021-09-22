@@ -31,10 +31,10 @@ import java.util.UUID;
 
 public class ObjectiveWatcher implements Listener {
 
-    private final HashSet<UUID> hasMovedForFirstTime = new HashSet<>();
+    private HashSet<UUID> hasMovedForFirstTime = new HashSet<>();
 
-    private final IronCraftPlugin plugin;
-    private final PlayerDataHandler playerDataHandler;
+    private IronCraftPlugin plugin;
+    private PlayerDataHandler playerDataHandler;
 
     public ObjectiveWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
@@ -249,10 +249,10 @@ public class ObjectiveWatcher implements Listener {
             Objective currentObjective = playerData.getCurrentTutorialObjective();
             if (playerData.isInTutorial() && currentObjective == objective && e.getRecipe().getResult().getType() == checkedMaterial) {
 
-                if(currentObjective == Objective.MAKE_IRON_PICKAXE){
+                if (currentObjective == Objective.MAKE_IRON_PICKAXE) {
                     // End of the tutorial. They have just crafted an iron pickaxe
                     concludeTutorial(player);
-                }else{
+                } else {
                     playerData.setCurrentTutorialObjective(plugin, plugin.getNextObjective(objective));
                 }
 
@@ -270,7 +270,7 @@ public class ObjectiveWatcher implements Listener {
         return playerData.isInTutorial() && playerData.getCurrentTutorialObjective() == objective;
     }
 
-    private void concludeTutorial(Player player){
+    private void concludeTutorial(Player player) {
 
         player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);

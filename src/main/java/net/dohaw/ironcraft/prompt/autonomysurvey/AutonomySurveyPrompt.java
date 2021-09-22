@@ -19,8 +19,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
         "Did you enjoy this task?",
         "Did you put a lot of effort into this task?",
         "Did you feel pressured while doing this task?",
-        "Did you feel that you have some choice about doing this task?",
-        "Did you like your manager?"
+        "Did you feel that you have some choice about doing this task?"
     );
 
     private final List<String> VALID_ANSWERS = Arrays.asList(
@@ -31,8 +30,8 @@ public class AutonomySurveyPrompt extends StringPrompt {
         "Extremely"
     );
 
-    private final String question;
-    private final PlayerDataHandler playerDataHandler;
+    private String question;
+    private PlayerDataHandler playerDataHandler;
 
     public AutonomySurveyPrompt(int questionIndex, PlayerDataHandler playerDataHandler) {
         this.playerDataHandler = playerDataHandler;
