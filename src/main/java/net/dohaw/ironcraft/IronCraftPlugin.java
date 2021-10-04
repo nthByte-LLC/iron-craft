@@ -9,7 +9,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.corelib.helpers.ItemStackHelper;
 import net.dohaw.ironcraft.config.BaseConfig;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.listener.ObjectiveWatcher;
@@ -25,14 +24,16 @@ import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Plugin for Max Planck Society.
@@ -78,6 +79,10 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         // Only useful if there are players on the server, and /plugman reload DiamondCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if(player.isConversing()){
+                player.kickPlayer("Please rejoin the server!");
+                continue;
+            }
             player.sendMessage("Please re-verify your ID!");
             ConversationFactory conversationFactory = new ConversationFactory(this);
             Conversation conversation = conversationFactory.withFirstPrompt(new IDPrompt(this)).withLocalEcho(false).buildConversation(player);
@@ -119,7 +124,7 @@ public final class IronCraftPlugin extends JavaPlugin {
                                     // Maggie will have multiple people on the same account. If 1 player leaves the recipe menu open, then it'll stay open for the next person.
                                     // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
                                     if (isRecipeMenuOpen) {
-                                        playerData.setCurrentTutorialObjective((JavaPlugin) plugin, getNextObjective(Objective.OPEN_RECIPE_MENU));
+                                        playerData.setCurrentTutorialObjective(getNextObjective(Objective.OPEN_RECIPE_MENU));
                                     } else {
                                         player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
                                     }
@@ -148,7 +153,7 @@ public final class IronCraftPlugin extends JavaPlugin {
     }
 
     public Location getRandomJourneySpawnPoint() {
-        //System.out.println("JOURNEY SPANW: " + journeySpawnPoints.toString());
+        System.out.println("SPAWN LOCATIONS: " + journeySpawnPoints);
         return journeySpawnPoints.get(new Random().nextInt(journeySpawnPoints.size()));
     }
 
@@ -185,23 +190,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     public void giveEssentialItems(Player player) {
         PlayerInventory inv = player.getInventory();
-        inv.addItem(createRecipeMenuPaper());
         inv.addItem(new ItemStack(Material.TORCH, 64));
-    }
-
-    private ItemStack createRecipeMenuPaper() {
-
-        ItemStack menuPaper = new ItemStack(Material.PAPER);
-        ItemMeta meta = menuPaper.getItemMeta();
-        meta.setDisplayName(StringUtils.colorString("&b&lRecipe Menu"));
-
-        List<String> lore = Arrays.asList(ChatColor.RED + "Right-click with me in hand to see the recipe menu!");
-        meta.setLore(lore);
-        menuPaper.setItemMeta(meta);
-
-        ItemStackHelper.addGlowToItem(menuPaper);
-        return menuPaper;
-
     }
 
     public Objective getNextObjective(Objective currentObjective) {
@@ -223,10 +212,6 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     public BaseConfig getBaseConfig() {
         return baseConfig;
-    }
-
-    public ProtocolManager getProtocolManager() {
-        return protocolManager;
     }
 
 }

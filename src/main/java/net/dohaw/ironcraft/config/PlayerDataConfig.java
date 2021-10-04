@@ -23,7 +23,7 @@ public class PlayerDataConfig extends Config {
         playerData.setIsManager(config.getBoolean("Is Manager"));
         playerData.setInTutorial(config.getBoolean("Is In Tutorial"));
         playerData.setChamberLocation(config.getLocation("Chamber Location"));
-        playerData.setCurrentTutorialObjective(plugin, Objective.valueOf(config.getString("Tutorial Objective")));
+        playerData.setCurrentTutorialObjective(Objective.valueOf(config.getString("Tutorial Objective")));
 
         return playerData;
     }

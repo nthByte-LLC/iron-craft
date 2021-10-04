@@ -2,6 +2,8 @@ package net.dohaw.ironcraft.prompt;
 
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.playerdata.PlayerData;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -28,7 +30,10 @@ public class IDPrompt extends StringPrompt {
         Player player = (Player) context.getForWhom();
 
         if (playerDataHandler.hasExistingPlayerData(providedID)) {
-            playerDataHandler.loadData(providedID);
+            PlayerData data = playerDataHandler.loadData(providedID);
+            // Delayed because data#sendObjectiveHelperMessage does not send a raw message.
+            // You can only send raw messages to the player if they are conversing. The player will not be conversing 2 ticks from now.
+            Bukkit.getScheduler().runTaskLater(plugin, data::sendObjectiveHelperMessage, 2);
         } else {
             boolean wasDataCreated = playerDataHandler.createData(player.getUniqueId(), providedID);
             if (!wasDataCreated) {
@@ -43,6 +48,7 @@ public class IDPrompt extends StringPrompt {
                     return null;
                 }
 
+                player.getInventory().clear();
                 plugin.giveEssentialItems(player);
                 player.teleport(randomChamberLocation);
                 playerDataHandler.getData(player.getUniqueId()).setChamberLocation(randomChamberLocation);

@@ -22,11 +22,7 @@ public class PlayerDataHandler {
         // Updates player's scoreboards every second
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (PlayerData data : allPlayerData.values()) {
-                if (data.isInTutorial()) {
-                    plugin.updateScoreboard(data.getPlayer());
-                } else {
-                    data.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-                }
+                plugin.updateScoreboard(data.getPlayer());
             }
         }, 0L, 20L);
     }
@@ -49,18 +45,19 @@ public class PlayerDataHandler {
         PlayerData playerData = new PlayerData(uuid, providedID);
         playerData.setPlayerDataConfig(new PlayerDataConfig(file.getName()));
         playerData.setInTutorial(true);
-        playerData.setCurrentTutorialObjective(plugin, Objective.MOVE);
+        playerData.setCurrentTutorialObjective(Objective.MOVE);
         allPlayerData.put(uuid, playerData);
 
         return hasFileBeenMade;
 
     }
 
-    public void loadData(String providedID) {
+    public PlayerData loadData(String providedID) {
         String fileName = providedID + ".yml";
         PlayerDataConfig playerDataConfig = new PlayerDataConfig(fileName);
         PlayerData pd = playerDataConfig.loadData();
         allPlayerData.put(pd.getUuid(), pd);
+        return pd;
     }
 
     public void saveData(UUID uuid) {

@@ -43,7 +43,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
                 player.sendRawMessage("Very well then! You will be teleported to a new training chamber shortly. Good luck!");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.getInventory().clear();
-                    playerData.setCurrentTutorialObjective(plugin, Objective.MOVE);
+                    playerData.setCurrentTutorialObjective(Objective.MOVE);
                     player.teleport(randomChamberLocation);
                 }, 20 * 3);
 
@@ -58,7 +58,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
                     return null;
                 }
 
-                player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
                 playerData.setInTutorial(false);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.getInventory().clear();

@@ -23,7 +23,6 @@ public class Reminder extends BukkitRunnable {
         add("Press T to open chat so that you can read messages!");
         add("Use your number keys to switch between items!");
         add("Press E to open your inventory!");
-        add("Right-Click with the Paper in your hand to see recipes!");
     }};
 
     public Reminder(IronCraftPlugin plugin) {
@@ -40,15 +39,8 @@ public class Reminder extends BukkitRunnable {
         for (Player player : Bukkit.getOnlinePlayers()) {
 
             PlayerData data = plugin.getPlayerDataHandler().getData(player.getUniqueId());
-            String message = null;
-            if (data != null && data.isInTutorial() && !player.isConversing()) {
-                message = "&b" + REMINDERS.get(currentIndexReminder);
-            } else if (data != null && !data.isInTutorial()) {
-                message = "&cYour manager is watching you!";
-            }
-
-            if (message != null) {
-                message = StringUtils.colorString(message);
+            if (data != null && !player.isConversing()) {
+                String message = StringUtils.colorString("&b" + REMINDERS.get(currentIndexReminder));
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
             }
 

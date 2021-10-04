@@ -77,7 +77,7 @@ public class PlayerData {
         return currentTutorialObjective;
     }
 
-    public void setCurrentTutorialObjective(JavaPlugin plugin, Objective currentTutorialObjective) {
+    public void setCurrentTutorialObjective(Objective currentTutorialObjective) {
 
         Player player = getPlayer();
         if (player != null) {
@@ -85,23 +85,15 @@ public class PlayerData {
         }
 
         this.currentTutorialObjective = currentTutorialObjective;
-//        if (objectiveReminder != null) {
-//            objectiveReminder.cancel();
-//        }
+        sendObjectiveHelperMessage();
 
+    }
+
+    public void sendObjectiveHelperMessage(){
+        Player player = getPlayer();
+        player.sendMessage(" ");
         String helperMessage = currentTutorialObjective.getHelperMessage();
-        getPlayer().sendMessage(StringUtils.colorString("&a&l[Objective Tip] &f" + helperMessage));
-
-//        this.objectiveReminder = new BukkitRunnable() {
-//            @Override
-//            public void run() {
-//                if (!isInTutorial) {
-//                    cancel();
-//                    return;
-//                }
-//            }
-//        }.runTaskTimer(plugin, 0L, 2400L);
-
+        player.sendMessage(StringUtils.colorString("&e[Objective Tip] &7" + helperMessage));
     }
 
     public SurveySession getSurveySession() {

@@ -124,15 +124,12 @@ public class PlayerWatcher implements Listener {
         Player player = e.getPlayer();
         Block blockMined = e.getBlock();
         if (blockMined.getType() == Material.DIAMOND_ORE) {
-            System.out.println("MINED DIAMOND");
             PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
             PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
             if (!playerData.isInTutorial()) {
-                System.out.println("IN TUTORIAL");
                 player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    System.out.println("RUNNABLE RAN");
                     player.getPersistentDataContainer().set(NamespacedKey.minecraft("is-answering-survey"), PersistentDataType.STRING, "marker");
                     Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, playerDataHandler)).withLocalEcho(false).buildConversation(player);
                     conv.begin();
