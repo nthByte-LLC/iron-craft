@@ -1,9 +1,9 @@
-package net.dohaw.diamondcraft.prompt;
+package net.dohaw.ironcraft.prompt;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.DiamondCraftPlugin;
-import net.dohaw.diamondcraft.TutorialObjective;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;
@@ -13,15 +13,15 @@ import org.bukkit.entity.Player;
 
 public class RepeatTutorialPrompt extends StringPrompt {
 
-    private final DiamondCraftPlugin plugin;
+    private IronCraftPlugin plugin;
 
-    public RepeatTutorialPrompt(DiamondCraftPlugin plugin) {
+    public RepeatTutorialPrompt(IronCraftPlugin plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public String getPromptText(ConversationContext context) {
-        return StringUtils.colorString("Would you like to do the tutorial again?\nPress \"T\" and type in &cno &fif you wish to go venture on your own and find diamonds.\nType &ayes &fif you want to do the tutorial again");
+        return StringUtils.colorString("Would you like to do the tutorial again?\nPress \"T\" and type in &cno &fif you wish to go venture on your own. \nType &ayes &fif you want to do the tutorial again");
     }
 
     @Override
@@ -43,13 +43,13 @@ public class RepeatTutorialPrompt extends StringPrompt {
                 player.sendRawMessage("Very well then! You will be teleported to a new training chamber shortly. Good luck!");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.getInventory().clear();
-                    playerData.setCurrentTutorialObjective(plugin, TutorialObjective.MOVE);
+                    playerData.setCurrentTutorialObjective(Objective.MOVE);
                     player.teleport(randomChamberLocation);
                 }, 20 * 3);
 
             } else if (input.equalsIgnoreCase("no")) {
 
-                player.sendRawMessage("Looks like you want to start your diamond mining journey. You will be teleported shortly. Good luck!");
+                player.sendRawMessage("Looks like you want to start your journey. You will be teleported shortly. Good luck!");
 
                 Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
                 if (randomSpawnPoint == null) {
@@ -58,7 +58,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
                     return null;
                 }
 
-                player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
                 playerData.setInTutorial(false);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.getInventory().clear();

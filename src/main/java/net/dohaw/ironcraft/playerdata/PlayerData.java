@@ -1,16 +1,14 @@
-package net.dohaw.diamondcraft.playerdata;
+package net.dohaw.ironcraft.playerdata;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.SurveySession;
-import net.dohaw.diamondcraft.TutorialObjective;
-import net.dohaw.diamondcraft.config.PlayerDataConfig;
+import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.SurveySession;
+import net.dohaw.ironcraft.config.PlayerDataConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,22 +18,13 @@ import java.util.UUID;
 public class PlayerData {
 
     private SurveySession surveySession;
-
     private boolean isManager;
-
-    private final UUID uuid;
-
-    private final String providedID;
-
+    private UUID uuid;
+    private String providedID;
     private PlayerDataConfig playerDataConfig;
-
     private boolean isInTutorial;
-
     private Location chamberLocation;
-
-    private TutorialObjective currentTutorialObjective;
-
-    private BukkitTask objectiveReminder;
+    private Objective currentTutorialObjective;
 
     /**
      * Stores a list of inventoryData.
@@ -73,7 +62,7 @@ public class PlayerData {
 
     public void saveData() {
         playerDataConfig.saveData(this);
-        objectiveReminder.cancel();
+//        objectiveReminder.cancel();
     }
 
     public boolean isInTutorial() {
@@ -92,11 +81,11 @@ public class PlayerData {
         this.chamberLocation = chamberLocation;
     }
 
-    public TutorialObjective getCurrentTutorialObjective() {
+    public Objective getCurrentTutorialObjective() {
         return currentTutorialObjective;
     }
 
-    public void setCurrentTutorialObjective(JavaPlugin plugin, TutorialObjective currentTutorialObjective) {
+    public void setCurrentTutorialObjective(Objective currentTutorialObjective) {
 
         Player player = getPlayer();
         if (player != null) {
@@ -104,21 +93,15 @@ public class PlayerData {
         }
 
         this.currentTutorialObjective = currentTutorialObjective;
-        if (objectiveReminder != null) {
-            objectiveReminder.cancel();
-        }
-        this.objectiveReminder = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!isInTutorial) {
-                    cancel();
-                    return;
-                }
-                String helperMessage = currentTutorialObjective.getHelperMessage();
-                getPlayer().sendMessage(StringUtils.colorString("&a&l[Objective Tip] &f" + helperMessage));
-            }
-        }.runTaskTimer(plugin, 0L, 2400L);
+        sendObjectiveHelperMessage();
 
+    }
+
+    public void sendObjectiveHelperMessage(){
+        Player player = getPlayer();
+        player.sendMessage(" ");
+        String helperMessage = currentTutorialObjective.getHelperMessage();
+        player.sendMessage(StringUtils.colorString("&e[Objective Tip] &7" + helperMessage));
     }
 
     public SurveySession getSurveySession() {

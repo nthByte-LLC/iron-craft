@@ -1,11 +1,11 @@
-package net.dohaw.diamondcraft.listener;
+package net.dohaw.ironcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.diamondcraft.DiamondCraftPlugin;
-import net.dohaw.diamondcraft.handler.PlayerDataHandler;
-import net.dohaw.diamondcraft.playerdata.PlayerData;
-import net.dohaw.diamondcraft.prompt.IDPrompt;
-import net.dohaw.diamondcraft.prompt.autonomysurvey.AutonomySurveyPrompt;
+import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.prompt.IDPrompt;
+import net.dohaw.ironcraft.prompt.autonomysurvey.AutonomySurveyPrompt;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -27,6 +27,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class PlayerWatcher implements Listener {
 
@@ -34,9 +35,9 @@ public class PlayerWatcher implements Listener {
             Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
     );
 
-    private final DiamondCraftPlugin plugin;
+    private IronCraftPlugin plugin;
 
-    public PlayerWatcher(DiamondCraftPlugin plugin) {
+    public PlayerWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -44,7 +45,8 @@ public class PlayerWatcher implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
 
         Player player = e.getPlayer();
-        player.sendTitle("Press T on Your Keyboard", "Input your ID in chat!", 5, 100, 20);
+        player.sendTitle("Input your ID", "Press T on your keyboard", 5, 100, 20);
+        //player.sendMessage("Once you press T, you should be allowed to type in chat and input your ID!");
 
         ConversationFactory conversationFactory = new ConversationFactory(plugin);
         Conversation conversation = conversationFactory.withFirstPrompt(new IDPrompt(plugin)).withLocalEcho(false).buildConversation(player);
@@ -54,8 +56,14 @@ public class PlayerWatcher implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
+
         Player player = e.getPlayer();
-        plugin.getPlayerDataHandler().saveData(player.getUniqueId());
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        UUID playerUUID = player.getUniqueId();
+        if (playerDataHandler.hasDataLoaded(playerUUID)) {
+            plugin.getPlayerDataHandler().saveData(playerUUID);
+        }
+
     }
 
     @EventHandler
@@ -88,10 +96,13 @@ public class PlayerWatcher implements Listener {
 
     @EventHandler
     public void onPlayerTakeDamage(EntityDamageEvent e) {
+
+        String applicableWorld = plugin.getBaseConfig().getWorld().getName();
         Entity entity = e.getEntity();
-        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase("d_crafting")) {
+        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld)) {
             e.setCancelled(true);
         }
+
     }
 
     // Doesn't let them move if they haven't answered the autonomy survey
@@ -99,9 +110,9 @@ public class PlayerWatcher implements Listener {
     public void onPlayerMoveDuringSurvey(PlayerMoveEvent e) {
         PersistentDataContainer pdc = e.getPlayer().getPersistentDataContainer();
         NamespacedKey key = NamespacedKey.minecraft("is-answering-survey");
-        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
-            e.setCancelled(true);
-        }
+//        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
+//            e.setCancelled(true);
+//        }
     }
 
     /*
@@ -116,7 +127,7 @@ public class PlayerWatcher implements Listener {
             PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
             PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
             if (!playerData.isInTutorial()) {
-                player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully mined a diamond!"));
+                player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.getPersistentDataContainer().set(NamespacedKey.minecraft("is-answering-survey"), PersistentDataType.STRING, "marker");

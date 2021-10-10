@@ -1,4 +1,4 @@
-package net.dohaw.diamondcraft.config;
+package net.dohaw.ironcraft.config;
 
 import net.dohaw.corelib.Config;
 import net.dohaw.corelib.serializers.LocationSerializer;
@@ -21,7 +21,17 @@ public class BaseConfig extends Config {
     }
 
     public List<Location> getChamberLocations() {
-        return (List<Location>) config.getList("Available Chamber Locations", new ArrayList<>());
+
+        List<String> strLocations = config.getStringList("Available Chamber Locations");
+        List<Location> locations = new ArrayList<>();
+
+        LocationSerializer ls = new LocationSerializer();
+        for(String strLocation : strLocations){
+            locations.add(ls.toLocation(strLocation));
+        }
+
+        return locations;
+
     }
 
     public List<Location> getSpawnLocations() {
@@ -34,17 +44,30 @@ public class BaseConfig extends Config {
             spawnLocations.add(locationSerializer.toLocation(strLocation));
         }
 
+        System.out.println("STR LOCATIONS: " + strLocations);
+        System.out.println("SPAWN LOCATIONS: " + spawnLocations);
+
         return spawnLocations;
 
     }
 
     public void saveChamberLocations(List<Location> chamberLocations) {
-        config.set("Available Chamber Locations", chamberLocations);
+        List<String> strLocations = new ArrayList<>();
+        LocationSerializer ls = new LocationSerializer();
+        for(Location loc : chamberLocations){
+            strLocations.add(ls.toString(loc));
+        }
+        config.set("Available Chamber Locations", strLocations);
         saveConfig();
     }
 
     public void saveSpawnLocations(List<Location> spawnLocations) {
-        config.set("Spawn Locations", spawnLocations);
+        List<String> strLocations = new ArrayList<>();
+        LocationSerializer ls = new LocationSerializer();
+        for(Location loc : spawnLocations){
+            strLocations.add(ls.toString(loc));
+        }
+        config.set("Spawn Locations", strLocations);
         saveConfig();
     }
 

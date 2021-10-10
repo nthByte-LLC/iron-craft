@@ -1,9 +1,14 @@
-name: DiamondCraft
+name: IronCraft
 version: ${project.version}
-main: net.dohaw.diamondcraft.DiamondCraftPlugin
+main: net.dohaw.ironcraft.IronCraftPlugin
 api-version: 1.16
+depend:
+  - ProtocolLib
 
 commands:
-  diamondcraft:
-    permission: diamondcraft.admin
+  ironcraft:
+    permission: ironcraft.admin
     description: "The base command for this plugin"
+    aliases:
+      - ic
+      - ironc

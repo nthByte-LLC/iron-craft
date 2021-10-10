@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.dohaw</groupId>
-    <artifactId>DiamondCraft</artifactId>
+    <artifactId>IronCraft</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>DiamondCraft</name>
+    <name>Iron Craft</name>
 
     <properties>
         <java.version>1.8</java.version>
@@ -18,6 +18,14 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <outputDirectory>D:\Minecraft Servers\1.17\plugins</outputDirectory>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -42,7 +50,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>net.dohaw.corelib</pattern>
-                                    <shadedPattern>reloc.dc.net.dohaw.corelib</shadedPattern>
+                                    <shadedPattern>reloc.ic.net.dohaw.corelib</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
@@ -67,13 +75,23 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>dmulloy2-repo</id>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
+            <groupId>com.comphenix.protocol</groupId>
+            <artifactId>ProtocolLib</artifactId>
+            <version>4.7.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <version>1.17.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -1,4 +1,4 @@
-package net.dohaw.diamondcraft;
+package net.dohaw.ironcraft;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -8,11 +8,11 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class DiamondCraftCommand implements CommandExecutor {
+public class IronCraftCommand implements CommandExecutor {
 
-    private final DiamondCraftPlugin plugin;
+    private IronCraftPlugin plugin;
 
-    public DiamondCraftCommand(DiamondCraftPlugin plugin) {
+    public IronCraftCommand(IronCraftPlugin plugin) {
         this.plugin = plugin;
     }
 
