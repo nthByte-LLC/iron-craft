@@ -10,7 +10,9 @@ import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.config.BaseConfig;
+import net.dohaw.ironcraft.data_collection.DataCollector;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.listener.ItemWatcher;
 import net.dohaw.ironcraft.listener.ObjectiveWatcher;
 import net.dohaw.ironcraft.listener.PlayerWatcher;
 import net.dohaw.ironcraft.playerdata.PlayerData;
@@ -21,6 +23,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -76,6 +79,7 @@ public final class IronCraftPlugin extends JavaPlugin {
         JPUtils.registerCommand("ironcraft", new IronCraftCommand(this));
         JPUtils.registerEvents(new PlayerWatcher(this));
         JPUtils.registerEvents(new ObjectiveWatcher(this));
+        JPUtils.registerEvents(new ItemWatcher(this));
 
         // Only useful if there are players on the server, and /plugman reload DiamondCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -91,6 +95,8 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         // Reminder every 10 seconds
         new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
+
+        new DataCollector(this). runTaskTimer(this, 0L, 1);
 
         formPacketListeners();
 

@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,11 @@ public class PlayerData {
      * Stores a list of inventoryData.
      */
      private List<Map<String, Integer>> inventoryDataList = new ArrayList<>();
+
+    /**
+     * Stores the gain order of items.
+     */
+    private List<Integer> gainOrder = new ArrayList<>();
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
