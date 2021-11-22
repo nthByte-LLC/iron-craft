@@ -6,6 +6,7 @@ import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -26,7 +27,7 @@ public class PlayerData {
     private Objective currentTutorialObjective;
 
     /**
-     * Stores a list of inventoryData.
+     * Stores a list of inventoryData. New data is stored every "step"
      */
      private List<Map<String, Integer>> inventoryDataList = new ArrayList<>();
 
@@ -34,6 +35,12 @@ public class PlayerData {
      * Stores the gain order of items.
      */
     private List<Integer> gainOrderList = new ArrayList<>();
+
+    private List<Boolean> isUselessToolCrafted = new ArrayList<Boolean>(){{
+        add(false);
+        add(false);
+        add(false);
+    }};
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -118,6 +125,10 @@ public class PlayerData {
 
     public void addInventoryData(Map<String, Integer> inventoryData) {
         this.inventoryDataList.add(inventoryData);
+    }
+
+    public List<Boolean> getIsUselessToolCrafted() {
+        return isUselessToolCrafted;
     }
 
 }
