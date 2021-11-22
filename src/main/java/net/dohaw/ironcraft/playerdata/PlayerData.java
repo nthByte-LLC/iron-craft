@@ -26,7 +26,7 @@ public class PlayerData {
     private Objective currentTutorialObjective;
 
     /**
-     * Stores a list of inventoryData.
+     * Stores a list of inventoryData. New data is stored every "step"
      */
      private List<Map<String, Integer>> inventoryDataList = new ArrayList<>();
 
