@@ -33,7 +33,7 @@ public class PlayerData {
     /**
      * Stores the gain order of items.
      */
-    private List<Integer> gainOrder = new ArrayList<>();
+    private List<Integer> gainOrderList = new ArrayList<>();
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;

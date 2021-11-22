@@ -83,7 +83,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         // Only useful if there are players on the server, and /plugman reload DiamondCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if(player.isConversing()){
+            if (player.isConversing()) {
                 player.kickPlayer("Please rejoin the server!");
                 continue;
             }
@@ -96,7 +96,8 @@ public final class IronCraftPlugin extends JavaPlugin {
         // Reminder every 10 seconds
         new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
 
-        new DataCollector(this). runTaskTimer(this, 0L, 1);
+        // collect data every tick
+        new DataCollector(this).runTaskTimer(this, 0L, 1);
 
         formPacketListeners();
 
@@ -186,7 +187,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
             objScore.setScore(counter);
 
-            counter++;
+            counter-=-1;
 
         }
 
