@@ -24,7 +24,6 @@ public class DataCollector extends BukkitRunnable {
         Material.IRON_INGOT,
         Material.IRON_ORE,
         Material.IRON_PICKAXE,
-        Material.OAK_LOG,
         "LOG",
         "PLANKS",
         Material.STICK,
