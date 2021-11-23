@@ -1,16 +1,17 @@
 package net.dohaw.ironcraft.data_collection;
 
-import com.sun.tools.javac.comp.Todo;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.playerdata.PlayerData;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Class which contains the functionality to collect certain data from players.
@@ -48,16 +49,14 @@ public class DataCollector extends BukkitRunnable {
 
     @Override
     public void run() {
-
         for (PlayerData data : this.ironCraftPlugin.getPlayerDataHandler().getAllPlayerData().values()) {
-            Player player = data.getPlayer();
-            if (player == null) {
+            // We only want to collect data for players that are playing the actual game, and aren't managers.
+            // Player would be null if the player isn't online.
+            if(data.isInTutorial() || data.isManager() || data.getPlayer() == null){
                 continue;
             }
             compileInventoryKeepingSequence(data);
-            compileGainOrder(data);
         }
-
     }
 
     /**
@@ -91,13 +90,13 @@ public class DataCollector extends BukkitRunnable {
 
         }
         playerData.addInventoryData(invData);
-    }
-
-    private void compileGainOrder(PlayerData playerData){
 
     }
 
-    private boolean isTrackedItem(ItemStack stack){
+    /**
+     * If the item is one of the 18 items we are keeping track of for data purposes.
+     */
+    public static boolean isTrackedItem(ItemStack stack){
         for(Object item : TRACKED_ITEMS){
             if(item instanceof Material){
                 Material mat = (Material) item;

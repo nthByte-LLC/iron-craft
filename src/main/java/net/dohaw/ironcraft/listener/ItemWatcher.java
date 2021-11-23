@@ -1,9 +1,12 @@
 package net.dohaw.ironcraft.listener;
 
 import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.data_collection.DataCollector;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,9 +25,27 @@ public class ItemWatcher implements Listener {
     @EventHandler
     void onPlayerPickup(EntityPickupItemEvent e) {
 
-        Player player;
-        if (e.getEntity() instanceof Player) {
-            player = (Player) e.getEntity();
+        LivingEntity entity = e.getEntity();
+        if(entity instanceof Player){
+            PlayerData data = plugin.getPlayerDataHandler().getData(entity.getUniqueId());
+            ItemStack item = e.getItem().getItemStack();
+            if(DataCollector.isTrackedItem(item) && !data.isInTutorial() && !data.isManager()){
+
+                String trackedItem = item.getType().toString().toLowerCase();
+                if(trackedItem.contains("log") ){
+                    trackedItem = "log";
+                }else if(trackedItem.contains("planks")){
+                    trackedItem = "planks";
+                }
+
+                int currentGainOrder = data.getGainOrderData().get(trackedItem);
+                if(currentGainOrder == 0){
+                    int nextGainIndex = data.getNextGainIndex();
+                    // Replaces the 0 with whatever the next gain index is.
+                    data.getGainOrderData().put(trackedItem, nextGainIndex);
+                }
+
+            }
         }
 
     }

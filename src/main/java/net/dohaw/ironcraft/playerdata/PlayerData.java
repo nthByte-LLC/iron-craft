@@ -44,7 +44,7 @@ public class PlayerData {
         this.uuid = uuid;
         // Compiles the gain order map with the items that are tracked with a default value of 0
         DataCollector.TRACKED_ITEMS.forEach(item -> {
-            gainOrderData.put(item.toString(), 0);
+            gainOrderData.put(item.toString().toLowerCase(), 0);
         });
     }
 
@@ -130,6 +130,20 @@ public class PlayerData {
 
     public List<Boolean> getIsUselessToolCrafted() {
         return isUselessToolCrafted;
+    }
+
+    public Map<String, Integer> getGainOrderData() {
+        return gainOrderData;
+    }
+
+    public int getNextGainIndex(){
+        int currentHighestGain = 0;
+        for(Integer num : gainOrderData.values()){
+            if(num > currentHighestGain){
+                currentHighestGain = num;
+            }
+        }
+        return currentHighestGain + 1;
     }
 
 }
