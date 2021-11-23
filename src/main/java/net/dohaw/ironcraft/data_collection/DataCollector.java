@@ -55,6 +55,7 @@ public class DataCollector extends BukkitRunnable {
             if(data.isInTutorial() || data.isManager() || data.getPlayer() == null){
                 continue;
             }
+            data.incrementCurrentStep();
             compileInventoryKeepingSequence(data);
         }
     }

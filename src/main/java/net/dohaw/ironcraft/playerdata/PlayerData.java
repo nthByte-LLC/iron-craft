@@ -24,19 +24,45 @@ public class PlayerData {
     private Objective currentTutorialObjective;
 
     /**
+     * A "step" is 0.05 seconds, or 50 ms. If currentStep = 2, then 100 ms have passed.
+     */
+    private int currentStep = 0;
+
+    /**
      * Stores a list of inventoryData. New data is stored every "step"
      */
      private List<TreeMap<String, Integer>> inventoryDataList = new ArrayList<>();
 
     /**
-     * Stores the gain order of items.
+     * The gain order of items.
+     * <br>
+     * <b>Example:</b>
+     * <br>
+     * <i>coal</i> -> 1
+     * <br>
+     * <i>crafting_table -> 5</i>
+     * <br><br>
+     * The coal was the first item gained. The crafting table was the 5th item gained.
+     * <br><br>
+     * K -> The Item
+     * <br>
+     * V -> The gain order index
      */
-    private Map<String, Integer> gainOrderData = new HashMap<>();
+    // I know this is supposed to be in a list form according to the document, but we can easily convert it to a list once we are ready to present the data to the algorithm via Map#values()
+    private Map<String, Integer> itemToGainIndex = new HashMap<>();
 
-    private List<Boolean> isUselessToolCrafted = new ArrayList<Boolean>(){{
-        add(false);
-        add(false);
-        add(false);
+    /**
+     * The time step at which an item was gained.
+     */
+    private Map<String, Integer> itemToTimeStepGained = new HashMap<>();
+
+    /**
+     * Whether an iron axe, stone axe, or wooden axe were crafted.
+     */
+    private Map<String, Boolean> isUselessToolCrafted = new HashMap<String, Boolean>(){{
+        put("iron_axe", false);
+        put("stone_axe", false);
+        put("wooden_axe", false);
     }};
 
     public PlayerData(UUID uuid, String providedID) {
@@ -44,7 +70,10 @@ public class PlayerData {
         this.uuid = uuid;
         // Compiles the gain order map with the items that are tracked with a default value of 0
         DataCollector.TRACKED_ITEMS.forEach(item -> {
-            gainOrderData.put(item.toString().toLowerCase(), 0);
+            itemToGainIndex.put(item.toString().toLowerCase(), 0);
+        });
+        DataCollector.TRACKED_ITEMS.forEach(item -> {
+            itemToTimeStepGained.put(item.toString().toLowerCase(), 0);
         });
     }
 
@@ -128,22 +157,34 @@ public class PlayerData {
         this.inventoryDataList.add(inventoryData);
     }
 
-    public List<Boolean> getIsUselessToolCrafted() {
+    public Map<String, Boolean> getIsUselessToolCrafted() {
         return isUselessToolCrafted;
     }
 
-    public Map<String, Integer> getGainOrderData() {
-        return gainOrderData;
+    public Map<String, Integer> getItemToGainIndex() {
+        return itemToGainIndex;
     }
 
     public int getNextGainIndex(){
         int currentHighestGain = 0;
-        for(Integer num : gainOrderData.values()){
+        for(Integer num : itemToGainIndex.values()){
             if(num > currentHighestGain){
                 currentHighestGain = num;
             }
         }
         return currentHighestGain + 1;
+    }
+
+    public void incrementCurrentStep(){
+        currentStep++;
+    }
+
+    public Map<String, Integer> getItemToTimeStepGained() {
+        return itemToTimeStepGained;
+    }
+
+    public int getCurrentStep() {
+        return currentStep;
     }
 
 }
