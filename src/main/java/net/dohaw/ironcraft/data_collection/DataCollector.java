@@ -2,7 +2,9 @@ package net.dohaw.ironcraft.data_collection;
 
 import com.sun.tools.javac.comp.Todo;
 import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -21,149 +23,120 @@ public class DataCollector extends BukkitRunnable {
     private IronCraftPlugin ironCraftPlugin;
 
     /**
-     * Contains all the different types of logs.
+     * All the items we are keeping track of/worried about.
      */
-    private Set<String> logs = new HashSet<String>() {{
-
-        add("acacia_log");
-        add("birch_log");
-        add("dark_oak_log");
-        add("jungle_log");
-        add("oak_log");
-        add("spruce_log");
+    public static final Set<Object> TRACKED_ITEMS = new HashSet<Object>(){{
+        add(Material.COAL);
+        add(Material.COBBLESTONE);
+        add(Material.CRAFTING_TABLE);
+        add(Material.DIRT);
+        add(Material.FURNACE);
+        add(Material.IRON_AXE);
+        add(Material.IRON_INGOT);
+        add(Material.IRON_ORE);
+        add(Material.IRON_PICKAXE);
+        add("LOG");
+        add("PLANKS");
+        add(Material.STICK);
+        add(Material.STONE);
+        add(Material.STONE_AXE);
+        add(Material.STONE_PICKAXE);
+        add(Material.TORCH);
+        add(Material.WOODEN_AXE);
+        add(Material.WOODEN_PICKAXE);
     }};
 
-    /**
-     * Contains all the different types of planks.
-     */
-    private Set<String> planks = new HashSet<String>() {{
-
-        add("acacia_planks");
-        add("birch_planks");
-        add("dark_oak_planks");
-        add("jungle_planks");
-        add("oak_planks");
-        add("spruce_planks");
-    }};
-
-    /**
-     * Initializes a new instance of this class.
-     *
-     * @param ironCraftPlugin an instance of the IronCraft plugin
-     */
-    public DataCollector(IronCraftPlugin ironCraftPlugin) {
-        this.ironCraftPlugin = ironCraftPlugin;
-    }
-
-    /**
-     * Runnable method that runs every tick to collect data from each player.
-     */
     @Override
     public void run() {
 
-        // contains 18 materials and their amount
-        Map<String, Integer> inventoryData = null;
-
-        // contains the gain order of each item
-/*
-        List<Integer> gainOrder = new ArrayList<>();
-*/
-
-        // loop through all the player uuids that have been assigned a chamber
-        for (UUID uuid : this.ironCraftPlugin.getPlayerDataHandler().getAllPlayerData().keySet()) {
-
-            // get the player
-            Player player = Bukkit.getPlayer(UUID.fromString(uuid.toString()));
-
+        for (PlayerData data : this.ironCraftPlugin.getPlayerDataHandler().getAllPlayerData().values()) {
+            Player player = data.getPlayer();
             if (player == null) {
                 continue;
             }
+            compileInventoryKeepingSequence(data);
+            compileGainOrder(data);
+        }
 
-            // get the player's inventory
-            Inventory inventory = player.getInventory();
+    }
 
-            // stores the order of the elements
-            int order = 0;
+    /**
+     * Compiles the inventory keeping sequence for this particular step.
+     */
+    private void compileInventoryKeepingSequence(PlayerData playerData){
 
-            // loop through the player's inventory
-            for (ItemStack itemStack : inventory.getContents()) {
+        Player player = playerData.getPlayer();
+        Inventory inventory = playerData.getPlayer().getInventory();
+        TreeMap<String, Integer> invData = new TreeMap<>();
+        for (ItemStack itemStack : inventory.getContents()) {
 
-                // initialize map of the required materials and set amount to 0
-                inventoryData = new TreeMap<String, Integer>() {{
-
-                    put("coal", 0);
-                    put("cobblestone", 0);
-                    put("crafting_table", 0);
-                    put("dirt", 0);
-                    put("furnace", 0);
-                    put("iron_axe", 0);
-                    put("iron_ingot", 0);
-                    put("iron_ore", 0);
-                    put("iron_pickaxe", 0);
-                    put("log", 0);
-                    put("planks", 0);
-                    put("stick", 0);
-                    put("stone", 0);
-                    put("stone_axe", 0);
-                    put("stone_pickaxe", 0);
-                    put("torch", 0);
-                    put("wooden_axe", 0);
-                    put("wooden_pickaxe", 0);
-                }};
-
-
-                if (itemStack == null) {
-                    continue;
-                }
-
-                // get the item in the player's inventory as a string and add it to the map if it exists as a key along
-                // with its amount
-                String materialInInventory = itemStack.getType().toString().toLowerCase(Locale.ROOT);
-
-                // all different types of logs and planks should be put in the general "log" and "planks" key.
-                // the number of items should be added to the current total.
-                if (logs.contains(materialInInventory)) {
-                    inventoryData.put("log", inventoryData.get("log") + itemStack.getAmount());
-                } else if (planks.contains(materialInInventory)) {
-                    inventoryData.put("planks", inventoryData.get("planks") + itemStack.getAmount());
-                } else if (inventoryData.containsKey(materialInInventory)) {
-                    inventoryData.put(materialInInventory, itemStack.getAmount());
-                }
-
-                /*// TODO SPECIAL CASE FOR PLANKS AND WOOD
-
-                // index of each item in inventoryData
-                int index = 0;
-
-                // loop through the inventoryData
-                for (Map.Entry<String, Integer> currentEntry : inventoryData.entrySet()) {
-
-                    // check for logs and planks first since they're a special case
-                    if (logs.contains(materialInInventory)) {
-                        if (gainOrder.get(9) == 0) {
-                            gainOrder.set(9, order);
-                            order-=-1;
-                        }
-                    } else if (planks.contains(materialInInventory)) {
-                        if (gainOrder.get(10) == 0) {
-                            gainOrder.set(10, order);
-                            order-=-1;
-                        }
-                    } else if (currentEntry.getKey().equals(materialInInventory)) {
-                        // mark down what order the item was gained in
-                        if (gainOrder.get(index) == 0) {
-                            gainOrder.set(index, order);
-                            order-=-1;
-                        }
-                    }
-                    index-=-1;
-                }*/
+            if (itemStack == null) {
+                continue;
+            }
+            if(!isTrackedItem(itemStack)){
+                continue;
             }
 
-            // add the inventoryData to the list in the PlayerData object.
-            this.ironCraftPlugin.getPlayerDataHandler().getData(uuid).addInventoryData(inventoryData);
-            // add the gain order to the gain order list
-            this.ironCraftPlugin.getPlayerDataHandler().getData(uuid).addInventoryData(null);
+            /*
+                There are multiple types of logs and planks in the game, so we have to get the total amount that they have among all the different types.
+             */
+            String itemName = itemStack.getType().toString().toLowerCase(Locale.ROOT);
+            if(itemName.contains("log")){
+                invData.put("log", getTotalItem(player, "log"));
+            }else if(itemName.contains("planks")){
+                invData.put("planks", getTotalItem(player, "planks"));
+            }else{
+                invData.put(itemName, getTotalItem(player, itemStack.getType()));
+            }
+
         }
+        playerData.addInventoryData(invData);
     }
+
+    private void compileGainOrder(PlayerData playerData){
+
+    }
+
+    private boolean isTrackedItem(ItemStack stack){
+        for(Object item : TRACKED_ITEMS){
+            if(item instanceof Material){
+                Material mat = (Material) item;
+                if(mat == stack.getType()){
+                    return true;
+                }
+            }else if(item instanceof String){
+                String keyWord = (String) item;
+                if(stack.getType().name().contains(keyWord.toUpperCase())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the total amount of an item
+     * @param player The player who's inventory we are checking
+     * @param item Can/should either be a Material or a String. If it's a String, it checks to see if the item material has the keyword.
+     */
+    private int getTotalItem(Player player, Object item){
+        int total = 0;
+        for (ItemStack stack : player.getInventory().getContents()) {
+            if(stack == null) continue;
+            if(item instanceof Material) {
+                Material mat = (Material) item;
+                if(stack.getType() == mat){
+                    total += stack.getAmount();
+                }
+            }else if(item instanceof String){
+                String keyword = (String) item;
+                if(stack.getType().toString().contains(keyword)){
+                    total += stack.getAmount();
+                }
+            }
+
+        }
+        return total;
+    }
+
 }

@@ -4,16 +4,13 @@ import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
+import net.dohaw.ironcraft.data_collection.DataCollector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerData {
 
@@ -29,12 +26,12 @@ public class PlayerData {
     /**
      * Stores a list of inventoryData. New data is stored every "step"
      */
-     private List<Map<String, Integer>> inventoryDataList = new ArrayList<>();
+     private List<TreeMap<String, Integer>> inventoryDataList = new ArrayList<>();
 
     /**
      * Stores the gain order of items.
      */
-    private List<Integer> gainOrderList = new ArrayList<>();
+    private Map<String, Integer> gainOrderData = new HashMap<>();
 
     private List<Boolean> isUselessToolCrafted = new ArrayList<Boolean>(){{
         add(false);
@@ -45,6 +42,10 @@ public class PlayerData {
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
+        // Compiles the gain order map with the items that are tracked with a default value of 0
+        DataCollector.TRACKED_ITEMS.forEach(item -> {
+            gainOrderData.put(item.toString(), 0);
+        });
     }
 
     public boolean isManager() {
@@ -123,7 +124,7 @@ public class PlayerData {
         this.surveySession = surveySession;
     }
 
-    public void addInventoryData(Map<String, Integer> inventoryData) {
+    public void addInventoryData(TreeMap<String, Integer> inventoryData) {
         this.inventoryDataList.add(inventoryData);
     }
 
