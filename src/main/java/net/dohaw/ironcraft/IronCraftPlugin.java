@@ -97,7 +97,7 @@ public final class IronCraftPlugin extends JavaPlugin {
         new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
 
         // collect data every tick
-        new DataCollector(this).runTaskTimer(this, 0L, 1);
+        new DataCollector().runTaskTimer(this, 0L, 1);
 
         formPacketListeners();
 
