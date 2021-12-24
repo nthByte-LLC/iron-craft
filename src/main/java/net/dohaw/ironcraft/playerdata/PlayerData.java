@@ -14,25 +14,12 @@ import java.util.*;
 
 public class PlayerData {
 
-    private SurveySession surveySession;
-    private boolean isManager;
-    private UUID uuid;
-    private String providedID;
-    private PlayerDataConfig playerDataConfig;
-    private boolean isInTutorial;
-    private Location chamberLocation;
-    private Objective currentTutorialObjective;
-
-    /**
-     * A "step" is 0.05 seconds, or 50 ms. If currentStep = 2, then 100 ms have passed.
-     */
-    private int currentStep = 0;
-
+    private final UUID uuid;
+    private final String providedID;
     /**
      * Stores a list of inventoryData. New data is stored every "step"
      */
-     private List<TreeMap<String, Integer>> inventoryDataList = new ArrayList<>();
-
+    private final List<TreeMap<String, Integer>> inventoryDataList = new ArrayList<>();
     /**
      * The gain order of items.
      * <br>
@@ -49,21 +36,38 @@ public class PlayerData {
      * V -> The gain order index
      */
     // I know this is supposed to be in a list form according to the document, but we can easily convert it to a list once we are ready to present the data to the algorithm via Map#values()
-    private Map<String, Integer> itemToGainIndex = new HashMap<>();
-
+    private final Map<String, Integer> itemToGainIndex = new HashMap<>();
     /**
      * The time step at which an item was gained.
      */
-    private Map<String, Integer> itemToTimeStepGained = new HashMap<>();
-
+    private final Map<String, Integer> itemToTimeStepGained = new HashMap<>();
     /**
      * Whether an iron axe, stone axe, or wooden axe were crafted.
      */
-    private Map<String, Boolean> isUselessToolCrafted = new HashMap<String, Boolean>(){{
-        put("iron_axe", false);
-        put("stone_axe", false);
-        put("wooden_axe", false);
-    }};
+    private final Map<String, Boolean> isUselessToolCrafted = new HashMap<String, Boolean>() {
+        private static final long serialVersionUID = 155837926307830916L;
+
+        {
+            put("iron_axe", false);
+            put("stone_axe", false);
+            put("wooden_axe", false);
+        }
+    };
+    private SurveySession surveySession;
+    private boolean isManager;
+    private PlayerDataConfig playerDataConfig;
+    private boolean isInTutorial;
+    private Location chamberLocation;
+    private Objective currentTutorialObjective;
+    /**
+     * A "step" is 0.05 seconds, or 50 ms. If currentStep == 2, then 100 ms have passed.
+     */
+    private int currentStep = 0;
+
+    /**
+     * Stores the number of times a player incorrectly uses a tool to break a block.
+     */
+    private int misuseActionSteps = 0;
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -72,9 +76,11 @@ public class PlayerData {
         DataCollector.TRACKED_ITEMS.forEach(item -> {
             itemToGainIndex.put(item.toString().toLowerCase(), 0);
         });
-        DataCollector.TRACKED_ITEMS.forEach(item -> {
-            itemToTimeStepGained.put(item.toString().toLowerCase(), 0);
-        });
+        DataCollector.TRACKED_ITEMS.forEach(item -> itemToTimeStepGained.put(item.toString().toLowerCase(), 0));
+    }
+
+    public void incMisuseActionSteps() {
+        misuseActionSteps++;
     }
 
     public boolean isManager() {
@@ -129,16 +135,14 @@ public class PlayerData {
     public void setCurrentTutorialObjective(Objective currentTutorialObjective) {
 
         Player player = getPlayer();
-        if (player != null) {
-            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
-        }
+        if (player != null) player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
 
         this.currentTutorialObjective = currentTutorialObjective;
         sendObjectiveHelperMessage();
 
     }
 
-    public void sendObjectiveHelperMessage(){
+    public void sendObjectiveHelperMessage() {
         Player player = getPlayer();
         player.sendMessage(" ");
         String helperMessage = currentTutorialObjective.getHelperMessage();
@@ -154,7 +158,7 @@ public class PlayerData {
     }
 
     public void addInventoryData(TreeMap<String, Integer> inventoryData) {
-        this.inventoryDataList.add(inventoryData);
+        inventoryDataList.add(inventoryData);
     }
 
     public Map<String, Boolean> getIsUselessToolCrafted() {
@@ -165,17 +169,13 @@ public class PlayerData {
         return itemToGainIndex;
     }
 
-    public int getNextGainIndex(){
+    public int getNextGainIndex() {
         int currentHighestGain = 0;
-        for(Integer num : itemToGainIndex.values()){
-            if(num > currentHighestGain){
-                currentHighestGain = num;
-            }
-        }
+        for (Integer num : itemToGainIndex.values()) if (num > currentHighestGain) currentHighestGain = num;
         return currentHighestGain + 1;
     }
 
-    public void incrementCurrentStep(){
+    public void incrementCurrentStep() {
         currentStep++;
     }
 

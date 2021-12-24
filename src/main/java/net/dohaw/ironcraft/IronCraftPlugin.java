@@ -23,7 +23,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -187,7 +186,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
             objScore.setScore(counter);
 
-            counter-=-1;
+            counter -= -1;
 
         }
 

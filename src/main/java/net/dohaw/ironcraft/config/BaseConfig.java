@@ -26,7 +26,7 @@ public class BaseConfig extends Config {
         List<Location> locations = new ArrayList<>();
 
         LocationSerializer ls = new LocationSerializer();
-        for(String strLocation : strLocations){
+        for (String strLocation : strLocations) {
             locations.add(ls.toLocation(strLocation));
         }
 
@@ -54,7 +54,7 @@ public class BaseConfig extends Config {
     public void saveChamberLocations(List<Location> chamberLocations) {
         List<String> strLocations = new ArrayList<>();
         LocationSerializer ls = new LocationSerializer();
-        for(Location loc : chamberLocations){
+        for (Location loc : chamberLocations) {
             strLocations.add(ls.toString(loc));
         }
         config.set("Available Chamber Locations", strLocations);
@@ -64,7 +64,7 @@ public class BaseConfig extends Config {
     public void saveSpawnLocations(List<Location> spawnLocations) {
         List<String> strLocations = new ArrayList<>();
         LocationSerializer ls = new LocationSerializer();
-        for(Location loc : spawnLocations){
+        for (Location loc : spawnLocations) {
             strLocations.add(ls.toString(loc));
         }
         config.set("Spawn Locations", strLocations);

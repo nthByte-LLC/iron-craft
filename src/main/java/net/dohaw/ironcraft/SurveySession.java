@@ -7,7 +7,7 @@ public class SurveySession {
 
     private int currentNumQuestion = 0;
 
-    private Map<String, String> questionsAndAnswers = new HashMap<>();
+    private final Map<String, String> questionsAndAnswers = new HashMap<>();
 
     public SurveySession() {
     }

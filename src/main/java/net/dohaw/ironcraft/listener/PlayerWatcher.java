@@ -27,6 +27,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerWatcher implements Listener {
@@ -35,10 +36,60 @@ public class PlayerWatcher implements Listener {
             Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
     );
 
-    private IronCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
     public PlayerWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    // Doesn't let them move if they haven't answered the autonomy survey
+    @EventHandler
+    public static void onPlayerMoveDuringSurvey(PlayerMoveEvent e) {
+        PersistentDataContainer pdc = e.getPlayer().getPersistentDataContainer();
+        NamespacedKey key = NamespacedKey.minecraft("is-answering-survey");
+//        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
+//            e.setCancelled(true);
+//        }
+    }
+
+    private static boolean hasMoved(Location to, Location from, boolean checkY) {
+        if (to != null) {
+            boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
+            if (!hasMovedHorizontally && checkY) return from.getY() != to.getY();
+            return hasMovedHorizontally;
+        }
+        return false;
+    }
+
+    /**
+     * Determines if a player uses the wrong tool (a wooden pickaxe) to dig iron ore.
+     *
+     * @param e Event of the player breaking a block
+     */
+    @EventHandler
+    public void onPlayerMineIronOre(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        Material block = e.getBlock().getType();
+        Material tool = Objects.requireNonNull(p.getItemInUse()).getType();
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
+
+        if (block == Material.IRON_ORE && tool == Material.WOODEN_PICKAXE) playerData.incMisuseActionSteps();
+    }
+
+    /**
+     * Determines if a player uses the wrong tool (a stone pickaxe) to dig a log.
+     *
+     * @param e Event of the player breaking a block
+     */
+    @EventHandler
+    public void onPlayerMineLog(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        Material block = e.getBlock().getType();
+        Material tool = Objects.requireNonNull(p.getItemInUse()).getType();
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
+
+        if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE)
+            playerData.incMisuseActionSteps();
     }
 
     @EventHandler
@@ -60,9 +111,7 @@ public class PlayerWatcher implements Listener {
         Player player = e.getPlayer();
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         UUID playerUUID = player.getUniqueId();
-        if (playerDataHandler.hasDataLoaded(playerUUID)) {
-            plugin.getPlayerDataHandler().saveData(playerUUID);
-        }
+        if (playerDataHandler.hasDataLoaded(playerUUID)) plugin.getPlayerDataHandler().saveData(playerUUID);
 
     }
 
@@ -89,9 +138,8 @@ public class PlayerWatcher implements Listener {
      */
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && hasMoved(e.getTo(), e.getFrom(), true)) {
+        if (!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && PlayerWatcher.hasMoved(e.getTo(), e.getFrom(), true))
             e.setCancelled(true);
-        }
     }
 
     @EventHandler
@@ -99,20 +147,9 @@ public class PlayerWatcher implements Listener {
 
         String applicableWorld = plugin.getBaseConfig().getWorld().getName();
         Entity entity = e.getEntity();
-        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld)) {
+        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld))
             e.setCancelled(true);
-        }
 
-    }
-
-    // Doesn't let them move if they haven't answered the autonomy survey
-    @EventHandler
-    public void onPlayerMoveDuringSurvey(PlayerMoveEvent e) {
-        PersistentDataContainer pdc = e.getPlayer().getPersistentDataContainer();
-        NamespacedKey key = NamespacedKey.minecraft("is-answering-survey");
-//        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
-//            e.setCancelled(true);
-//        }
     }
 
     /*
@@ -138,16 +175,4 @@ public class PlayerWatcher implements Listener {
         }
 
     }
-
-    public boolean hasMoved(Location to, Location from, boolean checkY) {
-        if (to != null) {
-            boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
-            if (!hasMovedHorizontally && checkY) {
-                return from.getY() != to.getY();
-            }
-            return hasMovedHorizontally;
-        }
-        return false;
-    }
-
 }
