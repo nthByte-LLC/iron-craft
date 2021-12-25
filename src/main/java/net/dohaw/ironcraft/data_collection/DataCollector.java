@@ -94,6 +94,17 @@ public class DataCollector extends BukkitRunnable {
 
     }
 
+    public static String itemToProperName(ItemStack stack){
+        String itemName = stack.getType().toString().toLowerCase(Locale.ROOT);
+        if(itemName.contains("log")){
+            return "log";
+        }else if(itemName.contains("planks")){
+            return "planks";
+        }else{
+            return itemName;
+        }
+    }
+
     /**
      * If the item is one of the 18 items we are keeping track of for data purposes.
      */

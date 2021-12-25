@@ -65,6 +65,8 @@ public class PlayerData {
         put("wooden_axe", false);
     }};
 
+    private Map<String, Integer> itemToTotalAmount = new HashMap<>();
+
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
@@ -74,6 +76,9 @@ public class PlayerData {
         });
         DataCollector.TRACKED_ITEMS.forEach(item -> {
             itemToTimeStepGained.put(item.toString().toLowerCase(), 0);
+        });
+        DataCollector.TRACKED_ITEMS.forEach(item -> {
+           itemToTotalAmount.put(item.toString().toLowerCase(), 0);
         });
     }
 
@@ -185,6 +190,10 @@ public class PlayerData {
 
     public int getCurrentStep() {
         return currentStep;
+    }
+
+    public Map<String, Integer> getItemToTotalAmount() {
+        return itemToTotalAmount;
     }
 
 }
