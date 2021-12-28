@@ -152,9 +152,6 @@ public class PlayerWatcher implements Listener {
 
     }
 
-    /*
-        Endgame
-     */
     @EventHandler
     public void onPlayerMineDiamond(BlockBreakEvent e) {
 

@@ -22,6 +22,7 @@ public class PlayerData {
     private boolean isInTutorial;
     private Location chamberLocation;
     private Objective currentTutorialObjective;
+    private int misuseActionSteps;
 
     /**
      * A "step" is 0.05 seconds, or 50 ms. If currentStep = 2, then 100 ms have passed.
@@ -196,4 +197,7 @@ public class PlayerData {
         return itemToTotalAmount;
     }
 
+    public void incMisuseActionSteps() {
+        this.misuseActionSteps++;
+    }
 }

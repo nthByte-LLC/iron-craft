@@ -117,7 +117,7 @@ public class DataCollector extends BukkitRunnable {
     /**
      * Gets the total amount of an item
      *
-     * @param player The player who's inventory we are checking
+     * @param player The player whose inventory we are checking
      * @param item   Can/should either be a Material or a String. If it's a String, it checks to see if the item material has the keyword.
      */
     private int getTotalItem(Player player, Object item) {
