@@ -103,6 +103,17 @@ public class DataCollector extends BukkitRunnable {
 
     }
 
+    public static String itemToProperName(ItemStack stack){
+        String itemName = stack.getType().toString().toLowerCase(Locale.ROOT);
+        if(itemName.contains("log")){
+            return "log";
+        }else if(itemName.contains("planks")){
+            return "planks";
+        }else{
+            return itemName;
+        }
+    }
+
     /**
      * Gets the total amount of an item
      *
