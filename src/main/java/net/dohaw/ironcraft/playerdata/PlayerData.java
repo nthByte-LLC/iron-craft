@@ -74,9 +74,14 @@ public class PlayerData {
     private Map<String, Integer> itemToTotalAmount = new HashMap<>();
 
     /**
-     * The amount of reward points the player has accumulated per step.
+     * The amount of reward points the player has accumulated (SPARSE) per step.
      */
     private List<Integer> sparseRewardSequence = new ArrayList<>();
+
+    /**
+     * The amount of reward points the player has accumulated (DENSE) per step.
+     */
+    private List<Integer> denseRewardSequence = new ArrayList<>();
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -221,6 +226,10 @@ public class PlayerData {
 
     public List<Integer> getSparseRewardSequence() {
         return sparseRewardSequence;
+    }
+
+    public List<Integer> getDenseRewardSequence() {
+        return denseRewardSequence;
     }
 
 }

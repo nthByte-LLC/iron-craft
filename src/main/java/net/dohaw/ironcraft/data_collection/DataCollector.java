@@ -36,6 +36,7 @@ public class DataCollector extends BukkitRunnable {
             data.incrementCurrentStep();
             compileInventoryKeepingSequence(data);
             compileSparseRewardSequence(data);
+            compileDenseRewardSequence(data);
         }
     }
 
@@ -60,12 +61,20 @@ public class DataCollector extends BukkitRunnable {
     }
 
     /**
-     * Compiles the sparse reward entry for this particular step.
+     * Compiles the sparse reward entry for this particular step (See Data Collection document for details).
      */
     private void compileSparseRewardSequence(PlayerData playerData){
 
         Player player = playerData.getPlayer();
         Inventory inventory = player.getInventory();
+
+        int rewardPointsGained = 0;
+        List<Integer> currentSparseRewardSequence = playerData.getSparseRewardSequence();
+        int previousStepRewardAmount = 0;
+        if(currentSparseRewardSequence.size() != 0){
+            previousStepRewardAmount = currentSparseRewardSequence.get(currentSparseRewardSequence.size() - 1);
+        }
+
         for(ItemStack stack : inventory.getContents()){
 
             if(stack == null || !DataCollectionUtil.isTrackedItem(stack)) continue;
@@ -74,16 +83,37 @@ public class DataCollector extends BukkitRunnable {
             // Has previously picked up this item before. We only want to accumulate the reward amount if we are picking up an item for the *first* time.
             if(playerData.hasPickedUpItem(stack)) continue;
 
-            List<Integer> currentSparseRewardSequence = playerData.getSparseRewardSequence();
-            int previousStepRewardAmount = 0;
-            if(currentSparseRewardSequence.size() != 0){
-                previousStepRewardAmount = currentSparseRewardSequence.get(currentSparseRewardSequence.size() - 1);
-            }
-
-            int rewardAmountGained = DataCollectionUtil.REWARD_MAPPINGS.get(properItemName);
-            currentSparseRewardSequence.add(previousStepRewardAmount + rewardAmountGained);
+            int stackRewardMapping = DataCollectionUtil.REWARD_MAPPINGS.get(properItemName);
+            rewardPointsGained += stackRewardMapping;
 
         }
+
+        currentSparseRewardSequence.add(previousStepRewardAmount + rewardPointsGained);
+
+    }
+
+    /**
+     * Compiles the dense reward entry for this particular step (See Data Collection document for details).
+     */
+    private void compileDenseRewardSequence(PlayerData playerData){
+
+        Player player = playerData.getPlayer();
+        Inventory inventory = player.getInventory();
+
+        int accumulatedRewardPoints = 0;
+        List<Integer> currentSparseRewardSequence = playerData.getDenseRewardSequence();
+
+        for(ItemStack stack : inventory.getContents()){
+
+            if(stack == null || !DataCollectionUtil.isTrackedItem(stack)) continue;
+
+            String properItemName = DataCollectionUtil.itemToProperName(stack);
+            int stackRewardMapping = DataCollectionUtil.REWARD_MAPPINGS.get(properItemName);
+            accumulatedRewardPoints += (stackRewardMapping * stack.getAmount());
+
+        }
+
+        currentSparseRewardSequence.add(accumulatedRewardPoints);
 
     }
 
@@ -108,6 +138,5 @@ public class DataCollector extends BukkitRunnable {
         }
         return total;
     }
-
 
 }
