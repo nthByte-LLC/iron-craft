@@ -1,8 +1,10 @@
 package net.dohaw.ironcraft.listener;
 
 import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import net.dohaw.ironcraft.data_collection.DataCollector;
 import net.dohaw.ironcraft.playerdata.PlayerData;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
@@ -28,7 +30,7 @@ public class ItemWatcher implements Listener {
         if (entity instanceof Player) {
             PlayerData data = plugin.getPlayerDataHandler().getData(entity.getUniqueId());
             ItemStack item = e.getItem().getItemStack();
-            if (DataCollector.isTrackedItem(item) && !data.isInTutorial() && !data.isManager()) {
+            if (DataCollectionUtil.isTrackedItem(item) && !data.isInTutorial() && !data.isManager()) {
                 dealWithGainData(data, item);
             }
         }
@@ -45,7 +47,7 @@ public class ItemWatcher implements Listener {
 
         ItemStack craftedItem = e.getRecipe().getResult();
         PlayerData data = plugin.getPlayerDataHandler().getData(entity.getUniqueId());
-        if (!data.isInTutorial() && !data.isManager() && DataCollector.isTrackedItem(craftedItem)) {
+        if (!data.isInTutorial() && !data.isManager() && DataCollectionUtil.isTrackedItem(craftedItem)) {
             dealWithGainData(data, craftedItem);
         }
 
@@ -75,19 +77,15 @@ public class ItemWatcher implements Listener {
 
     //TODO: Give it another name
     private void dealWithGainData(PlayerData data, ItemStack item) {
-        String trackedItemName = item.getType().toString().toLowerCase();
-        if (trackedItemName.contains("planks")) {
-            trackedItemName = "planks";
-        } else if (trackedItemName.contains("log")) {
-            trackedItemName = "log";
-        }
-
-        int currentGainIndex = data.getItemToGainIndex().get(trackedItemName);
+        String properItemName = DataCollectionUtil.itemToProperName(item);
+        int currentGainIndex = data.getItemToGainIndex().get(properItemName);
         if (currentGainIndex == 0) {
             int nextGainIndex = data.getNextGainIndex();
-            // Replaces the 0 with whatever the next gain index is.
-            data.getItemToGainIndex().put(trackedItemName, nextGainIndex);
-            data.getItemToTimeStepGained().put(trackedItemName, data.getCurrentStep());
+            data.getItemToTimeStepGained().put(properItemName, data.getCurrentStep());
+            // Dirty way of preventing a future issue with sparse rewards (Sparse and Dense Reward functionality rely on the contents of the gain index map contents.)
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                data.getItemToGainIndex().put(properItemName, nextGainIndex);
+            }, 20);
         }
     }
 
