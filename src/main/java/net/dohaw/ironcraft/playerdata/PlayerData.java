@@ -4,11 +4,13 @@ import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
+import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import net.dohaw.ironcraft.data_collection.DataCollector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -66,20 +68,28 @@ public class PlayerData {
         put("wooden_axe", false);
     }};
 
+    /**
+     * The item name and the total amount.
+     */
     private Map<String, Integer> itemToTotalAmount = new HashMap<>();
+
+    /**
+     * The amount of reward points the player has accumulated per step.
+     */
+    private List<Integer> sparseRewardSequence = new ArrayList<>();
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
         // Compiles the gain order map with the items that are tracked with a default value of 0
-        DataCollector.TRACKED_ITEMS.forEach(item -> {
+        DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
             itemToGainIndex.put(item.toString().toLowerCase(), 0);
         });
-        DataCollector.TRACKED_ITEMS.forEach(item -> {
+        DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
             itemToTimeStepGained.put(item.toString().toLowerCase(), 0);
         });
-        DataCollector.TRACKED_ITEMS.forEach(item -> {
-           itemToTotalAmount.put(item.toString().toLowerCase(), 0);
+        DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
+            itemToTotalAmount.put(item.toString().toLowerCase(), 0);
         });
     }
 
@@ -200,4 +210,17 @@ public class PlayerData {
     public void incMisuseActionSteps() {
         this.misuseActionSteps++;
     }
+
+    /**
+     * Whether the player has ever picked up this item before.
+     */
+    public boolean hasPickedUpItem(ItemStack stack){
+        String properItemName = DataCollectionUtil.itemToProperName(stack);
+        return itemToGainIndex.containsKey(properItemName);
+    }
+
+    public List<Integer> getSparseRewardSequence() {
+        return sparseRewardSequence;
+    }
+
 }
