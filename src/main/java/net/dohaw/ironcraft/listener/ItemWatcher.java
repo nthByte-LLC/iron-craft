@@ -2,7 +2,6 @@ package net.dohaw.ironcraft.listener;
 
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
-import net.dohaw.ironcraft.data_collection.DataCollector;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -81,7 +80,7 @@ public class ItemWatcher implements Listener {
         int currentGainIndex = data.getItemToGainIndex().get(properItemName);
         if (currentGainIndex == 0) {
             int nextGainIndex = data.getNextGainIndex();
-            data.getItemToTimeStepGained().put(properItemName, data.getCurrentStep());
+            data.getItemToTimeStepGained().put(properItemName, data.getDurationSteps());
             // Dirty way of preventing a future issue with sparse rewards (Sparse and Dense Reward functionality rely on the contents of the gain index map contents.)
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 data.getItemToGainIndex().put(properItemName, nextGainIndex);

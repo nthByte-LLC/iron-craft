@@ -29,7 +29,7 @@ public class PlayerData {
     /**
      * A "step" is 0.05 seconds, or 50 ms. If currentStep = 2, then 100 ms have passed.
      */
-    private int currentStep = 0;
+    private int durationSteps = 0;
 
     /**
      * Stores a list of inventoryData. New data is stored every "step"
@@ -93,7 +93,20 @@ public class PlayerData {
      */
     private int cameraMovingSteps = 0;
 
-    private Vector previousCameraDirection;
+    /**
+     * Each step we check to see if the player has moved, meaning if their location is different from last steps'. If so, this is increased.
+     */
+    private int moveSteps = 0;
+
+    /**
+     * The player's camera direction in the last step
+     */
+    private Vector previousStepCameraDirection;
+
+    /**
+     * The player's location in the last step
+     */
+    private Location previousStepLocation;
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -209,15 +222,15 @@ public class PlayerData {
     }
 
     public void incrementCurrentStep() {
-        currentStep++;
+        durationSteps++;
     }
 
     public Map<String, Integer> getItemToTimeStepGained() {
         return itemToTimeStepGained;
     }
 
-    public int getCurrentStep() {
-        return currentStep;
+    public int getDurationSteps() {
+        return durationSteps;
     }
 
     public Map<String, Integer> getItemToTotalAmount() {
@@ -236,6 +249,10 @@ public class PlayerData {
         this.cameraMovingSteps++;
     }
 
+    public void incrementMoveSteps(){
+        this.moveSteps++;
+    }
+
     /**
      * Whether the player has ever picked up this item before.
      */
@@ -245,7 +262,11 @@ public class PlayerData {
     }
 
     public double computeCameraMovingRatio(){
-        return cameraMovingSteps / (double) currentStep;
+        return cameraMovingSteps / (double) durationSteps;
+    }
+
+    public double computePositionMovingRatio(){
+        return moveSteps / (double) durationSteps;
     }
 
     public List<Integer> getSparseRewardSequence() {
@@ -256,16 +277,28 @@ public class PlayerData {
         return denseRewardSequence;
     }
 
-    public Vector getPreviousCameraDirection() {
-        return previousCameraDirection;
+    public Vector getPreviousStepCameraDirection() {
+        return previousStepCameraDirection;
     }
 
-    public void setPreviousCameraDirection(Vector previousCameraDirection) {
-        this.previousCameraDirection = previousCameraDirection;
+    public Location getPreviousStepLocation() {
+        return previousStepLocation;
+    }
+
+    public void setPreviousStepLocation(Location previousStepLocation) {
+        this.previousStepLocation = previousStepLocation;
+    }
+
+    public void setPreviousStepCameraDirection(Vector previousStepCameraDirection) {
+        this.previousStepCameraDirection = previousStepCameraDirection;
     }
 
     public boolean hasMovedCamera(Vector currentDirection){
-        return currentDirection.getX() == previousCameraDirection.getX() && currentDirection.getY() == previousCameraDirection.getY() && currentDirection.getZ() == previousCameraDirection.getZ();
+        return currentDirection.getX() == previousStepCameraDirection.getX() && currentDirection.getY() == previousStepCameraDirection.getY() && currentDirection.getZ() == previousStepCameraDirection.getZ();
+    }
+
+    public boolean hasMoved(Location currentLocation){
+        return previousStepLocation.equals(currentLocation);
     }
 
 }

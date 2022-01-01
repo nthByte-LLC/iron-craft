@@ -102,9 +102,9 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         Bukkit.getScheduler().runTaskTimer(this, () -> {
            for(Player player : Bukkit.getOnlinePlayers()){
-               System.out.println("DIRECTION: "  + player.getLocation().getDirection());
+               System.out.println("VELOCITY: "  + player.getVelocity());
            }
-        }, 0L, 20L);
+        }, 0L, 10L);
 
     }
 

@@ -2,6 +2,7 @@ package net.dohaw.ironcraft.data_collection;
 
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.playerdata.PlayerData;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -38,6 +39,7 @@ public class DataCollector extends BukkitRunnable {
             compileSparseRewardSequence(data);
             compileDenseRewardSequence(data);
             dealWithCameraInformation(data);
+            dealWithMovementInformation(data);
         }
     }
 
@@ -125,8 +127,8 @@ public class DataCollector extends BukkitRunnable {
 
         Player player = playerData.getPlayer();
         Vector currentDirection = player.getLocation().getDirection();
-        if(playerData.getPreviousCameraDirection() == null){
-            playerData.setPreviousCameraDirection(currentDirection);
+        if(playerData.getPreviousStepCameraDirection() == null){
+            playerData.setPreviousStepCameraDirection(currentDirection);
             playerData.incrementCameraMovementSteps();
             return;
         }
@@ -135,7 +137,28 @@ public class DataCollector extends BukkitRunnable {
             playerData.incrementCameraMovementSteps();
         }
 
-        playerData.setPreviousCameraDirection(currentDirection);
+        playerData.setPreviousStepCameraDirection(currentDirection);
+
+    }
+
+    /**
+     * Deals with everything involving movement steps.
+     */
+    private void dealWithMovementInformation(PlayerData playerData){
+
+        Player player = playerData.getPlayer();
+        Location currentLocation = player.getLocation();
+        if(playerData.getPreviousStepLocation() == null){
+            playerData.setPreviousStepLocation(currentLocation);
+            playerData.incrementMoveSteps();
+            return;
+        }
+
+        if(playerData.hasMoved(currentLocation)){
+            playerData.incrementMoveSteps();
+        }
+
+        playerData.setPreviousStepLocation(currentLocation);
 
     }
 
