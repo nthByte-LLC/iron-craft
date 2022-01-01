@@ -5,12 +5,12 @@ import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
-import net.dohaw.ironcraft.data_collection.DataCollector;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -82,6 +82,18 @@ public class PlayerData {
      * The amount of reward points the player has accumulated (DENSE) per step.
      */
     private List<Integer> denseRewardSequence = new ArrayList<>();
+
+    /**
+     * The number of times a player has attacked an entity
+     */
+    private int attackSteps = 0;
+
+    /**
+     * Each step we check to see if the player has moved their camera, meaning if their direction vector is different from last steps'. If so, this is increased.
+     */
+    private int cameraMovingSteps = 0;
+
+    private Vector previousCameraDirection;
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -216,6 +228,14 @@ public class PlayerData {
         this.misuseActionSteps++;
     }
 
+    public void incrementAttackSteps(){
+        this.attackSteps++;
+    }
+
+    public void incrementCameraMovementSteps(){
+        this.cameraMovingSteps++;
+    }
+
     /**
      * Whether the player has ever picked up this item before.
      */
@@ -224,12 +244,28 @@ public class PlayerData {
         return itemToGainIndex.containsKey(properItemName);
     }
 
+    public double computeCameraMovingRatio(){
+        return cameraMovingSteps / (double) currentStep;
+    }
+
     public List<Integer> getSparseRewardSequence() {
         return sparseRewardSequence;
     }
 
     public List<Integer> getDenseRewardSequence() {
         return denseRewardSequence;
+    }
+
+    public Vector getPreviousCameraDirection() {
+        return previousCameraDirection;
+    }
+
+    public void setPreviousCameraDirection(Vector previousCameraDirection) {
+        this.previousCameraDirection = previousCameraDirection;
+    }
+
+    public boolean hasMovedCamera(Vector currentDirection){
+        return currentDirection.getX() == previousCameraDirection.getX() && currentDirection.getY() == previousCameraDirection.getY() && currentDirection.getZ() == previousCameraDirection.getZ();
     }
 
 }

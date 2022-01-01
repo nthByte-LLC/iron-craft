@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.omg.CORBA.DATA_CONVERSION;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.TreeMap;
@@ -37,6 +37,7 @@ public class DataCollector extends BukkitRunnable {
             compileInventoryKeepingSequence(data);
             compileSparseRewardSequence(data);
             compileDenseRewardSequence(data);
+            dealWithCameraInformation(data);
         }
     }
 
@@ -114,6 +115,27 @@ public class DataCollector extends BukkitRunnable {
         }
 
         currentSparseRewardSequence.add(accumulatedRewardPoints);
+
+    }
+
+    /**
+     * Deals with everything involving camera information.
+     */
+    private void dealWithCameraInformation(PlayerData playerData){
+
+        Player player = playerData.getPlayer();
+        Vector currentDirection = player.getLocation().getDirection();
+        if(playerData.getPreviousCameraDirection() == null){
+            playerData.setPreviousCameraDirection(currentDirection);
+            playerData.incrementCameraMovementSteps();
+            return;
+        }
+
+        if(playerData.hasMovedCamera(currentDirection)){
+            playerData.incrementCameraMovementSteps();
+        }
+
+        playerData.setPreviousCameraDirection(currentDirection);
 
     }
 

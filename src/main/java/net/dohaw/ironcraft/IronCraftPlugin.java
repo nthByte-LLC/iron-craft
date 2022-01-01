@@ -100,6 +100,12 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         formPacketListeners();
 
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+           for(Player player : Bukkit.getOnlinePlayers()){
+               System.out.println("DIRECTION: "  + player.getLocation().getDirection());
+           }
+        }, 0L, 20L);
+
     }
 
     @Override

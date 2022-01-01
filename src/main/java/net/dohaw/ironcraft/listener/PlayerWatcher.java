@@ -14,10 +14,12 @@ import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -172,4 +174,26 @@ public class PlayerWatcher implements Listener {
         }
 
     }
+
+    /**
+     * Increments the attack steps if a player isn't in the tutorial and they attack something.
+     */
+    @EventHandler
+    public void onPlayerAttack(EntityDamageByEntityEvent e){
+
+        Entity eDamager = e.getDamager();
+        if(!(eDamager instanceof Player)){
+            return;
+        }
+
+        Player damager = (Player) eDamager;
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(damager.getUniqueId());
+        if(playerData.isInTutorial() || playerData.isManager()){
+            return;
+        }
+
+        playerData.incrementAttackSteps();
+
+    }
+
 }
