@@ -14,7 +14,6 @@ import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -190,6 +189,11 @@ public class PlayerWatcher implements Listener {
         PlayerData playerData = plugin.getPlayerDataHandler().getData(damager.getUniqueId());
         if(playerData.isInTutorial() || playerData.isManager()){
             return;
+        }
+
+        Material itemInHandType = damager.getInventory().getItemInMainHand().getType();
+        if(itemInHandType == Material.WOODEN_PICKAXE || itemInHandType == Material.STONE_PICKAXE){
+            playerData.incrementEquippedAttackSteps();
         }
 
         playerData.incrementAttackSteps();

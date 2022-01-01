@@ -69,9 +69,9 @@ public class PlayerData {
     }};
 
     /**
-     * The item name and the total amount.
+     * The item name and the accumulated amount.
      */
-    private Map<String, Integer> itemToTotalAmount = new HashMap<>();
+    private Map<String, Integer> itemToAccumulatedAmount = new HashMap<>();
 
     /**
      * The amount of reward points the player has accumulated (SPARSE) per step.
@@ -99,6 +99,11 @@ public class PlayerData {
     private int moveSteps = 0;
 
     /**
+     * The amount of times a player had a wooden or stone pickaxe equipped *and* they attacked.
+     */
+    private int equippedAttackSteps = 0;
+
+    /**
      * The player's camera direction in the last step
      */
     private Vector previousStepCameraDirection;
@@ -119,7 +124,7 @@ public class PlayerData {
             itemToTimeStepGained.put(item.toString().toLowerCase(), 0);
         });
         DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
-            itemToTotalAmount.put(item.toString().toLowerCase(), 0);
+            itemToAccumulatedAmount.put(item.toString().toLowerCase(), 0);
         });
     }
 
@@ -233,8 +238,8 @@ public class PlayerData {
         return durationSteps;
     }
 
-    public Map<String, Integer> getItemToTotalAmount() {
-        return itemToTotalAmount;
+    public Map<String, Integer> getItemToAccumulatedAmount() {
+        return itemToAccumulatedAmount;
     }
 
     public void incMisuseActionSteps() {
@@ -253,6 +258,10 @@ public class PlayerData {
         this.moveSteps++;
     }
 
+    public void incrementEquippedAttackSteps(){
+        this.equippedAttackSteps++;
+    }
+
     /**
      * Whether the player has ever picked up this item before.
      */
@@ -269,12 +278,36 @@ public class PlayerData {
         return moveSteps / (double) durationSteps;
     }
 
+    public double computeAttackRatio(){
+        return attackSteps / (double) durationSteps;
+    }
+
+    public double computeAttackEfficiency(){
+        return getTotalExcavableInventory() / (double) attackSteps;
+    }
+
+    public double computeEquippedAttackRatio(){
+        return equippedAttackSteps / (double) attackSteps;
+    }
+
+    private int getTotalExcavableInventory(){
+        return itemToAccumulatedAmount.get("log") + itemToAccumulatedAmount.get("cobblestone") + itemToAccumulatedAmount.get("raw_iron");
+    }
+
     public List<Integer> getSparseRewardSequence() {
         return sparseRewardSequence;
     }
 
     public List<Integer> getDenseRewardSequence() {
         return denseRewardSequence;
+    }
+
+    public int getSparseTotalReward(){
+        return sparseRewardSequence.get(sparseRewardSequence.size() - 1);
+    }
+
+    public int getDenseTotalReward(){
+        return denseRewardSequence.get(denseRewardSequence.size() - 1);
     }
 
     public Vector getPreviousStepCameraDirection() {

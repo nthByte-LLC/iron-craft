@@ -74,6 +74,7 @@ public class ItemWatcher implements Listener {
 
     }
 
+    // NOTE: This could pose problems in the future. If you run into any catostrophic issues. Look at this method.
     //TODO: Give it another name
     private void dealWithGainData(PlayerData data, ItemStack item) {
         String properItemName = DataCollectionUtil.itemToProperName(item);

@@ -7,9 +7,6 @@ import java.util.*;
 
 public class DataCollectionUtil {
 
-    /**
-     * All the items we are keeping track of/worried about.
-     */
     public static final Set<Object> TRACKED_ITEMS = new HashSet<Object>() {
         {
             add(Material.COAL);
@@ -19,7 +16,7 @@ public class DataCollectionUtil {
             add(Material.FURNACE);
             add(Material.IRON_AXE);
             add(Material.IRON_INGOT);
-            add(Material.IRON_ORE);
+            add(Material.RAW_IRON);
             add(Material.IRON_PICKAXE);
             add("LOG");
             add("PLANKS");
@@ -46,7 +43,7 @@ public class DataCollectionUtil {
             put("cobblestone", 16);
             put("furnace", 32);
             put("stone_pickaxe", 32);
-            put("iron_ore", 64);
+            put("raw_iron", 64);
             put("iron_ingot", 128);
             put("iron_pickaxe", 256);
         }
