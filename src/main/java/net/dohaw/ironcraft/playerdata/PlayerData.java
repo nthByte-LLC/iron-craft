@@ -320,51 +320,51 @@ public class PlayerData {
         hasSmeltedCoal = b;
     }
 
-    public void incrementAttackSteps(){
-        this.attackSteps++;
+    public void incrementAttackSteps() {
+        attackSteps++;
     }
 
-    public void incrementCameraMovementSteps(){
-        this.cameraMovingSteps++;
+    public void incrementCameraMovementSteps() {
+        cameraMovingSteps++;
     }
 
-    public void incrementMoveSteps(){
-        this.moveSteps++;
+    public void incrementMoveSteps() {
+        moveSteps++;
     }
 
-    public void incrementEquippedAttackSteps(){
-        this.equippedAttackSteps++;
+    public void incrementEquippedAttackSteps() {
+        equippedAttackSteps++;
     }
 
     /**
      * Whether the player has ever picked up this item before.
      */
-    public boolean hasPickedUpItem(ItemStack stack){
+    public boolean hasPickedUpItem(ItemStack stack) {
         String properItemName = DataCollectionUtil.itemToProperName(stack);
         return itemToGainIndex.containsKey(properItemName);
     }
 
-    public double computeCameraMovingRatio(){
+    public double computeCameraMovingRatio() {
         return cameraMovingSteps / (double) durationSteps;
     }
 
-    public double computePositionMovingRatio(){
+    public double computePositionMovingRatio() {
         return moveSteps / (double) durationSteps;
     }
 
-    public double computeAttackRatio(){
+    public double computeAttackRatio() {
         return attackSteps / (double) durationSteps;
     }
 
-    public double computeAttackEfficiency(){
+    public double computeAttackEfficiency() {
         return getTotalExcavableInventory() / (double) attackSteps;
     }
 
-    public double computeEquippedAttackRatio(){
+    public double computeEquippedAttackRatio() {
         return equippedAttackSteps / (double) attackSteps;
     }
 
-    private int getTotalExcavableInventory(){
+    private int getTotalExcavableInventory() {
         return itemToAccumulatedAmount.get("log") + itemToAccumulatedAmount.get("cobblestone") + itemToAccumulatedAmount.get("raw_iron");
     }
 
@@ -376,11 +376,11 @@ public class PlayerData {
         return denseRewardSequence;
     }
 
-    public int getSparseTotalReward(){
+    public int getSparseTotalReward() {
         return sparseRewardSequence.get(sparseRewardSequence.size() - 1);
     }
 
-    public int getDenseTotalReward(){
+    public int getDenseTotalReward() {
         return denseRewardSequence.get(denseRewardSequence.size() - 1);
     }
 
@@ -400,11 +400,11 @@ public class PlayerData {
         this.previousStepCameraDirection = previousStepCameraDirection;
     }
 
-    public boolean hasMovedCamera(Vector currentDirection){
+    public boolean hasMovedCamera(Vector currentDirection) {
         return currentDirection.getX() == previousStepCameraDirection.getX() && currentDirection.getY() == previousStepCameraDirection.getY() && currentDirection.getZ() == previousStepCameraDirection.getZ();
     }
 
-    public boolean hasMoved(Location currentLocation){
+    public boolean hasMoved(Location currentLocation) {
         return previousStepLocation.equals(currentLocation);
     }
 

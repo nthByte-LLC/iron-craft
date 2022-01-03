@@ -12,7 +12,7 @@ public class EndGameEvent extends Event {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
     private PlayerData playerData;
 
-    public EndGameEvent(PlayerData playerData){
+    public EndGameEvent(PlayerData playerData) {
         this.playerData = playerData;
     }
 

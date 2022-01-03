@@ -62,7 +62,7 @@ public final class IronCraftPlugin extends JavaPlugin {
     public void onEnable() {
 
         CoreLib.setInstance(this);
-        this.protocolManager = ProtocolLibrary.getProtocolManager();
+        protocolManager = ProtocolLibrary.getProtocolManager();
 
         JPUtils.validateFiles("config.yml");
         JPUtils.validateFilesOrFolders(
@@ -70,10 +70,10 @@ public final class IronCraftPlugin extends JavaPlugin {
                     put("player_data", getDataFolder());
                 }}, true
         );
-        this.baseConfig = new BaseConfig();
+        baseConfig = new BaseConfig();
         loadConfigValues();
 
-        this.playerDataHandler = new PlayerDataHandler(this);
+        playerDataHandler = new PlayerDataHandler(this);
 
         JPUtils.registerCommand("ironcraft", new IronCraftCommand(this));
         JPUtils.registerEvents(new PlayerWatcher(this));
@@ -101,9 +101,9 @@ public final class IronCraftPlugin extends JavaPlugin {
         formPacketListeners();
 
         Bukkit.getScheduler().runTaskTimer(this, () -> {
-           for(Player player : Bukkit.getOnlinePlayers()){
-               System.out.println("VELOCITY: "  + player.getVelocity());
-           }
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                System.out.println("VELOCITY: " + player.getVelocity());
+            }
         }, 0L, 10L);
 
     }
@@ -153,8 +153,8 @@ public final class IronCraftPlugin extends JavaPlugin {
     }
 
     private void loadConfigValues() {
-        this.availableChamberLocations = baseConfig.getChamberLocations();
-        this.journeySpawnPoints = baseConfig.getSpawnLocations();
+        availableChamberLocations = baseConfig.getChamberLocations();
+        journeySpawnPoints = baseConfig.getSpawnLocations();
     }
 
     public Location getRandomChamber() {

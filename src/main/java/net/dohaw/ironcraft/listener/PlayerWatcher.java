@@ -38,7 +38,7 @@ import java.util.UUID;
 public class PlayerWatcher implements Listener {
 
     private final List<Material> BREAKABLE_TUTORIAL_BLOCKS = Arrays.asList(Material.STONE, Material.OAK_LOG,
-        Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
+            Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
     );
 
     private final IronCraftPlugin plugin;
@@ -190,7 +190,7 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void EndGameEvent(EndGameEvent e) {
         PlayerData playerData = e.getPlayerData();
-        playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getCurrentStep());
+        playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getDurationSteps());
     }
 
     /**
@@ -254,26 +254,24 @@ public class PlayerWatcher implements Listener {
      * Increments the attack steps if a player isn't in the tutorial and they attack something.
      */
     @EventHandler
-    public void onPlayerAttack(EntityDamageByEntityEvent e){
+    public void onPlayerAttack(EntityDamageByEntityEvent e) {
 
         Entity eDamager = e.getDamager();
-        if(!(eDamager instanceof Player)){
+        if (!(eDamager instanceof Player)) {
             return;
         }
 
         Player damager = (Player) eDamager;
         PlayerData playerData = plugin.getPlayerDataHandler().getData(damager.getUniqueId());
-        if(playerData.isInTutorial() || playerData.isManager()){
+        if (playerData.isInTutorial() || playerData.isManager()) {
             return;
         }
 
         Material itemInHandType = damager.getInventory().getItemInMainHand().getType();
-        if(itemInHandType == Material.WOODEN_PICKAXE || itemInHandType == Material.STONE_PICKAXE){
+        if (itemInHandType == Material.WOODEN_PICKAXE || itemInHandType == Material.STONE_PICKAXE) {
             playerData.incrementEquippedAttackSteps();
         }
 
         playerData.incrementAttackSteps();
-
     }
-
 }
