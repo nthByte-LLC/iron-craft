@@ -1,6 +1,7 @@
 package net.dohaw.ironcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.ironcraft.EndGameEvent;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.playerdata.PlayerData;
@@ -18,7 +19,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -55,7 +59,9 @@ public class PlayerWatcher implements Listener {
     private static boolean hasMoved(Location to, Location from, boolean checkY) {
         if (to != null) {
             boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
-            if (!hasMovedHorizontally && checkY) return from.getY() != to.getY();
+            if (!hasMovedHorizontally && checkY) {
+                return from.getY() != to.getY();
+            }
             return hasMovedHorizontally;
         }
         return false;
@@ -73,7 +79,9 @@ public class PlayerWatcher implements Listener {
         Material tool = Objects.requireNonNull(p.getItemInUse()).getType();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
 
-        if (block == Material.IRON_ORE && tool == Material.WOODEN_PICKAXE) playerData.incMisuseActionSteps();
+        if (block == Material.IRON_ORE && tool == Material.WOODEN_PICKAXE) {
+            playerData.incrementMisuseActionSteps();
+        }
     }
 
     /**
@@ -88,8 +96,9 @@ public class PlayerWatcher implements Listener {
         Material tool = Objects.requireNonNull(p.getItemInUse()).getType();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
 
-        if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE)
-            playerData.incMisuseActionSteps();
+        if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE) {
+            playerData.incrementMisuseActionSteps();
+        }
     }
 
     @EventHandler
@@ -111,7 +120,9 @@ public class PlayerWatcher implements Listener {
         Player player = e.getPlayer();
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         UUID playerUUID = player.getUniqueId();
-        if (playerDataHandler.hasDataLoaded(playerUUID)) plugin.getPlayerDataHandler().saveData(playerUUID);
+        if (playerDataHandler.hasDataLoaded(playerUUID)) {
+            plugin.getPlayerDataHandler().saveData(playerUUID);
+        }
 
     }
 
@@ -138,8 +149,9 @@ public class PlayerWatcher implements Listener {
      */
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && PlayerWatcher.hasMoved(e.getTo(), e.getFrom(), true))
+        if (!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && PlayerWatcher.hasMoved(e.getTo(), e.getFrom(), true)) {
             e.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -147,8 +159,9 @@ public class PlayerWatcher implements Listener {
 
         String applicableWorld = plugin.getBaseConfig().getWorld().getName();
         Entity entity = e.getEntity();
-        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld))
+        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld)) {
             e.setCancelled(true);
+        }
 
     }
 
@@ -171,5 +184,68 @@ public class PlayerWatcher implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void EndGameEvent(EndGameEvent e) {
+        PlayerData playerData = e.getPlayerData();
+        playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getCurrentStep());
+    }
+
+    /**
+     * Keeps track of the items the player places.
+     *
+     * @param e The event
+     */
+    @EventHandler
+    public void onPlayerPlaceBlock(BlockPlaceEvent e) {
+
+        Player player = e.getPlayer();
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+
+        String type = null;
+
+        switch (e.getBlock().getType()) {
+            case TORCH:
+                type = "torch";
+                break;
+            case COBBLESTONE:
+                type = "cobblestone";
+                break;
+            case DIRT:
+                type = "dirt";
+                break;
+            case STONE:
+                type = "stone";
+                break;
+            default:
+                System.err.println("Unhandled block type: " + e.getBlock().getType());
+                return;
+        }
+
+        playerData.incrementPlacedItems(type);
+    }
+
+    /**
+     * Sets a boolean to true if the player smelts coal.
+     *
+     * @param e The event
+     */
+    @EventHandler
+    public void onPlayerSmelt(InventoryClickEvent e) {
+
+        Player player = e.getWhoClicked() instanceof Player ? (Player) e.getWhoClicked() : null;
+        if (player == null) return;
+
+        // check if the player has clicked on the ingredient slot holding iron ore
+        InventoryType.SlotType s = e.getSlotType();
+        if (!(player.getItemInUse().getType() == Material.IRON_ORE) && (s == InventoryType.SlotType.FUEL || s == InventoryType.SlotType.RESULT || s == InventoryType.SlotType.OUTSIDE || s == InventoryType.SlotType.CONTAINER)) {
+            return;
+        }
+
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+        playerData.setHasSmeltedCoal(true);
     }
 }

@@ -22,7 +22,12 @@ public class PlayerData {
     private boolean isInTutorial;
     private Location chamberLocation;
     private Objective currentTutorialObjective;
+
+    // Use in python model
+    private double equipmentMisuseRatio;
+    private ArrayList<Integer> placedItems;
     private int misuseActionSteps;
+    private boolean hasSmeltedCoal;
 
     /**
      * A "step" is 0.05 seconds, or 50 ms. If currentStep = 2, then 100 ms have passed.
@@ -32,7 +37,7 @@ public class PlayerData {
     /**
      * Stores a list of inventoryData. New data is stored every "step"
      */
-     private List<TreeMap<String, Integer>> inventoryDataList = new ArrayList<>();
+    private List<TreeMap<String, Integer>> inventoryDataList = new ArrayList<>();
 
     /**
      * The gain order of items.
@@ -60,7 +65,7 @@ public class PlayerData {
     /**
      * Whether an iron axe, stone axe, or wooden axe were crafted.
      */
-    private Map<String, Boolean> isUselessToolCrafted = new HashMap<String, Boolean>(){{
+    private Map<String, Boolean> isUselessToolCrafted = new HashMap<String, Boolean>() {{
         put("iron_axe", false);
         put("stone_axe", false);
         put("wooden_axe", false);
@@ -79,7 +84,7 @@ public class PlayerData {
             itemToTimeStepGained.put(item.toString().toLowerCase(), 0);
         });
         DataCollector.TRACKED_ITEMS.forEach(item -> {
-           itemToTotalAmount.put(item.toString().toLowerCase(), 0);
+            itemToTotalAmount.put(item.toString().toLowerCase(), 0);
         });
     }
 
@@ -160,7 +165,7 @@ public class PlayerData {
     }
 
     public void addInventoryData(TreeMap<String, Integer> inventoryData) {
-        this.inventoryDataList.add(inventoryData);
+        inventoryDataList.add(inventoryData);
     }
 
     public Map<String, Boolean> getIsUselessToolCrafted() {
@@ -173,8 +178,8 @@ public class PlayerData {
 
     public int getNextGainIndex() {
         int currentHighestGain = 0;
-        for(Integer num : itemToGainIndex.values()){
-            if(num > currentHighestGain){
+        for (Integer num : itemToGainIndex.values()) {
+            if (num > currentHighestGain) {
                 currentHighestGain = num;
             }
         }
@@ -197,7 +202,76 @@ public class PlayerData {
         return itemToTotalAmount;
     }
 
-    public void incMisuseActionSteps() {
-        this.misuseActionSteps++;
+    /**
+     * Increments the amount of times the player has misused a tool.
+     */
+    public void incrementMisuseActionSteps() {
+        misuseActionSteps++;
+    }
+
+    /**
+     * Gets the amount of times the player has misused a tool.
+     *
+     * @return the amount of times the player has misused a tool
+     */
+    public int getMisuseActionSteps() {
+        return misuseActionSteps;
+    }
+
+    /**
+     * Sets the equipment misuse ratio to the given value.
+     *
+     * @param equipmentMisuseRatio The new equipment misuse ratio
+     */
+    public void setEquipmentMisuseRatio(double equipmentMisuseRatio) {
+        this.equipmentMisuseRatio = equipmentMisuseRatio;
+    }
+
+    /**
+     * Adds the given item to the total amount of the item.
+     *
+     * @param itemName The name of the item to add
+     */
+    public void incrementPlacedItems(String itemName) {
+
+        int index;
+
+        switch (itemName) {
+            case "torch":
+                index = 0;
+                break;
+            case "cobblestone":
+                index = 1;
+                break;
+            case "dirt":
+                index = 2;
+                break;
+            case "stone":
+                index = 3;
+                break;
+            default:
+                System.err.println("[PlayerData] updatePlacedItems() - Invalid item name: " + itemName);
+                return;
+        }
+
+        int previousAmount = placedItems.get(index);
+        placedItems.add(index, previousAmount + 1);
+    }
+
+    /**
+     * Gets the amount of times the player has placed the given item.
+     *
+     * @return the amount of times the player has placed the given item
+     */
+    public ArrayList<Integer> getPlacedItems() {
+        return placedItems;
+    }
+
+    public boolean hasSmeltedCoal() {
+        return hasSmeltedCoal;
+    }
+
+    public void setHasSmeltedCoal(boolean b) {
+        hasSmeltedCoal = b;
     }
 }
