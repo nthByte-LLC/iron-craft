@@ -205,7 +205,7 @@ public class PlayerWatcher implements Listener {
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
 
-        String type = null;
+        String type;
 
         switch (e.getBlock().getType()) {
             case TORCH:
