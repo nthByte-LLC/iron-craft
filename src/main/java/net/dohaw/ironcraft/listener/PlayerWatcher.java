@@ -20,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -37,7 +38,7 @@ import java.util.UUID;
 public class PlayerWatcher implements Listener {
 
     private final List<Material> BREAKABLE_TUTORIAL_BLOCKS = Arrays.asList(Material.STONE, Material.OAK_LOG,
-            Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
+        Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
     );
 
     private final IronCraftPlugin plugin;
@@ -248,4 +249,31 @@ public class PlayerWatcher implements Listener {
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
         playerData.setHasSmeltedCoal(true);
     }
+
+    /**
+     * Increments the attack steps if a player isn't in the tutorial and they attack something.
+     */
+    @EventHandler
+    public void onPlayerAttack(EntityDamageByEntityEvent e){
+
+        Entity eDamager = e.getDamager();
+        if(!(eDamager instanceof Player)){
+            return;
+        }
+
+        Player damager = (Player) eDamager;
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(damager.getUniqueId());
+        if(playerData.isInTutorial() || playerData.isManager()){
+            return;
+        }
+
+        Material itemInHandType = damager.getInventory().getItemInMainHand().getType();
+        if(itemInHandType == Material.WOODEN_PICKAXE || itemInHandType == Material.STONE_PICKAXE){
+            playerData.incrementEquippedAttackSteps();
+        }
+
+        playerData.incrementAttackSteps();
+
+    }
+
 }

@@ -4,11 +4,13 @@ import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
-import net.dohaw.ironcraft.data_collection.DataCollector;
+import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -32,7 +34,7 @@ public class PlayerData {
     /**
      * A "step" is 0.05 seconds, or 50 ms. If currentStep = 2, then 100 ms have passed.
      */
-    private int currentStep = 0;
+    private int durationSteps = 0;
 
     /**
      * Stores a list of inventoryData. New data is stored every "step"
@@ -71,20 +73,63 @@ public class PlayerData {
         put("wooden_axe", false);
     }};
 
-    private Map<String, Integer> itemToTotalAmount = new HashMap<>();
+    /**
+     * The item name and the accumulated amount.
+     */
+    private Map<String, Integer> itemToAccumulatedAmount = new HashMap<>();
+
+    /**
+     * The amount of reward points the player has accumulated (SPARSE) per step.
+     */
+    private List<Integer> sparseRewardSequence = new ArrayList<>();
+
+    /**
+     * The amount of reward points the player has accumulated (DENSE) per step.
+     */
+    private List<Integer> denseRewardSequence = new ArrayList<>();
+
+    /**
+     * The number of times a player has attacked an entity
+     */
+    private int attackSteps = 0;
+
+    /**
+     * Each step we check to see if the player has moved their camera, meaning if their direction vector is different from last steps'. If so, this is increased.
+     */
+    private int cameraMovingSteps = 0;
+
+    /**
+     * Each step we check to see if the player has moved, meaning if their location is different from last steps'. If so, this is increased.
+     */
+    private int moveSteps = 0;
+
+    /**
+     * The amount of times a player had a wooden or stone pickaxe equipped *and* they attacked.
+     */
+    private int equippedAttackSteps = 0;
+
+    /**
+     * The player's camera direction in the last step
+     */
+    private Vector previousStepCameraDirection;
+
+    /**
+     * The player's location in the last step
+     */
+    private Location previousStepLocation;
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
         // Compiles the gain order map with the items that are tracked with a default value of 0
-        DataCollector.TRACKED_ITEMS.forEach(item -> {
+        DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
             itemToGainIndex.put(item.toString().toLowerCase(), 0);
         });
-        DataCollector.TRACKED_ITEMS.forEach(item -> {
+        DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
             itemToTimeStepGained.put(item.toString().toLowerCase(), 0);
         });
-        DataCollector.TRACKED_ITEMS.forEach(item -> {
-            itemToTotalAmount.put(item.toString().toLowerCase(), 0);
+        DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
+            itemToAccumulatedAmount.put(item.toString().toLowerCase(), 0);
         });
     }
 
@@ -187,19 +232,19 @@ public class PlayerData {
     }
 
     public void incrementCurrentStep() {
-        currentStep++;
+        durationSteps++;
     }
 
     public Map<String, Integer> getItemToTimeStepGained() {
         return itemToTimeStepGained;
     }
 
-    public int getCurrentStep() {
-        return currentStep;
+    public int getDurationSteps() {
+        return durationSteps;
     }
 
-    public Map<String, Integer> getItemToTotalAmount() {
-        return itemToTotalAmount;
+    public Map<String, Integer> getItemToAccumulatedAmount() {
+        return itemToAccumulatedAmount;
     }
 
     /**
@@ -274,4 +319,93 @@ public class PlayerData {
     public void setHasSmeltedCoal(boolean b) {
         hasSmeltedCoal = b;
     }
+
+    public void incrementAttackSteps(){
+        this.attackSteps++;
+    }
+
+    public void incrementCameraMovementSteps(){
+        this.cameraMovingSteps++;
+    }
+
+    public void incrementMoveSteps(){
+        this.moveSteps++;
+    }
+
+    public void incrementEquippedAttackSteps(){
+        this.equippedAttackSteps++;
+    }
+
+    /**
+     * Whether the player has ever picked up this item before.
+     */
+    public boolean hasPickedUpItem(ItemStack stack){
+        String properItemName = DataCollectionUtil.itemToProperName(stack);
+        return itemToGainIndex.containsKey(properItemName);
+    }
+
+    public double computeCameraMovingRatio(){
+        return cameraMovingSteps / (double) durationSteps;
+    }
+
+    public double computePositionMovingRatio(){
+        return moveSteps / (double) durationSteps;
+    }
+
+    public double computeAttackRatio(){
+        return attackSteps / (double) durationSteps;
+    }
+
+    public double computeAttackEfficiency(){
+        return getTotalExcavableInventory() / (double) attackSteps;
+    }
+
+    public double computeEquippedAttackRatio(){
+        return equippedAttackSteps / (double) attackSteps;
+    }
+
+    private int getTotalExcavableInventory(){
+        return itemToAccumulatedAmount.get("log") + itemToAccumulatedAmount.get("cobblestone") + itemToAccumulatedAmount.get("raw_iron");
+    }
+
+    public List<Integer> getSparseRewardSequence() {
+        return sparseRewardSequence;
+    }
+
+    public List<Integer> getDenseRewardSequence() {
+        return denseRewardSequence;
+    }
+
+    public int getSparseTotalReward(){
+        return sparseRewardSequence.get(sparseRewardSequence.size() - 1);
+    }
+
+    public int getDenseTotalReward(){
+        return denseRewardSequence.get(denseRewardSequence.size() - 1);
+    }
+
+    public Vector getPreviousStepCameraDirection() {
+        return previousStepCameraDirection;
+    }
+
+    public Location getPreviousStepLocation() {
+        return previousStepLocation;
+    }
+
+    public void setPreviousStepLocation(Location previousStepLocation) {
+        this.previousStepLocation = previousStepLocation;
+    }
+
+    public void setPreviousStepCameraDirection(Vector previousStepCameraDirection) {
+        this.previousStepCameraDirection = previousStepCameraDirection;
+    }
+
+    public boolean hasMovedCamera(Vector currentDirection){
+        return currentDirection.getX() == previousStepCameraDirection.getX() && currentDirection.getY() == previousStepCameraDirection.getY() && currentDirection.getZ() == previousStepCameraDirection.getZ();
+    }
+
+    public boolean hasMoved(Location currentLocation){
+        return previousStepLocation.equals(currentLocation);
+    }
+
 }
