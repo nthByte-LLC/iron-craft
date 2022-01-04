@@ -190,7 +190,7 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void EndGameEvent(EndGameEvent e) {
         PlayerData playerData = e.getPlayerData();
-        playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getCurrentStep());
+        playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getDurationSteps());
     }
 
     /**

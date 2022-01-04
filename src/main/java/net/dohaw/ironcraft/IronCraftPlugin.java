@@ -40,6 +40,7 @@ import java.util.Random;
 /**
  * Plugin for Max Planck Society.
  * Teaches people to obtain an iron pickaxe.
+ * @author Caleb Owens, Ayush Chivate
  */
 public final class IronCraftPlugin extends JavaPlugin {
 
@@ -99,12 +100,6 @@ public final class IronCraftPlugin extends JavaPlugin {
         new DataCollector(this).runTaskTimer(this, 0L, 1);
 
         formPacketListeners();
-
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
-           for(Player player : Bukkit.getOnlinePlayers()){
-               System.out.println("VELOCITY: "  + player.getVelocity());
-           }
-        }, 0L, 10L);
 
     }
 
