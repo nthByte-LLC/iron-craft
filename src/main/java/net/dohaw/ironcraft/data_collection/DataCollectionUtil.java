@@ -33,7 +33,7 @@ public class DataCollectionUtil {
     /**
      * The item mapped to it's reward amount.
      */
-    public static final Map<String, Integer> REWARD_MAPPINGS = new HashMap<String, Integer>(){
+    public static final Map<String, Integer> REWARD_MAPPINGS = new HashMap<String, Integer>() {
         {
             put("log", 1);
             put("planks", 2);
@@ -69,13 +69,13 @@ public class DataCollectionUtil {
      * Proper meaning the name it's expected to be in data collection.
      * Example: OAK_LOG should just be log. OAK_PLANK should just be planks.
      */
-    public static String itemToProperName(ItemStack stack){
+    public static String itemToProperName(ItemStack stack) {
         String itemName = stack.getType().toString().toLowerCase(Locale.ROOT);
-        if(itemName.contains("log")){
+        if (itemName.contains("log")) {
             return "log";
-        }else if(itemName.contains("planks")){
+        } else if (itemName.contains("planks")) {
             return "planks";
-        }else{
+        } else {
             return itemName;
         }
     }
