@@ -16,12 +16,15 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemWatcher implements Listener {
 
-    private final IronCraftPlugin plugin;
+    private IronCraftPlugin plugin;
 
     public ItemWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
     }
 
+    /*
+        Deals with gain order index when the player picks up an item.
+     */
     @EventHandler
     public void onPlayerPickup(EntityPickupItemEvent e) {
 
@@ -36,6 +39,9 @@ public class ItemWatcher implements Listener {
 
     }
 
+    /*
+        Deals with gain order index when the player crafts an item.
+     */
     @EventHandler
     public void onPlayerCraftTrackedItem(CraftItemEvent e) {
 
@@ -74,11 +80,12 @@ public class ItemWatcher implements Listener {
 
     }
 
-    // NOTE: This could pose problems in the future. If you run into any catostrophic issues. Look at this method.
+    // NOTE: This could pose problems in the future. If you run into any catastrophic issues. Look at this method.
     //TODO: Give it another name
     private void dealWithGainData(PlayerData data, ItemStack item) {
         String properItemName = DataCollectionUtil.itemToProperName(item);
         int currentGainIndex = data.getItemToGainIndex().get(properItemName);
+        // Will be 0 if the gain index hasn't been set yet.
         if (currentGainIndex == 0) {
             int nextGainIndex = data.getNextGainIndex();
             data.getItemToTimeStepGained().put(properItemName, data.getDurationSteps());

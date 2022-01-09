@@ -7,6 +7,7 @@ import net.dohaw.ironcraft.config.PlayerDataConfig;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -270,32 +271,32 @@ public class PlayerData {
     /**
      * Adds the given item to the total amount of the item.
      *
-     * @param itemName The name of the item to add
+     * @param type The material of the item to add
      */
-    public void incrementPlacedItems(String itemName) {
+    public void incrementPlacedItems(Material type) {
 
         int index;
-
-        switch (itemName) {
-            case "torch":
+        switch (type) {
+            case TORCH:
                 index = 0;
                 break;
-            case "cobblestone":
+            case COBBLESTONE:
                 index = 1;
                 break;
-            case "dirt":
+            case DIRT:
                 index = 2;
                 break;
-            case "stone":
+            case STONE:
                 index = 3;
                 break;
             default:
-                System.err.println("[PlayerData] updatePlacedItems() - Invalid item name: " + itemName);
+                System.err.println("[PlayerData] updatePlacedItems() - Invalid item type: " + type);
                 return;
         }
 
         int previousAmount = placedItems.get(index);
         placedItems.add(index, previousAmount + 1);
+
     }
 
     /**

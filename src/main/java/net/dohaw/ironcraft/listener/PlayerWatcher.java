@@ -24,6 +24,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -205,27 +206,12 @@ public class PlayerWatcher implements Listener {
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
 
-        String type;
-
-        switch (e.getBlock().getType()) {
-            case TORCH:
-                type = "torch";
-                break;
-            case COBBLESTONE:
-                type = "cobblestone";
-                break;
-            case DIRT:
-                type = "dirt";
-                break;
-            case STONE:
-                type = "stone";
-                break;
-            default:
-                System.err.println("Unhandled block type: " + e.getBlock().getType());
-                return;
+        Material blockTypePlaced = e.getBlock().getType();
+        if(blockTypePlaced == Material.TORCH || blockTypePlaced == Material.COBBLESTONE
+                || blockTypePlaced == Material.DIRT || blockTypePlaced == Material.STONE){
+            playerData.incrementPlacedItems(blockTypePlaced);
         }
 
-        playerData.incrementPlacedItems(type);
     }
 
     /**
@@ -241,7 +227,9 @@ public class PlayerWatcher implements Listener {
 
         // check if the player has clicked on the ingredient slot holding iron ore
         InventoryType.SlotType s = e.getSlotType();
-        if (!(player.getItemInUse().getType() == Material.IRON_ORE) && (s == InventoryType.SlotType.FUEL || s == InventoryType.SlotType.RESULT || s == InventoryType.SlotType.OUTSIDE || s == InventoryType.SlotType.CONTAINER)) {
+        ItemStack clickedItem = e.getCurrentItem();
+        if(clickedItem == null) return;
+        if (!(e.getCurrentItem().getType() == Material.IRON_ORE) && (s == InventoryType.SlotType.FUEL || s == InventoryType.SlotType.RESULT || s == InventoryType.SlotType.OUTSIDE || s == InventoryType.SlotType.CONTAINER)) {
             return;
         }
 
@@ -274,4 +262,5 @@ public class PlayerWatcher implements Listener {
 
         playerData.incrementAttackSteps();
     }
+
 }
