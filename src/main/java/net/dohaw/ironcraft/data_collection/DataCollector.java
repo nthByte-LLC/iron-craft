@@ -35,11 +35,11 @@ public class DataCollector extends BukkitRunnable {
             // Player would be null if the player isn't online.
             if (data.isInTutorial() || data.isManager() || data.getPlayer() == null) continue;
             data.incrementCurrentStep();
-            compileInventoryKeepingSequence(data);
-            compileSparseRewardSequence(data);
-            compileDenseRewardSequence(data);
-            dealWithCameraInformation(data);
-            dealWithMovementInformation(data);
+//            compileInventoryKeepingSequence(data);
+//            compileSparseRewardSequence(data);
+//            compileDenseRewardSequence(data);
+//            dealWithCameraInformation(data);
+//            dealWithMovementInformation(data);
         }
     }
 

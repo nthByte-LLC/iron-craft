@@ -7,10 +7,7 @@ import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.dohaw.ironcraft.prompt.IDPrompt;
 import net.dohaw.ironcraft.prompt.autonomysurvey.AutonomySurveyPrompt;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
@@ -158,9 +155,12 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void onPlayerTakeDamage(EntityDamageEvent e) {
 
-        String applicableWorld = plugin.getBaseConfig().getWorld().getName();
+        World applicableWorld = plugin.getBaseConfig().getWorld();
+        if(applicableWorld == null) return;
+
+        String applicableWorldName = applicableWorld.getName();
         Entity entity = e.getEntity();
-        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld)) {
+        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorldName)) {
             e.setCancelled(true);
         }
 
