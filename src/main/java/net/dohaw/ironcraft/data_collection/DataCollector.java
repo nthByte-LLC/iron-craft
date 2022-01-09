@@ -35,32 +35,11 @@ public class DataCollector extends BukkitRunnable {
             // Player would be null if the player isn't online.
             if (data.isInTutorial() || data.isManager() || data.getPlayer() == null) continue;
             data.incrementCurrentStep();
-//            compileInventoryKeepingSequence(data);
 //            compileSparseRewardSequence(data);
 //            compileDenseRewardSequence(data);
 //            dealWithCameraInformation(data);
 //            dealWithMovementInformation(data);
         }
-    }
-
-    /**
-     * Compiles the inventory keeping sequence for this particular step.
-     */
-    private void compileInventoryKeepingSequence(PlayerData playerData) {
-
-        Player player = playerData.getPlayer();
-        Inventory inventory = player.getInventory();
-        TreeMap<String, Integer> invData = new TreeMap<>();
-        for (ItemStack itemStack : inventory.getContents()) {
-
-            if (itemStack == null || !DataCollectionUtil.isTrackedItem(itemStack)) continue;
-
-            String properItemName = DataCollectionUtil.itemToProperName(itemStack);
-            invData.put(properItemName, getTotalItem(player, properItemName));
-
-        }
-        playerData.addInventoryData(invData);
-
     }
 
     /**

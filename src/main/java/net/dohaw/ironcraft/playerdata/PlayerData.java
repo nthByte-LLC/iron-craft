@@ -37,11 +37,6 @@ public class PlayerData {
     private int durationSteps = 0;
 
     /**
-     * Stores a list of inventoryData. New data is stored every "step"
-     */
-    private List<TreeMap<String, Integer>> inventoryDataList = new ArrayList<>();
-
-    /**
      * The gain order of items.
      * <br>
      * <b>Example:</b>
@@ -209,9 +204,9 @@ public class PlayerData {
         this.surveySession = surveySession;
     }
 
-    public void addInventoryData(TreeMap<String, Integer> inventoryData) {
-        inventoryDataList.add(inventoryData);
-    }
+//    public void addInventoryData(TreeMap<String, Integer> inventoryData) {
+//        inventoryDataList.add(inventoryData);
+//    }
 
     public Map<String, Boolean> getIsUselessToolCrafted() {
         return isUselessToolCrafted;
