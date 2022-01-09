@@ -11,7 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  * Class which contains the functionality to collect certain data from players.
@@ -35,8 +34,8 @@ public class DataCollector extends BukkitRunnable {
             // Player would be null if the player isn't online.
             if (data.isInTutorial() || data.isManager() || data.getPlayer() == null) continue;
             data.incrementCurrentStep();
-//            compileSparseRewardSequence(data);
-//            compileDenseRewardSequence(data);
+            compileSparseRewardSequence(data);
+            compileDenseRewardSequence(data);
 //            dealWithCameraInformation(data);
 //            dealWithMovementInformation(data);
         }
@@ -59,17 +58,19 @@ public class DataCollector extends BukkitRunnable {
 
         for (ItemStack stack : inventory.getContents()) {
 
-            if (stack == null || !DataCollectionUtil.isTrackedItem(stack)) continue;
+            if (stack == null) continue;
 
             String properItemName = DataCollectionUtil.itemToProperName(stack);
-            // Has previously picked up this item before. We only want to accumulate the reward amount if we are picking up an item for the *first* time.
-            if (playerData.hasPickedUpItem(stack)) continue;
+            if(!DataCollectionUtil.REWARD_MAPPINGS.containsKey(properItemName)) continue;
 
+            // Has previously picked up this item before. We only want to accumulate the reward amount if we are picking up an item for the *first* time.
+            if (playerData.hasObtainedItemForFirstTime(stack)) continue;
+
+            playerData.getFirstPickItems().add(properItemName);
             int stackRewardMapping = DataCollectionUtil.REWARD_MAPPINGS.get(properItemName);
             rewardPointsGained += stackRewardMapping;
 
         }
-
         currentSparseRewardSequence.add(previousStepRewardAmount + rewardPointsGained);
 
     }
@@ -83,19 +84,20 @@ public class DataCollector extends BukkitRunnable {
         Inventory inventory = player.getInventory();
 
         int accumulatedRewardPoints = 0;
-        List<Integer> currentSparseRewardSequence = playerData.getDenseRewardSequence();
+        List<Integer> currentDenseRewardSequence = playerData.getDenseRewardSequence();
 
         for (ItemStack stack : inventory.getContents()) {
 
-            if (stack == null || !DataCollectionUtil.isTrackedItem(stack)) continue;
+            if (stack == null) continue;
 
             String properItemName = DataCollectionUtil.itemToProperName(stack);
+            if(!DataCollectionUtil.REWARD_MAPPINGS.containsKey(properItemName)) continue;
+
             int stackRewardMapping = DataCollectionUtil.REWARD_MAPPINGS.get(properItemName);
             accumulatedRewardPoints += (stackRewardMapping * stack.getAmount());
 
         }
-
-        currentSparseRewardSequence.add(accumulatedRewardPoints);
+        currentDenseRewardSequence.add(accumulatedRewardPoints);
 
     }
 

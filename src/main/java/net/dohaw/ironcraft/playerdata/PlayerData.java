@@ -114,6 +114,9 @@ public class PlayerData {
      */
     private Location previousStepLocation;
 
+    // Bad name. Can't figure out how else to explain it though.
+    private HashSet<String> firstPickItems = new HashSet<>();
+
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
@@ -158,44 +161,17 @@ public class PlayerData {
 //        objectiveReminder.cancel();
     }
 
-    public boolean isInTutorial() {
-        return isInTutorial;
+    public boolean hasMovedCamera(Vector currentDirection) {
+        return currentDirection.getX() == previousStepCameraDirection.getX() && currentDirection.getY() == previousStepCameraDirection.getY() && currentDirection.getZ() == previousStepCameraDirection.getZ();
     }
 
-    public void setInTutorial(boolean inTutorial) {
-        isInTutorial = inTutorial;
-    }
-
-    public Location getChamberLocation() {
-        return chamberLocation;
-    }
-
-    public void setChamberLocation(Location chamberLocation) {
-        this.chamberLocation = chamberLocation;
-    }
-
-    public Objective getCurrentTutorialObjective() {
-        return currentTutorialObjective;
-    }
-
-    public void setCurrentTutorialObjective(Objective currentTutorialObjective) {
-
-        Player player = getPlayer();
-        if (player != null) {
-            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
-        }
-
-        this.currentTutorialObjective = currentTutorialObjective;
-        sendObjectiveHelperMessage();
-
+    public boolean hasMoved(Location currentLocation) {
+        return previousStepLocation.equals(currentLocation);
     }
 
     public void addAccumulatedItem(ItemStack stack){
         String properName = DataCollectionUtil.itemToProperName(stack);
         int currentAmount = itemToAccumulatedAmount.get(properName);
-        System.out.println("Item name: " + properName);
-        System.out.println("Current amount: " + currentAmount);
-        System.out.println("New amount: " + (currentAmount + stack.getAmount()) );
         itemToAccumulatedAmount.put(properName, currentAmount + stack.getAmount());
     }
 
@@ -204,6 +180,47 @@ public class PlayerData {
         player.sendMessage(" ");
         String helperMessage = currentTutorialObjective.getHelperMessage();
         player.sendMessage(StringUtils.colorString("&e[Objective Tip] &7" + helperMessage));
+    }
+
+    /**
+     * Adds the given item to the total amount of the item.
+     *
+     * @param type The material of the item to add
+     */
+    public void incrementPlacedItems(Material type) {
+
+        int index;
+        switch (type) {
+            case TORCH:
+                index = 0;
+                break;
+            case COBBLESTONE:
+                index = 1;
+                break;
+            case DIRT:
+                index = 2;
+                break;
+            case STONE:
+                index = 3;
+                break;
+            default:
+                System.err.println("[PlayerData] updatePlacedItems() - Invalid item type: " + type);
+                return;
+        }
+
+        int previousAmount = placedItems.get(index);
+        placedItems.add(index, previousAmount + 1);
+
+    }
+
+    public int getNextGainIndex() {
+        int currentHighestGain = 0;
+        for (Integer num : itemToGainIndex.values()) {
+            if (num > currentHighestGain) {
+                currentHighestGain = num;
+            }
+        }
+        return currentHighestGain + 1;
     }
 
     public SurveySession getSurveySession() {
@@ -226,14 +243,8 @@ public class PlayerData {
         return itemToGainIndex;
     }
 
-    public int getNextGainIndex() {
-        int currentHighestGain = 0;
-        for (Integer num : itemToGainIndex.values()) {
-            if (num > currentHighestGain) {
-                currentHighestGain = num;
-            }
-        }
-        return currentHighestGain + 1;
+    public HashSet<String> getFirstPickItems() {
+        return firstPickItems;
     }
 
     public void incrementCurrentStep() {
@@ -278,37 +289,6 @@ public class PlayerData {
     }
 
     /**
-     * Adds the given item to the total amount of the item.
-     *
-     * @param type The material of the item to add
-     */
-    public void incrementPlacedItems(Material type) {
-
-        int index;
-        switch (type) {
-            case TORCH:
-                index = 0;
-                break;
-            case COBBLESTONE:
-                index = 1;
-                break;
-            case DIRT:
-                index = 2;
-                break;
-            case STONE:
-                index = 3;
-                break;
-            default:
-                System.err.println("[PlayerData] updatePlacedItems() - Invalid item type: " + type);
-                return;
-        }
-
-        int previousAmount = placedItems.get(index);
-        placedItems.add(index, previousAmount + 1);
-
-    }
-
-    /**
      * Gets the amount of times the player has placed the given item.
      *
      * @return the amount of times the player has placed the given item
@@ -344,9 +324,9 @@ public class PlayerData {
     /**
      * Whether the player has ever picked up this item before.
      */
-    public boolean hasPickedUpItem(ItemStack stack) {
+    public boolean hasObtainedItemForFirstTime(ItemStack stack) {
         String properItemName = DataCollectionUtil.itemToProperName(stack);
-        return itemToGainIndex.containsKey(properItemName);
+        return firstPickItems.contains(properItemName);
     }
 
     public double computeCameraMovingRatio() {
@@ -405,12 +385,36 @@ public class PlayerData {
         this.previousStepCameraDirection = previousStepCameraDirection;
     }
 
-    public boolean hasMovedCamera(Vector currentDirection) {
-        return currentDirection.getX() == previousStepCameraDirection.getX() && currentDirection.getY() == previousStepCameraDirection.getY() && currentDirection.getZ() == previousStepCameraDirection.getZ();
+    public boolean isInTutorial() {
+        return isInTutorial;
     }
 
-    public boolean hasMoved(Location currentLocation) {
-        return previousStepLocation.equals(currentLocation);
+    public void setInTutorial(boolean inTutorial) {
+        isInTutorial = inTutorial;
+    }
+
+    public Location getChamberLocation() {
+        return chamberLocation;
+    }
+
+    public void setChamberLocation(Location chamberLocation) {
+        this.chamberLocation = chamberLocation;
+    }
+
+    public Objective getCurrentTutorialObjective() {
+        return currentTutorialObjective;
+    }
+
+    public void setCurrentTutorialObjective(Objective currentTutorialObjective) {
+
+        Player player = getPlayer();
+        if (player != null) {
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
+        }
+
+        this.currentTutorialObjective = currentTutorialObjective;
+        sendObjectiveHelperMessage();
+
     }
 
 }

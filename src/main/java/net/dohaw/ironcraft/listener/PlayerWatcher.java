@@ -73,14 +73,16 @@ public class PlayerWatcher implements Listener {
      */
     @EventHandler
     public void onPlayerMineIronOre(BlockBreakEvent e) {
+
         Player p = e.getPlayer();
-        Material block = e.getBlock().getType();
-        Material tool = Objects.requireNonNull(p.getItemInUse()).getType();
+        Block block = e.getBlock();
+        ItemStack itemInHand = p.getEquipment().getItemInMainHand();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
 
-        if (block == Material.IRON_ORE && tool == Material.WOODEN_PICKAXE) {
+        if (block.getType() == Material.IRON_ORE && itemInHand.getType() == Material.WOODEN_PICKAXE) {
             playerData.incrementMisuseActionSteps();
         }
+
     }
 
     /**
@@ -92,7 +94,8 @@ public class PlayerWatcher implements Listener {
     public void onPlayerMineLog(BlockBreakEvent e) {
         Player p = e.getPlayer();
         Material block = e.getBlock().getType();
-        Material tool = Objects.requireNonNull(p.getItemInUse()).getType();
+        ItemStack itemInHand = p.getEquipment().getItemInMainHand();
+        Material tool = itemInHand.getType();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
 
         if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE) {
