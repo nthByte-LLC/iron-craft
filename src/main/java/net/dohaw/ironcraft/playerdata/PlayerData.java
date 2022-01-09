@@ -190,6 +190,15 @@ public class PlayerData {
 
     }
 
+    public void addAccumulatedItem(ItemStack stack){
+        String properName = DataCollectionUtil.itemToProperName(stack);
+        int currentAmount = itemToAccumulatedAmount.get(properName);
+        System.out.println("Item name: " + properName);
+        System.out.println("Current amount: " + currentAmount);
+        System.out.println("New amount: " + (currentAmount + stack.getAmount()) );
+        itemToAccumulatedAmount.put(properName, currentAmount + stack.getAmount());
+    }
+
     public void sendObjectiveHelperMessage() {
         Player player = getPlayer();
         player.sendMessage(" ");

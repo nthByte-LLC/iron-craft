@@ -1,6 +1,8 @@
 package net.dohaw.ironcraft.data_collection;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -70,7 +72,11 @@ public class DataCollectionUtil {
      * Example: OAK_LOG should just be log. OAK_PLANK should just be planks.
      */
     public static String itemToProperName(ItemStack stack) {
-        String itemName = stack.getType().toString().toLowerCase(Locale.ROOT);
+        return itemToProperName(stack.getType());
+    }
+
+    public static String itemToProperName(Material material){
+        String itemName = material.toString().toLowerCase(Locale.ROOT);
         if (itemName.contains("log")) {
             return "log";
         } else if (itemName.contains("planks")) {
