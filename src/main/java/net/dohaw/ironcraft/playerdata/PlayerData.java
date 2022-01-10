@@ -130,6 +130,7 @@ public class PlayerData {
         DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
             itemToAccumulatedAmount.put(item.toString().toLowerCase(), 0);
         });
+        this.previousStepCameraDirection = Bukkit.getPlayer(uuid).getLocation().getDirection();
     }
 
     public boolean isManager() {
@@ -162,7 +163,7 @@ public class PlayerData {
     }
 
     public boolean hasMovedCamera(Vector currentDirection) {
-        return currentDirection.getX() == previousStepCameraDirection.getX() && currentDirection.getY() == previousStepCameraDirection.getY() && currentDirection.getZ() == previousStepCameraDirection.getZ();
+        return currentDirection.getX() != previousStepCameraDirection.getX() || currentDirection.getY() != previousStepCameraDirection.getY() || currentDirection.getZ() != previousStepCameraDirection.getZ();
     }
 
     public boolean hasMoved(Location currentLocation) {
@@ -309,16 +310,17 @@ public class PlayerData {
         attackSteps++;
     }
 
+    public void incrementEquippedAttackSteps() {
+        equippedAttackSteps++;
+    }
+
     public void incrementCameraMovementSteps() {
         cameraMovingSteps++;
+        System.out.println("Camera Moving Steps: " + cameraMovingSteps);
     }
 
     public void incrementMoveSteps() {
         moveSteps++;
-    }
-
-    public void incrementEquippedAttackSteps() {
-        equippedAttackSteps++;
     }
 
     /**

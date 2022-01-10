@@ -17,7 +17,6 @@ import java.util.List;
  */
 public class DataCollector extends BukkitRunnable {
 
-
     /**
      * Instance of the IronCraft plugin.
      */
@@ -36,7 +35,7 @@ public class DataCollector extends BukkitRunnable {
             data.incrementCurrentStep();
             compileSparseRewardSequence(data);
             compileDenseRewardSequence(data);
-//            dealWithCameraInformation(data);
+            dealWithCameraInformation(data);
 //            dealWithMovementInformation(data);
         }
     }
@@ -108,13 +107,15 @@ public class DataCollector extends BukkitRunnable {
 
         Player player = playerData.getPlayer();
         Vector currentDirection = player.getLocation().getDirection();
-        if (playerData.getPreviousStepCameraDirection() == null) {
-            playerData.setPreviousStepCameraDirection(currentDirection);
-            playerData.incrementCameraMovementSteps();
-            return;
-        }
+//        if (playerData.getPreviousStepCameraDirection() == null) {
+//            System.out.println("First Time");
+//            playerData.setPreviousStepCameraDirection(currentDirection);
+//            playerData.incrementCameraMovementSteps();
+//            return;
+//        }
 
         if (playerData.hasMovedCamera(currentDirection)) {
+            System.out.println("Has Moved");
             playerData.incrementCameraMovementSteps();
         }
 

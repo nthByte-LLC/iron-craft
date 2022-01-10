@@ -264,6 +264,7 @@ public class PlayerWatcher implements Listener {
         }
 
         playerData.incrementAttackSteps();
+
     }
 
 }
