@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Reminder extends BukkitRunnable {
 
-    private IronCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
     private int currentIndexReminder = 0;
     private final List<String> REMINDERS = new ArrayList<String>() {{

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class IronCraftCommand implements CommandExecutor {
 
-    private IronCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
     public IronCraftCommand(IronCraftPlugin plugin) {
         this.plugin = plugin;

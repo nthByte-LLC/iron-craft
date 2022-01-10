@@ -21,7 +21,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -33,10 +32,10 @@ import java.util.UUID;
 
 public class ObjectiveWatcher implements Listener {
 
-    private HashSet<UUID> hasMovedForFirstTime = new HashSet<>();
+    private final HashSet<UUID> hasMovedForFirstTime = new HashSet<>();
 
-    private IronCraftPlugin plugin;
-    private PlayerDataHandler playerDataHandler;
+    private final IronCraftPlugin plugin;
+    private final PlayerDataHandler playerDataHandler;
 
     public ObjectiveWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
@@ -106,7 +105,8 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
-        if (playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && e.getBlockPlaced().getType() == Material.TORCH) {
+        Material blockPlacedType = e.getBlockPlaced().getType();
+        if (playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && blockPlacedType == Material.TORCH || blockPlacedType == Material.WALL_TORCH) {
             playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.PLACE_A_TORCH));
         }
 

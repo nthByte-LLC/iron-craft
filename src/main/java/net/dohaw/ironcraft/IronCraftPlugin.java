@@ -10,7 +10,9 @@ import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.config.BaseConfig;
+import net.dohaw.ironcraft.data_collection.DataCollector;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.listener.ItemWatcher;
 import net.dohaw.ironcraft.listener.ObjectiveWatcher;
 import net.dohaw.ironcraft.listener.PlayerWatcher;
 import net.dohaw.ironcraft.playerdata.PlayerData;
@@ -38,6 +40,7 @@ import java.util.Random;
 /**
  * Plugin for Max Planck Society.
  * Teaches people to obtain an iron pickaxe.
+ * @author Caleb Owens, Ayush Chivate
  */
 public final class IronCraftPlugin extends JavaPlugin {
 
@@ -60,7 +63,7 @@ public final class IronCraftPlugin extends JavaPlugin {
     public void onEnable() {
 
         CoreLib.setInstance(this);
-        this.protocolManager = ProtocolLibrary.getProtocolManager();
+        protocolManager = ProtocolLibrary.getProtocolManager();
 
         JPUtils.validateFiles("config.yml");
         JPUtils.validateFilesOrFolders(
@@ -68,18 +71,19 @@ public final class IronCraftPlugin extends JavaPlugin {
                     put("player_data", getDataFolder());
                 }}, true
         );
-        this.baseConfig = new BaseConfig();
+        baseConfig = new BaseConfig();
         loadConfigValues();
 
-        this.playerDataHandler = new PlayerDataHandler(this);
+        playerDataHandler = new PlayerDataHandler(this);
 
         JPUtils.registerCommand("ironcraft", new IronCraftCommand(this));
         JPUtils.registerEvents(new PlayerWatcher(this));
         JPUtils.registerEvents(new ObjectiveWatcher(this));
+        JPUtils.registerEvents(new ItemWatcher(this));
 
         // Only useful if there are players on the server, and /plugman reload DiamondCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if(player.isConversing()){
+            if (player.isConversing()) {
                 player.kickPlayer("Please rejoin the server!");
                 continue;
             }
@@ -91,6 +95,9 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         // Reminder every 10 seconds
         new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
+
+        // collect data every tick
+        new DataCollector(this).runTaskTimer(this, 0L, 40);
 
         formPacketListeners();
 
@@ -141,8 +148,8 @@ public final class IronCraftPlugin extends JavaPlugin {
     }
 
     private void loadConfigValues() {
-        this.availableChamberLocations = baseConfig.getChamberLocations();
-        this.journeySpawnPoints = baseConfig.getSpawnLocations();
+        availableChamberLocations = baseConfig.getChamberLocations();
+        journeySpawnPoints = baseConfig.getSpawnLocations();
     }
 
     public Location getRandomChamber() {
@@ -180,7 +187,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
             objScore.setScore(counter);
 
-            counter++;
+            counter -= -1;
 
         }
 

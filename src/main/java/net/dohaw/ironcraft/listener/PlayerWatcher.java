@@ -1,15 +1,13 @@
 package net.dohaw.ironcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.ironcraft.EndGameEvent;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.dohaw.ironcraft.prompt.IDPrompt;
 import net.dohaw.ironcraft.prompt.autonomysurvey.AutonomySurveyPrompt;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
@@ -18,16 +16,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.FurnaceBurnEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerWatcher implements Listener {
 
@@ -35,10 +37,75 @@ public class PlayerWatcher implements Listener {
             Material.OAK_LEAVES, Material.IRON_ORE, Material.DIAMOND_ORE, Material.GRASS_BLOCK, Material.DIRT, Material.CRAFTING_TABLE, Material.FURNACE
     );
 
-    private IronCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
+
+    /**
+     * Furnaces that are currently burning fuel.
+     */
+    private HashSet<Location> burningFurances = new HashSet<>();
 
     public PlayerWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    // Doesn't let them move if they haven't answered the autonomy survey
+    @EventHandler
+    public static void onPlayerMoveDuringSurvey(PlayerMoveEvent e) {
+        PersistentDataContainer pdc = e.getPlayer().getPersistentDataContainer();
+        NamespacedKey key = NamespacedKey.minecraft("is-answering-survey");
+//        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
+//            e.setCancelled(true);
+//        }
+    }
+
+    private static boolean hasMoved(Location to, Location from, boolean checkY) {
+        if (to != null) {
+            boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
+            if (!hasMovedHorizontally && checkY) {
+                return from.getY() != to.getY();
+            }
+            return hasMovedHorizontally;
+        }
+        return false;
+    }
+
+    /**
+     * Determines if a player uses the wrong tool (a wooden pickaxe) to dig iron ore.
+     *
+     * @param e Event of the player breaking a block
+     */
+    @EventHandler
+    public void onPlayerMineIronOre(BlockBreakEvent e) {
+
+        Player p = e.getPlayer();
+        Block block = e.getBlock();
+        ItemStack itemInHand = p.getEquipment().getItemInMainHand();
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
+
+        if (block.getType() == Material.IRON_ORE && itemInHand.getType() == Material.WOODEN_PICKAXE) {
+            playerData.incrementMisuseActionSteps();
+        }
+
+    }
+
+    /**
+     * Determines if a player uses the wrong tool (a stone pickaxe) to dig a log.
+     *
+     * @param e Event of the player breaking a block
+     */
+    @EventHandler
+    public void onPlayerMineLog(BlockBreakEvent e) {
+
+        Player p = e.getPlayer();
+        Material block = e.getBlock().getType();
+        ItemStack itemInHand = p.getEquipment().getItemInMainHand();
+        Material tool = itemInHand.getType();
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
+
+        if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE) {
+            playerData.incrementMisuseActionSteps();
+        }
+
     }
 
     @EventHandler
@@ -89,7 +156,7 @@ public class PlayerWatcher implements Listener {
      */
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && hasMoved(e.getTo(), e.getFrom(), true)) {
+        if (!plugin.getPlayerDataHandler().hasDataLoaded(e.getPlayer().getUniqueId()) && PlayerWatcher.hasMoved(e.getTo(), e.getFrom(), true)) {
             e.setCancelled(true);
         }
     }
@@ -97,27 +164,17 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void onPlayerTakeDamage(EntityDamageEvent e) {
 
-        String applicableWorld = plugin.getBaseConfig().getWorld().getName();
+        World applicableWorld = plugin.getBaseConfig().getWorld();
+        if(applicableWorld == null) return;
+
+        String applicableWorldName = applicableWorld.getName();
         Entity entity = e.getEntity();
-        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorld)) {
+        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorldName)) {
             e.setCancelled(true);
         }
 
     }
 
-    // Doesn't let them move if they haven't answered the autonomy survey
-    @EventHandler
-    public void onPlayerMoveDuringSurvey(PlayerMoveEvent e) {
-        PersistentDataContainer pdc = e.getPlayer().getPersistentDataContainer();
-        NamespacedKey key = NamespacedKey.minecraft("is-answering-survey");
-//        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
-//            e.setCancelled(true);
-//        }
-    }
-
-    /*
-        Endgame
-     */
     @EventHandler
     public void onPlayerMineDiamond(BlockBreakEvent e) {
 
@@ -139,15 +196,87 @@ public class PlayerWatcher implements Listener {
 
     }
 
-    public boolean hasMoved(Location to, Location from, boolean checkY) {
-        if (to != null) {
-            boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
-            if (!hasMovedHorizontally && checkY) {
-                return from.getY() != to.getY();
-            }
-            return hasMovedHorizontally;
+    @EventHandler
+    public void EndGameEvent(EndGameEvent e) {
+        PlayerData playerData = e.getPlayerData();
+        playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getDurationSteps());
+    }
+
+    /**
+     * Keeps track of the items the player places.
+     *
+     * @param e The event
+     */
+    @EventHandler
+    public void onPlayerPlaceBlock(BlockPlaceEvent e) {
+
+        Player player = e.getPlayer();
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+
+        Material blockTypePlaced = e.getBlock().getType();
+        if(blockTypePlaced == Material.TORCH || blockTypePlaced == Material.COBBLESTONE
+                || blockTypePlaced == Material.DIRT || blockTypePlaced == Material.STONE || blockTypePlaced == Material.WALL_TORCH){
+            playerData.incrementPlacedItems(blockTypePlaced);
         }
-        return false;
+
+    }
+
+    @EventHandler
+    public void onFuelBurn(FurnaceBurnEvent e){
+        ItemStack fuel = e.getFuel();
+        if(fuel.getType() != Material.COAL) return;
+        burningFurances.add(e.getBlock().getLocation());
+    }
+
+    /**
+     * Sets a boolean to true if the player smelts coal.
+     *
+     * @param e The event
+     */
+    @EventHandler
+    public void onPlayerSmelt(InventoryClickEvent e) {
+
+        Player player = (Player) e.getWhoClicked();
+
+        InventoryType.SlotType s = e.getSlotType();
+        ItemStack clickedItem = e.getCurrentItem();
+        if(clickedItem == null || e.getInventory().getType() != InventoryType.FURNACE || s != InventoryType.SlotType.RESULT) return;
+
+        Location loc = e.getInventory().getLocation();
+        if(burningFurances.contains(loc)){
+            burningFurances.remove(loc);
+            PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+            PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+            playerData.setHasSmeltedCoal(true);
+        }
+
+    }
+
+    /**
+     * Increments the attack steps if a player isn't in the tutorial and they attack something.
+     */
+    @EventHandler
+    public void onPlayerAttack(EntityDamageByEntityEvent e) {
+
+        Entity eDamager = e.getDamager();
+        if (!(eDamager instanceof Player)) {
+            return;
+        }
+
+        Player damager = (Player) eDamager;
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(damager.getUniqueId());
+        if (playerData.isInTutorial() || playerData.isManager()) {
+            return;
+        }
+
+        Material itemInHandType = damager.getInventory().getItemInMainHand().getType();
+        if (itemInHandType == Material.WOODEN_PICKAXE || itemInHandType == Material.STONE_PICKAXE) {
+            playerData.incrementEquippedAttackSteps();
+        }
+
+        playerData.incrementAttackSteps();
+
     }
 
 }

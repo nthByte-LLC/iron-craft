@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class RepeatTutorialPrompt extends StringPrompt {
 
-    private IronCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
     public RepeatTutorialPrompt(IronCraftPlugin plugin) {
         this.plugin = plugin;

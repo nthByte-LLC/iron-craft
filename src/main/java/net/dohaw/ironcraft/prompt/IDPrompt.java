@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 public class IDPrompt extends StringPrompt {
 
-    private IronCraftPlugin plugin;
+    private final IronCraftPlugin plugin;
 
     public IDPrompt(IronCraftPlugin plugin) {
         this.plugin = plugin;

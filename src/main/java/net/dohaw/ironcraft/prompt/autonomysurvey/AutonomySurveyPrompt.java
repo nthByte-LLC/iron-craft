@@ -16,22 +16,22 @@ import java.util.List;
 public class AutonomySurveyPrompt extends StringPrompt {
 
     private final List<String> QUESTIONS = Arrays.asList(
-        "Did you enjoy this task?",
-        "Did you put a lot of effort into this task?",
-        "Did you feel pressured while doing this task?",
-        "Did you feel that you have some choice about doing this task?"
+            "Did you enjoy this task?",
+            "Did you put a lot of effort into this task?",
+            "Did you feel pressured while doing this task?",
+            "Did you feel that you have some choice about doing this task?"
     );
 
     private final List<String> VALID_ANSWERS = Arrays.asList(
-        "Not at all",
-        "Slightly",
-        "Moderately",
-        "Very",
-        "Extremely"
+            "Not at all",
+            "Slightly",
+            "Moderately",
+            "Very",
+            "Extremely"
     );
 
-    private String question;
-    private PlayerDataHandler playerDataHandler;
+    private final String question;
+    private final PlayerDataHandler playerDataHandler;
 
     public AutonomySurveyPrompt(int questionIndex, PlayerDataHandler playerDataHandler) {
         this.playerDataHandler = playerDataHandler;
