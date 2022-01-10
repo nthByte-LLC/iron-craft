@@ -19,6 +19,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -28,10 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerWatcher implements Listener {
 
@@ -40,6 +38,11 @@ public class PlayerWatcher implements Listener {
     );
 
     private final IronCraftPlugin plugin;
+
+    /**
+     * Furnaces that are currently burning fuel.
+     */
+    private HashSet<Location> burningFurances = new HashSet<>();
 
     public PlayerWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
@@ -219,6 +222,13 @@ public class PlayerWatcher implements Listener {
 
     }
 
+    @EventHandler
+    public void onFuelBurn(FurnaceBurnEvent e){
+        ItemStack fuel = e.getFuel();
+        if(fuel.getType() != Material.COAL) return;
+        burningFurances.add(e.getBlock().getLocation());
+    }
+
     /**
      * Sets a boolean to true if the player smelts coal.
      *
@@ -227,20 +237,19 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void onPlayerSmelt(InventoryClickEvent e) {
 
-        Player player = e.getWhoClicked() instanceof Player ? (Player) e.getWhoClicked() : null;
-        if (player == null) return;
+        Player player = (Player) e.getWhoClicked();
 
-        // check if the player has clicked on the ingredient slot holding iron ore
         InventoryType.SlotType s = e.getSlotType();
         ItemStack clickedItem = e.getCurrentItem();
-        if(clickedItem == null) return;
-        if (!(e.getCurrentItem().getType() == Material.IRON_ORE) && (s == InventoryType.SlotType.FUEL || s == InventoryType.SlotType.RESULT || s == InventoryType.SlotType.OUTSIDE || s == InventoryType.SlotType.CONTAINER)) {
-            return;
-        }
+        if(clickedItem == null || e.getInventory().getType() != InventoryType.FURNACE || s != InventoryType.SlotType.RESULT) return;
 
-        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
-        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-        playerData.setHasSmeltedCoal(true);
+        Location loc = e.getInventory().getLocation();
+        if(burningFurances.contains(loc)){
+            burningFurances.remove(loc);
+            PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+            PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+            playerData.setHasSmeltedCoal(true);
+        }
 
     }
 
