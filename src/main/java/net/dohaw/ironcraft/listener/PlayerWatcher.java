@@ -239,6 +239,7 @@ public class PlayerWatcher implements Listener {
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
         playerData.setHasSmeltedCoal(true);
+
     }
 
     /**

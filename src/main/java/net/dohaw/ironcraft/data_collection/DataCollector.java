@@ -36,7 +36,7 @@ public class DataCollector extends BukkitRunnable {
             compileSparseRewardSequence(data);
             compileDenseRewardSequence(data);
             dealWithCameraInformation(data);
-//            dealWithMovementInformation(data);
+            dealWithMovementInformation(data);
         }
     }
 
@@ -107,18 +107,10 @@ public class DataCollector extends BukkitRunnable {
 
         Player player = playerData.getPlayer();
         Vector currentDirection = player.getLocation().getDirection();
-//        if (playerData.getPreviousStepCameraDirection() == null) {
-//            System.out.println("First Time");
-//            playerData.setPreviousStepCameraDirection(currentDirection);
-//            playerData.incrementCameraMovementSteps();
-//            return;
-//        }
 
         if (playerData.hasMovedCamera(currentDirection)) {
-            System.out.println("Has Moved");
             playerData.incrementCameraMovementSteps();
         }
-
         playerData.setPreviousStepCameraDirection(currentDirection);
 
     }
@@ -130,16 +122,10 @@ public class DataCollector extends BukkitRunnable {
 
         Player player = playerData.getPlayer();
         Location currentLocation = player.getLocation();
-        if (playerData.getPreviousStepLocation() == null) {
-            playerData.setPreviousStepLocation(currentLocation);
-            playerData.incrementMoveSteps();
-            return;
-        }
 
         if (playerData.hasMoved(currentLocation)) {
             playerData.incrementMoveSteps();
         }
-
         playerData.setPreviousStepLocation(currentLocation);
 
     }

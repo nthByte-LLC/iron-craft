@@ -130,7 +130,9 @@ public class PlayerData {
         DataCollectionUtil.TRACKED_ITEMS.forEach(item -> {
             itemToAccumulatedAmount.put(item.toString().toLowerCase(), 0);
         });
-        this.previousStepCameraDirection = Bukkit.getPlayer(uuid).getLocation().getDirection();
+        Location playerLocation = Bukkit.getPlayer(uuid).getLocation();
+        this.previousStepLocation = playerLocation;
+        this.previousStepCameraDirection = playerLocation.getDirection();
     }
 
     public boolean isManager() {
@@ -167,7 +169,7 @@ public class PlayerData {
     }
 
     public boolean hasMoved(Location currentLocation) {
-        return previousStepLocation.equals(currentLocation);
+        return !previousStepLocation.equals(currentLocation);
     }
 
     public void addAccumulatedItem(ItemStack stack){
@@ -316,7 +318,6 @@ public class PlayerData {
 
     public void incrementCameraMovementSteps() {
         cameraMovingSteps++;
-        System.out.println("Camera Moving Steps: " + cameraMovingSteps);
     }
 
     public void incrementMoveSteps() {
