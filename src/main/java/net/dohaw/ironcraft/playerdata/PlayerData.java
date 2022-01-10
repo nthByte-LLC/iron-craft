@@ -28,7 +28,6 @@ public class PlayerData {
 
     // Use in python model
     private double equipmentMisuseRatio;
-    private ArrayList<Integer> placedItems;
     private int misuseActionSteps;
     private boolean hasSmeltedCoal;
 
@@ -114,6 +113,11 @@ public class PlayerData {
      */
     private Location previousStepLocation;
 
+    /**
+     * The amount of items placed.
+     */
+    private Map<String, Integer> itemToAmountPlaced = new HashMap<>();
+
     // Bad name. Can't figure out how else to explain it though.
     private HashSet<String> firstPickItems = new HashSet<>();
 
@@ -191,29 +195,9 @@ public class PlayerData {
      * @param type The material of the item to add
      */
     public void incrementPlacedItems(Material type) {
-
-        int index;
-        switch (type) {
-            case TORCH:
-                index = 0;
-                break;
-            case COBBLESTONE:
-                index = 1;
-                break;
-            case DIRT:
-                index = 2;
-                break;
-            case STONE:
-                index = 3;
-                break;
-            default:
-                System.err.println("[PlayerData] updatePlacedItems() - Invalid item type: " + type);
-                return;
-        }
-
-        int previousAmount = placedItems.get(index);
-        placedItems.add(index, previousAmount + 1);
-
+        String properItemName = DataCollectionUtil.itemToProperName(type == Material.WALL_TORCH ? Material.TORCH : type);
+        int previousAmount = itemToAmountPlaced.getOrDefault(properItemName, 0);
+        itemToAmountPlaced.put(properItemName, previousAmount + 1);
     }
 
     public int getNextGainIndex() {
@@ -289,15 +273,6 @@ public class PlayerData {
      */
     public void setEquipmentMisuseRatio(double equipmentMisuseRatio) {
         this.equipmentMisuseRatio = equipmentMisuseRatio;
-    }
-
-    /**
-     * Gets the amount of times the player has placed the given item.
-     *
-     * @return the amount of times the player has placed the given item
-     */
-    public ArrayList<Integer> getPlacedItems() {
-        return placedItems;
     }
 
     public boolean hasSmeltedCoal() {

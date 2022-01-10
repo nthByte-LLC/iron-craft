@@ -92,6 +92,7 @@ public class PlayerWatcher implements Listener {
      */
     @EventHandler
     public void onPlayerMineLog(BlockBreakEvent e) {
+
         Player p = e.getPlayer();
         Material block = e.getBlock().getType();
         ItemStack itemInHand = p.getEquipment().getItemInMainHand();
@@ -101,6 +102,7 @@ public class PlayerWatcher implements Listener {
         if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE) {
             playerData.incrementMisuseActionSteps();
         }
+
     }
 
     @EventHandler
@@ -211,7 +213,7 @@ public class PlayerWatcher implements Listener {
 
         Material blockTypePlaced = e.getBlock().getType();
         if(blockTypePlaced == Material.TORCH || blockTypePlaced == Material.COBBLESTONE
-                || blockTypePlaced == Material.DIRT || blockTypePlaced == Material.STONE){
+                || blockTypePlaced == Material.DIRT || blockTypePlaced == Material.STONE || blockTypePlaced == Material.WALL_TORCH){
             playerData.incrementPlacedItems(blockTypePlaced);
         }
 
