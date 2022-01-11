@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ManagerUtil {
@@ -41,7 +42,6 @@ public class ManagerUtil {
             || playerData.getUsersOverseeing().size() == OVERSEEING_USER_LIMIT
             || playerData.getUuid().equals(data.getUuid())
         );
-        System.out.println("ALL: " + allPlayerData.toString());
 
         if(allPlayerData.size() == 0) {
             data.setManagementType(ManagementType.AI);
@@ -50,9 +50,13 @@ public class ManagerUtil {
 
         PlayerData managerData = allPlayerData.get(0);
         Player manager = managerData.getPlayer();
-        managerData.getUsersOverseeing().add(data.getUuid());
-        manager.setAllowFlight(true);
-        manager.setFlying(true);
+        List<UUID> usersOverseeing = managerData.getUsersOverseeing();
+
+        UUID uuid = data.getUuid();
+        usersOverseeing.add(uuid);
+        if(usersOverseeing.size() == 1){
+            managerData.setFocusedPlayerUUID(uuid);
+        }
 
         data.setManager(managerData.getUuid());
 

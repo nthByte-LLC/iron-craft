@@ -24,10 +24,6 @@ public class Reminder extends BukkitRunnable {
         add("&bPress E to open your inventory!");
     }};
 
-    private final List<String> MANAGER_REMINDERS = new ArrayList<String>(){{
-        add("Left-Click to switch between the players you are managing.");
-    }};
-
     public Reminder(IronCraftPlugin plugin) {
         this.plugin = plugin;
     }
@@ -37,22 +33,28 @@ public class Reminder extends BukkitRunnable {
 
         for (PlayerData data : plugin.getPlayerDataHandler().getPlayerDataList()) {
 
-            List<String> reminders = data.isManager() ? MANAGER_REMINDERS : PLAYER_REMINDERS;
-            UUID uuid = data.getUuid();
-            int currentIndexReminder = playerIndexReminders.getOrDefault(uuid, 0);
-            if (currentIndexReminder >= reminders.size()) {
-                currentIndexReminder = 0;
-            }else{
-                currentIndexReminder++;
-            }
-
+            boolean isManager = data.isManager();
             Player player = data.getPlayer();
-            if(player.isConversing() || data.isManager()) continue;
+            if(player.isConversing()) continue;
 
-            String message = data.isInTutorial() ? StringUtils.colorString(reminders.get(currentIndexReminder)) : StringUtils.colorString("&cYour manager is watching you!");
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+            String message;
+            if(isManager){
+                message = "&bLeft-Click to switch between the players you are managing.";
+            }else{
 
-            playerIndexReminders.put(uuid, currentIndexReminder);
+                UUID uuid = data.getUuid();
+                int currentIndexReminder = playerIndexReminders.getOrDefault(uuid, 0);
+                message = PLAYER_REMINDERS.get(currentIndexReminder);
+
+                if (currentIndexReminder >= PLAYER_REMINDERS.size()) {
+                    currentIndexReminder = 0;
+                }else{
+                    currentIndexReminder++;
+                }
+                playerIndexReminders.put(uuid, currentIndexReminder);
+
+            }
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(StringUtils.colorString(message)));
 
         }
 

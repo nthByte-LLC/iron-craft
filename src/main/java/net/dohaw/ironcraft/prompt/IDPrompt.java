@@ -103,6 +103,8 @@ public class IDPrompt extends StringPrompt {
         data.setIsManager(true);
         player.setGravity(false);
         player.setInvisible(true);
+        player.setAllowFlight(true);
+        player.setFlying(true);
         data.startTeleporter(plugin);
         sendManagerMessage(player);
     }

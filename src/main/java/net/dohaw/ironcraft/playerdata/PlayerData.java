@@ -172,7 +172,7 @@ public class PlayerData {
         if(teleporter != null){
             teleporter.cancel();
         }
-        teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> teleportToFocusedPlayer(), 0L, 3L);
+        teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> teleportToFocusedPlayer(), 0L, 1L);
     }
 
     public boolean isManager() {
@@ -251,7 +251,7 @@ public class PlayerData {
         if(focusedPlayer == null) return;
         Location focusedPlayerLoc = focusedPlayer.getLocation();
         Location clone = focusedPlayerLoc.clone();
-        Location tpLoc = clone.clone().add(clone.getDirection().multiply(-2)).add(0, 0.5, 0);
+        Location tpLoc = clone.clone().add(clone.getDirection().multiply(-2.5)).add(0, 0.5, 0);
         getPlayer().teleport(tpLoc);
     }
 
