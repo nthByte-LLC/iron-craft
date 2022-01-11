@@ -3,18 +3,15 @@ package net.dohaw.ironcraft.listener;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.event.CompleteObjectiveEvent;
+import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.dohaw.ironcraft.prompt.RepeatTutorialPrompt;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -24,6 +21,7 @@ import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -54,6 +52,7 @@ public class ObjectiveWatcher implements Listener {
             if (isOnObjective(playerData, Objective.COLLECT_WOOD) && itemType.toString().toLowerCase().contains("log")) {
                 if (getCountItem(player.getInventory(), itemType) >= 4) {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.COLLECT_WOOD));
+                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                 }
             }
 
@@ -72,6 +71,7 @@ public class ObjectiveWatcher implements Listener {
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.MOVE));
                     hasMovedForFirstTime.remove(player.getUniqueId());
+                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                 }, 20L * 20);
             }
         }
@@ -96,6 +96,7 @@ public class ObjectiveWatcher implements Listener {
         PlayerData playerData = getPlayerData(player);
         if (playerData.getCurrentTutorialObjective() == Objective.PLACE_CRAFTING_TABLE && e.getBlockPlaced().getType() == Material.CRAFTING_TABLE) {
             playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.PLACE_CRAFTING_TABLE));
+            Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
         }
 
     }
@@ -108,6 +109,7 @@ public class ObjectiveWatcher implements Listener {
         Material blockPlacedType = e.getBlockPlaced().getType();
         if (playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && blockPlacedType == Material.TORCH || blockPlacedType == Material.WALL_TORCH) {
             playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.PLACE_A_TORCH));
+            Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
         }
 
     }
@@ -123,6 +125,7 @@ public class ObjectiveWatcher implements Listener {
             if (isOnObjective(playerData, Objective.COLLECT_STONE) && e.getItem().getItemStack().getType() == Material.COBBLESTONE) {
                 if (getCountItem(player.getInventory(), Material.COBBLESTONE) >= 15) {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.COLLECT_STONE));
+                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                 }
             }
 
@@ -141,6 +144,7 @@ public class ObjectiveWatcher implements Listener {
             if (isOnObjective(playerData, Objective.COLLECT_IRON) && e.getItem().getItemStack().getType() == Material.RAW_IRON) {
                 if (getCountItem(player.getInventory(), Material.RAW_IRON) >= 3) {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.COLLECT_IRON));
+                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                 }
             }
 
@@ -157,9 +161,28 @@ public class ObjectiveWatcher implements Listener {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (getCountItem(player.getInventory(), Material.IRON_INGOT) + e.getItemAmount() >= 3) {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.SMELT_IRON));
+                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                 }
             }, 1);
         }
+
+    }
+
+    @EventHandler
+    public void onCompleteObjective(CompleteObjectiveEvent e){
+
+        Player player = e.getPlayerData().getPlayer();
+        World world = player.getWorld();
+        world.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+
+        Firework firework = (Firework) world.spawnEntity(player.getLocation().add(0, 1, 0), EntityType.FIREWORK);
+        FireworkMeta meta = firework.getFireworkMeta();
+        meta.addEffect(FireworkEffect.builder().withTrail().withFlicker().withFade(Color.YELLOW, Color.BLACK).withColor(Color.BLUE, Color.SILVER, Color.WHITE).build());
+        firework.setFireworkMeta(meta);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            firework.detonate();
+        }, 10L);
 
     }
 
@@ -189,10 +212,15 @@ public class ObjectiveWatcher implements Listener {
             if (currentObjective == objective && checkedMaterialsList.contains(craftedItemType)) {
 
                 if (currentObjective == Objective.MAKE_IRON_PICKAXE) {
-                    // End of the tutorial. They have just crafted an iron pickaxe
-                    concludeTutorial(player);
+                    if(playerData.isInTutorial()){
+                        // End of the tutorial. They have just crafted an iron pickaxe
+                        concludeTutorial(player);
+                    }else{
+                        Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(playerData));
+                    }
                 } else {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(objective));
+                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                 }
 
             }

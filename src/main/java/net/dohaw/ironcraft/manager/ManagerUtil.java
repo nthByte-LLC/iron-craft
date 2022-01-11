@@ -5,7 +5,6 @@ import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.event.AssignManagerEvent;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class ManagerUtil {
     /**
      * How many users you can manager at once.
      */
-    private static final int OVERSEEING_USER_LIMIT = 2;
+    public static final int OVERSEEING_USER_LIMIT = 2;
 
     /**
      * Assigns the player a manager upon joining the server. Could either be a human or AI manager.
@@ -27,7 +26,8 @@ public class ManagerUtil {
     public static void assignManager(PlayerData data) {
 
         ThreadLocalRandom current = ThreadLocalRandom.current();
-        boolean hasAIManager = false;
+        // TODO: switch this back
+        boolean hasAIManager = false /*current.nextBoolean()*/;
         if (hasAIManager) {
             data.setManagementType(ManagementType.AI);
             return;

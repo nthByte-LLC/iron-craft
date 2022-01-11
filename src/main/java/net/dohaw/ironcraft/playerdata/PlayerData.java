@@ -222,7 +222,7 @@ public class PlayerData {
         Player player = getPlayer();
         player.sendMessage(" ");
         String helperMessage = currentTutorialObjective.getHelperMessage();
-        player.sendMessage(StringUtils.colorString("&e[Objective Tip] &7" + helperMessage));
+        player.sendMessage(StringUtils.colorString("&e[Objective Tip] " + helperMessage));
     }
 
     /**
@@ -441,15 +441,8 @@ public class PlayerData {
     }
 
     public void setCurrentTutorialObjective(Objective currentTutorialObjective) {
-
-        Player player = getPlayer();
-        if (player != null) {
-            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1);
-        }
-
         this.currentTutorialObjective = currentTutorialObjective;
         sendObjectiveHelperMessage();
-
     }
 
     public void setManager(UUID manager) {
@@ -462,6 +455,10 @@ public class PlayerData {
 
     public UUID getFocusedPlayerUUID() {
         return focusedPlayerUUID;
+    }
+
+    public UUID getManager() {
+        return manager;
     }
 
     @Override

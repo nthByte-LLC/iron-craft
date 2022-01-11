@@ -11,6 +11,7 @@ import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.config.BaseConfig;
 import net.dohaw.ironcraft.data_collection.DataCollector;
+import net.dohaw.ironcraft.event.CompleteObjectiveEvent;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.listener.ItemWatcher;
 import net.dohaw.ironcraft.listener.ObjectiveWatcher;
@@ -130,6 +131,7 @@ public final class IronCraftPlugin extends JavaPlugin {
                                 // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
                                 if (isRecipeMenuOpen) {
                                     playerData.setCurrentTutorialObjective(getNextObjective(Objective.OPEN_RECIPE_MENU));
+                                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                                 } else {
                                     player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
                                 }
@@ -196,7 +198,6 @@ public final class IronCraftPlugin extends JavaPlugin {
             score.setScore(3);
 
             List<UUID> usersOverseeing = playerData.getUsersOverseeing();
-            System.out.println("USERS OVERSEEING: " + usersOverseeing.toString());
             for (int i = 0; i < usersOverseeing.size(); i++) {
                 Player p = Bukkit.getPlayer(usersOverseeing.get(i));
                 if(p == null) {

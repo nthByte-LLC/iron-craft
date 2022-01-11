@@ -44,13 +44,14 @@ public class Reminder extends BukkitRunnable {
 
                 UUID uuid = data.getUuid();
                 int currentIndexReminder = playerIndexReminders.getOrDefault(uuid, 0);
-                message = PLAYER_REMINDERS.get(currentIndexReminder);
 
-                if (currentIndexReminder >= PLAYER_REMINDERS.size()) {
+                if (currentIndexReminder >= PLAYER_REMINDERS.size() - 1) {
                     currentIndexReminder = 0;
                 }else{
                     currentIndexReminder++;
                 }
+
+                message = PLAYER_REMINDERS.get(currentIndexReminder);
                 playerIndexReminders.put(uuid, currentIndexReminder);
 
             }

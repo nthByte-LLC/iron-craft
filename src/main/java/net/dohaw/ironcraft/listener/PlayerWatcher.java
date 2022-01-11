@@ -7,7 +7,7 @@ import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.dohaw.ironcraft.prompt.IDPrompt;
-import net.dohaw.ironcraft.prompt.autonomysurvey.AutonomySurveyPrompt;
+import net.dohaw.ironcraft.prompt.AutonomySurveyPrompt;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
@@ -227,22 +227,30 @@ public class PlayerWatcher implements Listener {
         if (blockMined.getType() == Material.DIAMOND_ORE) {
 
             if (!playerData.isInTutorial()) {
-                player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
-                player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    player.getPersistentDataContainer().set(NamespacedKey.minecraft("is-answering-survey"), PersistentDataType.STRING, "marker");
-                    Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, playerDataHandler)).withLocalEcho(false).buildConversation(player);
-                    conv.begin();
-                }, 20L * 3);
+
             }
         }
 
     }
 
+    /**
+     * Listens for the end of the game. Sets the necessary data fields within the player's data & starts the autonomy survey.
+     */
     @EventHandler
-    public void EndGameEvent(EndGameEvent e) {
+    public void onEndGame(EndGameEvent e) {
+
         PlayerData playerData = e.getPlayerData();
         playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getDurationSteps());
+
+        Player player = playerData.getPlayer();
+        player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
+        player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            player.getPersistentDataContainer().set(NamespacedKey.minecraft("is-answering-survey"), PersistentDataType.STRING, "marker");
+            Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(false).buildConversation(player);
+            conv.begin();
+        }, 20L * 3);
+
     }
 
     /**

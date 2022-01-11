@@ -1,40 +1,40 @@
-package net.dohaw.ironcraft.prompt.autonomysurvey;
+package net.dohaw.ironcraft.prompt;
 
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.NamespacedKey;
-import org.bukkit.conversations.ConversationContext;
-import org.bukkit.conversations.Prompt;
-import org.bukkit.conversations.StringPrompt;
+import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class AutonomySurveyPrompt extends StringPrompt {
 
     private final List<String> QUESTIONS = Arrays.asList(
-            "Did you enjoy this task?",
-            "Did you put a lot of effort into this task?",
-            "Did you feel pressured while doing this task?",
-            "Did you feel that you have some choice about doing this task?"
+        "Did you enjoy this task?",
+        "Did you put a lot of effort into this task?",
+        "Did you feel pressured while doing this task?",
+        "Did you feel that you have some choice about doing this task?"
     );
 
     private final List<String> VALID_ANSWERS = Arrays.asList(
-            "Not at all",
-            "Slightly",
-            "Moderately",
-            "Very",
-            "Extremely"
+        "Not at all",
+        "Slightly",
+        "Moderately",
+        "Very",
+        "Extremely"
     );
 
-    private final String question;
-    private final PlayerDataHandler playerDataHandler;
+    private String question;
+    private IronCraftPlugin plugin;
 
-    public AutonomySurveyPrompt(int questionIndex, PlayerDataHandler playerDataHandler) {
-        this.playerDataHandler = playerDataHandler;
+    public AutonomySurveyPrompt(int questionIndex, IronCraftPlugin plugin) {
+        this.plugin = plugin;
         this.question = QUESTIONS.get(questionIndex);
     }
 
@@ -60,6 +60,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
         }
 
         Player player = (Player) context.getForWhom();
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
 
         SurveySession session = playerData.getSurveySession();
@@ -72,14 +73,23 @@ public class AutonomySurveyPrompt extends StringPrompt {
         session.increaseNumQuestion();
 
         if (session.getCurrentNumQuestion() == QUESTIONS.size()) {
+
             player.sendRawMessage("You have completed the survey. Thanks for playing!");
             player.getPersistentDataContainer().remove(NamespacedKey.minecraft("is-answering-survey"));
             playerData.setSurveySession(null);
             player.getInventory().clear();
+
+            // Starts the survey with the manager.
+            UUID managerUUID = playerData.getManager();
+            PlayerData managerData = playerDataHandler.getData(managerUUID);
+            Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(managerData, playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
+            conv.begin();
+
             return null;
         }
 
-        return new AutonomySurveyPrompt(session.getCurrentNumQuestion(), playerDataHandler);
+        return new AutonomySurveyPrompt(session.getCurrentNumQuestion(), plugin);
+
     }
 
     private boolean isValidAnswer(String answerGiven) {
