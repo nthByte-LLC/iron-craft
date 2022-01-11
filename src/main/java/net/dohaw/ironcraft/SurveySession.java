@@ -9,9 +9,6 @@ public class SurveySession {
 
     private final Map<String, String> questionsAndAnswers = new HashMap<>();
 
-    public SurveySession() {
-    }
-
     public void addEntry(String question, String answer) {
         this.questionsAndAnswers.put(question, answer);
     }

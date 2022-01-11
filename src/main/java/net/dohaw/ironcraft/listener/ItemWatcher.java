@@ -58,10 +58,8 @@ public class ItemWatcher implements Listener {
         if(e.getSlotType() != InventoryType.SlotType.RESULT) return;
         if(craftedItem == null) return;
 
-        ClickType click = e.getClick();
-
         int recipeAmount = craftedItem.getAmount();
-
+        ClickType click = e.getClick();
         switch (click) {
             case NUMBER_KEY:
                 // If hotbar slot selected is full, crafting fails (vanilla behavior, even when

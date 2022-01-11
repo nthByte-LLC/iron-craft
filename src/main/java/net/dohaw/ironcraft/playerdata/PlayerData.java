@@ -1,6 +1,8 @@
 package net.dohaw.ironcraft.playerdata;
 
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.manager.ManagementType;
 import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
@@ -11,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -25,6 +28,32 @@ public class PlayerData {
     private boolean isInTutorial;
     private Location chamberLocation;
     private Objective currentTutorialObjective;
+
+    /**
+     * The UUID of your manager. If you have an AI manager, this will be null.
+     */
+    private UUID manager;
+
+    /**
+     * The type of management you are receiving.
+     */
+    private ManagementType managementType;
+
+    /**
+     * The users this player is currently managing.
+     */
+    private List<UUID> usersOverseeing = new ArrayList<>();
+
+    /**
+     * The player that the manager is currently focused on. Will be null if this player is not a manager.
+     */
+    private UUID focusedPlayerUUID;
+
+    private BukkitTask teleporter;
+
+    /*
+        Data collection variables
+     */
 
     // Use in python model
     private double equipmentMisuseRatio;
@@ -139,6 +168,13 @@ public class PlayerData {
         this.previousStepCameraDirection = playerLocation.getDirection();
     }
 
+    public void startTeleporter(IronCraftPlugin plugin){
+        if(teleporter != null){
+            teleporter.cancel();
+        }
+        teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> teleportToFocusedPlayer(), 0L, 3L);
+    }
+
     public boolean isManager() {
         return isManager;
     }
@@ -208,6 +244,15 @@ public class PlayerData {
             }
         }
         return currentHighestGain + 1;
+    }
+
+    public void teleportToFocusedPlayer(){
+        Player focusedPlayer = Bukkit.getPlayer(focusedPlayerUUID);
+        if(focusedPlayer == null) return;
+        Location focusedPlayerLoc = focusedPlayer.getLocation();
+        Location clone = focusedPlayerLoc.clone();
+        Location tpLoc = clone.clone().add(clone.getDirection().multiply(-2)).add(0, 0.5, 0);
+        getPlayer().teleport(tpLoc);
     }
 
     public SurveySession getSurveySession() {
@@ -379,6 +424,18 @@ public class PlayerData {
         this.chamberLocation = chamberLocation;
     }
 
+    public List<UUID> getUsersOverseeing() {
+        return usersOverseeing;
+    }
+
+    public ManagementType getManagementType() {
+        return managementType;
+    }
+
+    public void setManagementType(ManagementType managementType) {
+        this.managementType = managementType;
+    }
+
     public Objective getCurrentTutorialObjective() {
         return currentTutorialObjective;
     }
@@ -393,6 +450,23 @@ public class PlayerData {
         this.currentTutorialObjective = currentTutorialObjective;
         sendObjectiveHelperMessage();
 
+    }
+
+    public void setManager(UUID manager) {
+        this.manager = manager;
+    }
+
+    public void setFocusedPlayerUUID(UUID focusedPlayerUUID) {
+        this.focusedPlayerUUID = focusedPlayerUUID;
+    }
+
+    public UUID getFocusedPlayerUUID() {
+        return focusedPlayerUUID;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerData{ " + uuid.toString() + "; isManager: " + isManager + "; isInTutorial: " + isInTutorial + "}";
     }
 
 }

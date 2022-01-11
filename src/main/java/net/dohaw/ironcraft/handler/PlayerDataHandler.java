@@ -5,12 +5,11 @@ import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerDataHandler {
 
@@ -78,7 +77,22 @@ public class PlayerDataHandler {
         return allPlayerData.get(uuid);
     }
 
+    public PlayerData getData(Player player){
+        return getData(player.getUniqueId());
+    }
+
     public Map<UUID, PlayerData> getAllPlayerData() {
         return allPlayerData;
     }
+
+    public List<PlayerData> getPlayerDataList(){
+        return new ArrayList<>(allPlayerData.values());
+    }
+
+    public List<PlayerData> getPlayerDataList(Player player){
+        List<PlayerData> list = new ArrayList<>(allPlayerData.values());
+        list.removeIf(pd -> pd.getUuid().equals(player.getUniqueId()));
+        return list;
+    }
+
 }

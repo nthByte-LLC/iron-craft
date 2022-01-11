@@ -32,10 +32,7 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Plugin for Max Planck Society.
@@ -43,6 +40,8 @@ import java.util.Random;
  * @author Caleb Owens, Ayush Chivate
  */
 public final class IronCraftPlugin extends JavaPlugin {
+
+    private static IronCraftPlugin instance;
 
     /**
      * The spawn points at which the player can spawn after they finish the tutorial and go out on their own.
@@ -63,6 +62,7 @@ public final class IronCraftPlugin extends JavaPlugin {
     public void onEnable() {
 
         CoreLib.setInstance(this);
+        instance = this;
         protocolManager = ProtocolLibrary.getProtocolManager();
 
         JPUtils.validateFiles("config.yml");
@@ -114,36 +114,32 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         // Listener for when the player clicks on the recipe book in their inventory.
         protocolManager.addPacketListener(
-                new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Client.RECIPE_SETTINGS) {
-                    @Override
-                    public void onPacketReceiving(PacketEvent event) {
-                        if (event.getPacketType() == PacketType.Play.Client.RECIPE_SETTINGS) {
+            new PacketAdapter(this, ListenerPriority.NORMAL, PacketType.Play.Client.RECIPE_SETTINGS) {
+                @Override
+                public void onPacketReceiving(PacketEvent event) {
+                    if (event.getPacketType() == PacketType.Play.Client.RECIPE_SETTINGS) {
 
-                            Player player = event.getPlayer();
-                            PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+                        Player player = event.getPlayer();
+                        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
 
-                            if (playerData != null) {
+                        if (playerData != null) {
+                            if (playerData.getCurrentTutorialObjective() == Objective.OPEN_RECIPE_MENU) {
 
-                                if (playerData.getCurrentTutorialObjective() == Objective.OPEN_RECIPE_MENU) {
-
-                                    boolean isRecipeMenuOpen = event.getPacket().getBooleans().read(0);
-
-                                    // Maggie will have multiple people on the same account. If 1 player leaves the recipe menu open, then it'll stay open for the next person.
-                                    // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
-                                    if (isRecipeMenuOpen) {
-                                        playerData.setCurrentTutorialObjective(getNextObjective(Objective.OPEN_RECIPE_MENU));
-                                    } else {
-                                        player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
-                                    }
-
+                                boolean isRecipeMenuOpen = event.getPacket().getBooleans().read(0);
+                                // Maggie will have multiple people on the same account. If 1 player leaves the recipe menu open, then it'll stay open for the next person.
+                                // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
+                                if (isRecipeMenuOpen) {
+                                    playerData.setCurrentTutorialObjective(getNextObjective(Objective.OPEN_RECIPE_MENU));
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
                                 }
 
                             }
-
                         }
 
                     }
-                });
+                }
+            });
 
     }
 
@@ -168,26 +164,49 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard board = manager.getNewScoreboard();
-        org.bukkit.scoreboard.Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString("&bObjectives"));
+        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+
+        String title = playerData.isManager() ? "&bPlayers Managing" : "&bObjectives";
+        org.bukkit.scoreboard.Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-        int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
-        int counter = 4;
-        for (Objective objective : Objective.values()) {
+        if(!playerData.isManager()){
 
-            Score objScore;
-            if (objective.ordinal() > currentObjectiveOrdinal) {
-                objScore = obj.getScore(StringUtils.colorString("&8&o" + objective.toProperName()));
-            } else if (objective.ordinal() == currentObjectiveOrdinal) {
-                objScore = obj.getScore(StringUtils.colorString("&6&l" + objective.toProperName()));
-            } else {
-                objScore = obj.getScore(StringUtils.colorString("&2&m" + objective.toProperName()));
+            int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
+            int counter = 4;
+            for (Objective objective : Objective.values()) {
+
+                Score objScore;
+                if (objective.ordinal() > currentObjectiveOrdinal) {
+                    objScore = obj.getScore(StringUtils.colorString("&8&o" + objective.toProperName()));
+                } else if (objective.ordinal() == currentObjectiveOrdinal) {
+                    objScore = obj.getScore(StringUtils.colorString("&6&l" + objective.toProperName()));
+                } else {
+                    objScore = obj.getScore(StringUtils.colorString("&2&m" + objective.toProperName()));
+                }
+
+                objScore.setScore(counter);
+                counter -= -1;
+
             }
 
-            objScore.setScore(counter);
+        }else{
 
-            counter -= -1;
+            Score score = obj.getScore(StringUtils.colorString("&6&lPlayers Managing"));
+            score.setScore(3);
+
+            List<UUID> usersOverseeing = playerData.getUsersOverseeing();
+            System.out.println("USERS OVERSEEING: " + usersOverseeing.toString());
+            for (int i = 0; i < usersOverseeing.size(); i++) {
+                Player p = Bukkit.getPlayer(usersOverseeing.get(i));
+                if(p == null) {
+                    usersOverseeing.remove(i);
+                    continue;
+                }
+                String userName = Bukkit.getPlayer(usersOverseeing.get(i)).getName();
+                score = obj.getScore(StringUtils.colorString("&b- " + userName));
+                score.setScore(3 - (i+1));
+            }
 
         }
 
@@ -195,6 +214,10 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     }
 
+    /**
+     * Gives the player the essentials items they need to player the game.
+     * @param player The player
+     */
     public void giveEssentialItems(Player player) {
         PlayerInventory inv = player.getInventory();
         inv.addItem(new ItemStack(Material.TORCH, 64));
@@ -219,6 +242,10 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     public BaseConfig getBaseConfig() {
         return baseConfig;
+    }
+
+    public static IronCraftPlugin getInstance() {
+        return instance;
     }
 
 }

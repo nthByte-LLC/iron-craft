@@ -1,7 +1,8 @@
 package net.dohaw.ironcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.ironcraft.EndGameEvent;
+import net.dohaw.ironcraft.event.AssignManagerEvent;
+import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.playerdata.PlayerData;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -22,9 +24,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -58,17 +58,6 @@ public class PlayerWatcher implements Listener {
 //        }
     }
 
-    private static boolean hasMoved(Location to, Location from, boolean checkY) {
-        if (to != null) {
-            boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
-            if (!hasMovedHorizontally && checkY) {
-                return from.getY() != to.getY();
-            }
-            return hasMovedHorizontally;
-        }
-        return false;
-    }
-
     /**
      * Determines if a player uses the wrong tool (a wooden pickaxe) to dig iron ore.
      *
@@ -81,6 +70,8 @@ public class PlayerWatcher implements Listener {
         Block block = e.getBlock();
         ItemStack itemInHand = p.getEquipment().getItemInMainHand();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
+
+        if(playerData.isInTutorial() || playerData.isManager()) return;
 
         if (block.getType() == Material.IRON_ORE && itemInHand.getType() == Material.WOODEN_PICKAXE) {
             playerData.incrementMisuseActionSteps();
@@ -102,8 +93,49 @@ public class PlayerWatcher implements Listener {
         Material tool = itemInHand.getType();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
 
+        if(playerData.isInTutorial() || playerData.isManager()) return;
+
         if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE) {
             playerData.incrementMisuseActionSteps();
+        }
+
+    }
+
+    /**
+     * Doesn't let managers interact with anything. Also teleports a player to the next focused player if they left-click.
+     */
+    @EventHandler
+    public void onManagerInteract(PlayerInteractEvent e){
+
+        System.out.println("interact");
+        PlayerData pd = plugin.getPlayerDataHandler().getData(e.getPlayer());
+        if(pd.isManager()) {
+            e.setCancelled(true);
+        }else{
+            return;
+        }
+
+        Action action = e.getAction();
+        System.out.println("HERE2");
+        if(action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK){
+
+            System.out.println("HERE");
+            List<UUID> overseeingUsers = pd.getUsersOverseeing();
+            if(overseeingUsers.isEmpty()) return;
+
+            UUID currentFocusedPlayer = pd.getFocusedPlayerUUID();
+            UUID nextFocusedPlayer;
+            if(currentFocusedPlayer == null){
+                nextFocusedPlayer = overseeingUsers.get(0);
+            }else{
+                int currentIndexFocusedPlayer = overseeingUsers.indexOf(currentFocusedPlayer);
+                int nextIndexFocusedPlayer = currentIndexFocusedPlayer == overseeingUsers.size() - 1 ? 0 : currentIndexFocusedPlayer + 1;
+                nextFocusedPlayer = overseeingUsers.get(nextIndexFocusedPlayer);
+            }
+            System.out.println("NEXT: " + nextFocusedPlayer);
+
+            pd.setFocusedPlayerUUID(nextFocusedPlayer);
+
         }
 
     }
@@ -133,6 +165,10 @@ public class PlayerWatcher implements Listener {
 
     }
 
+    /**
+     * Prevents players from breaking blocks if their data isn't loaded or if they're in a tutorial & isn't a permitted block to break.
+     * @param e
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
 
@@ -144,7 +180,7 @@ public class PlayerWatcher implements Listener {
         }
 
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-        if (playerData.isInTutorial() && !BREAKABLE_TUTORIAL_BLOCKS.contains(e.getBlock().getType())) {
+        if (playerData.isInTutorial() && !playerData.isManager() && !BREAKABLE_TUTORIAL_BLOCKS.contains(e.getBlock().getType())) {
             e.setCancelled(true);
             player.sendMessage("You can't break that block. Focus on the objectives!");
         }
@@ -179,10 +215,17 @@ public class PlayerWatcher implements Listener {
     public void onPlayerMineDiamond(BlockBreakEvent e) {
 
         Player player = e.getPlayer();
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+
+        if(playerData.isManager()) {
+            e.setCancelled(true);
+            return;
+        }
+
         Block blockMined = e.getBlock();
         if (blockMined.getType() == Material.DIAMOND_ORE) {
-            PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
-            PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+
             if (!playerData.isInTutorial()) {
                 player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
@@ -277,6 +320,32 @@ public class PlayerWatcher implements Listener {
 
         playerData.incrementAttackSteps();
 
+    }
+
+    /**
+     * Stops players from moving entirely if they are a manager and are overseeing users.
+     */
+    @EventHandler
+    public void onManagerMove(PlayerMoveEvent e){
+        PlayerData playerData = plugin.getPlayerDataHandler().getData(e.getPlayer());
+        if(playerData == null) return;
+        if(playerData.isManager() && !playerData.getUsersOverseeing().isEmpty() && hasMoved(e.getTo(), e.getFrom(), true)) e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onAssignManager(AssignManagerEvent e){
+        plugin.updateScoreboard(e.getManager().getPlayer());
+    }
+
+    private static boolean hasMoved(Location to, Location from, boolean checkY) {
+        if (to != null) {
+            boolean hasMovedHorizontally = from.getX() != to.getX() || from.getZ() != to.getZ();
+            if (!hasMovedHorizontally && checkY) {
+                return from.getY() != to.getY();
+            }
+            return hasMovedHorizontally;
+        }
+        return false;
     }
 
 }
