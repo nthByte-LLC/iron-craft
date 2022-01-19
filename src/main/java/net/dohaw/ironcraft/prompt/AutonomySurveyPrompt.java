@@ -4,11 +4,16 @@ import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
+import net.dohaw.ironcraft.manager.ManagementType;
 import net.dohaw.ironcraft.playerdata.PlayerData;
 import org.bukkit.NamespacedKey;
 import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -79,11 +84,15 @@ public class AutonomySurveyPrompt extends StringPrompt {
             playerData.setSurveySession(null);
             player.getInventory().clear();
 
-            // Starts the survey with the manager.
-            UUID managerUUID = playerData.getManager();
-            PlayerData managerData = playerDataHandler.getData(managerUUID);
-            Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(managerData, playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
-            conv.begin();
+            runAlgorithm();
+
+            if(playerData.getManagementType() == ManagementType.HUMAN){
+                // Starts the survey with the manager.
+                UUID managerUUID = playerData.getManager();
+                PlayerData managerData = playerDataHandler.getData(managerUUID);
+                Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(managerData, playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
+                conv.begin();
+            }
 
             return null;
         }
@@ -99,6 +108,21 @@ public class AutonomySurveyPrompt extends StringPrompt {
             }
         }
         return false;
+    }
+
+    private void runAlgorithm(){
+
+        String s;
+        try {
+            Process process = Runtime.getRuntime().exec("python D:\\Max Planck\\IronCraft\\Documentation\\final version to developer\\classifier.py");
+            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            while((s = in.readLine()) != null){
+                System.out.println(s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

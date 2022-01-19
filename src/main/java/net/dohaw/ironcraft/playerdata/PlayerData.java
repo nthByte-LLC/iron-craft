@@ -10,12 +10,15 @@ import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class PlayerData {
@@ -459,6 +462,25 @@ public class PlayerData {
 
     public UUID getManager() {
         return manager;
+    }
+
+    public void writeDataToFile(IronCraftPlugin plugin){
+        File file = new File(plugin.getDataFolder() + File.separator + "end_game_data", uuid.toString() + "_output.yml");
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        config.set("gain order sequence", itemToGainIndex.values());
+        config.set("gain order time", itemToTimeStepGained.values());
+        config.set("accumulated amount of each item", itemToAccumulatedAmount);
+        config.set("sparse reward accumulation sequence", sparseRewardSequence);
+        config.set("dense reward accumulation sequence", denseRewardSequence);
+        config.set("if useless tool was crafted", isUselessToolCrafted.values());
+        config.set("sparse total reward", getSparseTotalReward());
+        config.set("dense total reward", getDenseTotalReward());
+        config.set("dense total reward", getDenseTotalReward());
     }
 
     @Override

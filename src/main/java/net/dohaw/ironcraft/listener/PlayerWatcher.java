@@ -107,7 +107,6 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public void onManagerInteract(PlayerInteractEvent e){
 
-        System.out.println("interact");
         PlayerData pd = plugin.getPlayerDataHandler().getData(e.getPlayer());
         if(pd.isManager()) {
             e.setCancelled(true);
@@ -116,10 +115,8 @@ public class PlayerWatcher implements Listener {
         }
 
         Action action = e.getAction();
-        System.out.println("HERE2");
         if(action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK){
 
-            System.out.println("HERE");
             List<UUID> overseeingUsers = pd.getUsersOverseeing();
             if(overseeingUsers.isEmpty()) return;
 
@@ -132,7 +129,6 @@ public class PlayerWatcher implements Listener {
                 int nextIndexFocusedPlayer = currentIndexFocusedPlayer == overseeingUsers.size() - 1 ? 0 : currentIndexFocusedPlayer + 1;
                 nextFocusedPlayer = overseeingUsers.get(nextIndexFocusedPlayer);
             }
-            System.out.println("NEXT: " + nextFocusedPlayer);
 
             pd.setFocusedPlayerUUID(nextFocusedPlayer);
 
@@ -182,7 +178,7 @@ public class PlayerWatcher implements Listener {
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
         if (playerData.isInTutorial() && !playerData.isManager() && !BREAKABLE_TUTORIAL_BLOCKS.contains(e.getBlock().getType())) {
             e.setCancelled(true);
-            player.sendMessage("You can't break that block. Focus on the objectives!");
+            player.sendMessage(ChatColor.RED + "You can't break that block. Focus on the objectives!");
         }
 
     }

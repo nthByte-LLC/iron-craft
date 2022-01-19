@@ -33,6 +33,7 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -68,9 +69,10 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         JPUtils.validateFiles("config.yml");
         JPUtils.validateFilesOrFolders(
-                new HashMap<String, Object>() {{
-                    put("player_data", getDataFolder());
-                }}, true
+            new HashMap<String, Object>() {{
+                put("player_data", getDataFolder());
+                put("end_game_data", getDataFolder());
+            }}, true
         );
         baseConfig = new BaseConfig();
         loadConfigValues();
