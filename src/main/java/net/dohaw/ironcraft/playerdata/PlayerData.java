@@ -368,11 +368,11 @@ public class PlayerData {
     }
 
     public double computeAttackEfficiency() {
-        return getTotalExcavableInventory() / (double) attackSteps;
+        return attackSteps != 0 ? getTotalExcavableInventory() / (double) attackSteps : 0;
     }
 
     public double computeEquippedAttackRatio() {
-        return equippedAttackSteps / (double) attackSteps;
+        return attackSteps != 0 ? equippedAttackSteps / (double) attackSteps : 0;
     }
 
     private int getTotalExcavableInventory() {
@@ -464,23 +464,33 @@ public class PlayerData {
         return manager;
     }
 
-    public void writeDataToFile(IronCraftPlugin plugin){
-        File file = new File(plugin.getDataFolder() + File.separator + "end_game_data", uuid.toString() + "_output.yml");
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void writeDataToFile(IronCraftPlugin plugin) throws IOException {
+
+        File file = new File(plugin.getDataFolder() + File.separator + "end_game_data", "input_" + uuid.toString() + ".yml");
+        file.createNewFile();
+
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        config.set("gain order sequence", itemToGainIndex.values());
-        config.set("gain order time", itemToTimeStepGained.values());
-        config.set("accumulated amount of each item", itemToAccumulatedAmount);
+        config.set("gain order sequence", new ArrayList<>(itemToGainIndex.values()));
+        config.set("gain order time", new ArrayList<>(itemToTimeStepGained.values()));
+        config.set("accumulated amount of each item", new ArrayList<>(itemToAccumulatedAmount.values()));
         config.set("sparse reward accumulation sequence", sparseRewardSequence);
         config.set("dense reward accumulation sequence", denseRewardSequence);
-        config.set("if useless tool was crafted", isUselessToolCrafted.values());
+        config.set("if useless tool was crafted", new ArrayList<>(isUselessToolCrafted.values()));
         config.set("sparse total reward", getSparseTotalReward());
         config.set("dense total reward", getDenseTotalReward());
         config.set("dense total reward", getDenseTotalReward());
+        config.set("attack efficiency", computeAttackEfficiency());
+        config.set("attack ratio", computeAttackRatio());
+        config.set("equipped attack ratio", computeEquippedAttackRatio());
+        config.set("camera moving ratio", computeCameraMovingRatio());
+        config.set("position moving ratio", computePositionMovingRatio());
+        config.set("placed items.torch", itemToAmountPlaced.get("torch"));
+        config.set("placed items.cobblestone", itemToAmountPlaced.get("cobblestone"));
+        config.set("placed items.dirt", itemToAmountPlaced.get("dirt"));
+        config.set("placed items.stone", itemToAmountPlaced.get("stone"));
+        config.set("if smelt coal", hasSmeltedCoal);
+        config.save(file);
+
     }
 
     @Override

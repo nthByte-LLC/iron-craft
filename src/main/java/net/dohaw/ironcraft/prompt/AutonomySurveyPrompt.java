@@ -84,9 +84,15 @@ public class AutonomySurveyPrompt extends StringPrompt {
             playerData.setSurveySession(null);
             player.getInventory().clear();
 
-            runAlgorithm();
-
             if(playerData.getManagementType() == ManagementType.HUMAN){
+
+                try {
+                    playerData.writeDataToFile(plugin);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                runAlgorithm();
                 // Starts the survey with the manager.
                 UUID managerUUID = playerData.getManager();
                 PlayerData managerData = playerDataHandler.getData(managerUUID);
@@ -95,6 +101,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
             }
 
             return null;
+
         }
 
         return new AutonomySurveyPrompt(session.getCurrentNumQuestion(), plugin);
