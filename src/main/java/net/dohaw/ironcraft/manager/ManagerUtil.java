@@ -65,4 +65,10 @@ public class ManagerUtil {
 
     }
 
+    public static void sendManagerMessage(Player player){
+        player.sendRawMessage("You are a manager in the iron pickaxe factory. You will supervise 2 to 5 workers, who should make an iron pickaxe within 7 mins.");
+        player.sendRawMessage("As a manager, your task is to keep an eye on their performance and evaluate them after the 7-min session expires. You can rate each of them on three levels: Beginner level ($0), Intermediate level ($0.2), or Advanced level ($0.5). Your ratings will decide their pay in the session as shown in the brackets.");
+        player.sendRawMessage("Left click to switch your focus between players that you manage.");
+    }
+
 }

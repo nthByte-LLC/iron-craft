@@ -64,11 +64,13 @@ public class RepeatTutorialPrompt extends StringPrompt {
                     player.getInventory().clear();
                     plugin.giveEssentialItems(player);
                     player.teleport(randomSpawnPoint);
+                    playerData.startGameTimeTracker(plugin);
                 }, 20L * 3);
 
             }
 
         }
-        return null;
+
+        return END_OF_CONVERSATION;
     }
 }

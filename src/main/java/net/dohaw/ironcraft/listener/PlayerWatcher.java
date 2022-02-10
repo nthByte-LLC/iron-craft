@@ -6,8 +6,10 @@ import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.PlayerData;
+import net.dohaw.ironcraft.manager.ManagementType;
 import net.dohaw.ironcraft.prompt.IDPrompt;
 import net.dohaw.ironcraft.prompt.AutonomySurveyPrompt;
+import net.dohaw.ironcraft.prompt.ManagerSurvey;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
@@ -220,6 +222,14 @@ public class PlayerWatcher implements Listener {
             Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(false).buildConversation(player);
             conv.begin();
         }, 20L * 3);
+
+        // If they are managed by a human, start the manager survey with them.
+        if(playerData.getManagementType() == ManagementType.HUMAN){
+            UUID managerUUID = playerData.getManager();
+            PlayerData managerData = plugin.getPlayerDataHandler().getData(managerUUID);
+            Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
+            conv.begin();
+        }
 
     }
 

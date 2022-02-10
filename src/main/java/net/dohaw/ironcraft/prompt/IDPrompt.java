@@ -38,11 +38,12 @@ public class IDPrompt extends StringPrompt {
             PlayerData data = playerDataHandler.loadData(providedID);
             if(!data.isManager()){
                 ManagerUtil.assignManager(data);
+                data.initWorker();
                 // Delayed because data#sendObjectiveHelperMessage does not send a raw message.
                 // You can only send raw messages to the player if they are conversing. The player will not be conversing 2 ticks from now.
                 Bukkit.getScheduler().runTaskLater(plugin, data::sendObjectiveHelperMessage, 2);
             }else{
-                initManager(data);
+                data.initManager(plugin);
             }
         } else {
 
@@ -56,10 +57,11 @@ public class IDPrompt extends StringPrompt {
                 int numOnlinePlayers = Bukkit.getOnlinePlayers().size();
                 boolean isManager = numOnlinePlayers == 1 ? false : ThreadLocalRandom.current().nextBoolean();
                 if(isManager){
-                    initManager(data);
+                    data.initManager(plugin);
                     // Should we switch certain players from AI managers to Human managers?
                 }else{
 
+                    data.initWorker();
                     Location randomChamberLocation = plugin.getRandomChamber();
                     if (randomChamberLocation == null) {
                         plugin.getLogger().severe("There has been an error trying to teleport a player to a training chamber");
@@ -89,23 +91,6 @@ public class IDPrompt extends StringPrompt {
 
         return null;
 
-    }
-
-    private void sendManagerMessage(Player player){
-        player.sendRawMessage("You are a manager in the iron pickaxe factory. You will supervise 2 to 5 workers, who should make an iron pickaxe within 7 mins.");
-        player.sendRawMessage("As a manager, your task is to keep an eye on their performance and evaluate them after the 7-min session expires. You can rate each of them on three levels: Beginner level ($0), Intermediate level ($0.2), or Advanced level ($0.5). Your ratings will decide their pay in the session as shown in the brackets.");
-        player.sendRawMessage("Left click to switch your focus between players that you manage.");
-    }
-
-    private void initManager(PlayerData data){
-        Player player = data.getPlayer();
-        data.setIsManager(true);
-        player.setGravity(false);
-        player.setInvisible(true);
-        player.setAllowFlight(true);
-        player.setFlying(true);
-        data.startTeleporter(plugin);
-        sendManagerMessage(player);
     }
 
 }

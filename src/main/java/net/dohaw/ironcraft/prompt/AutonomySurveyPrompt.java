@@ -10,10 +10,12 @@ import net.dohaw.ironcraft.PlayerData;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
 
+import javax.print.DocFlavor;
 import java.io.*;
 import java.util.Arrays;
 import java.util.List;
@@ -85,6 +87,19 @@ public class AutonomySurveyPrompt extends StringPrompt {
             playerData.setSurveySession(null);
             player.getInventory().clear();
 
+            String managerFeedback = playerData.getManagerFeedback();
+            if(managerFeedback != null){
+                player.sendRawMessage("Your manager has given you a proficiency level of " + managerFeedback);
+            }else{
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    String currentManagerFeedback = playerData.getManagerFeedback();
+                    if(currentManagerFeedback == null || !player.isOnline()){
+                        return;
+                    }
+                    player.sendRawMessage("Your manager has given you a proficiency level of " + currentManagerFeedback);
+                }, 10 * 20L);
+            }
+
             // Write their data to file and calculate their proficiency score.
             try {
                 playerData.writeDataToFile(plugin);
@@ -93,15 +108,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
             }
             calculateProficiencyScore(player);
 
-            if(playerData.getManagementType() == ManagementType.HUMAN){
-                // Starts the survey with the manager.
-                UUID managerUUID = playerData.getManager();
-                PlayerData managerData = playerDataHandler.getData(managerUUID);
-                Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(managerData, playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
-                conv.begin();
-            }
-
-            return null;
+            return END_OF_CONVERSATION;
 
         }
 

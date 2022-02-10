@@ -1,19 +1,22 @@
 package net.dohaw.ironcraft;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.manager.ManagementType;
-import net.dohaw.ironcraft.Objective;
-import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
+import net.dohaw.ironcraft.manager.ManagerUtil;
+import net.dohaw.ironcraft.prompt.AutonomySurveyPrompt;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
@@ -52,12 +55,14 @@ public class PlayerData {
      */
     private UUID focusedPlayerUUID;
 
-    private BukkitTask teleporter, tickCounter;
+    private BukkitTask teleporter, gameTimeTracker;
 
     /**
      * How many minutes the player has been playing the game.
      */
     private int minutesInGame;
+
+    private String managerFeedback;
 
     /*
         Data collection variables
@@ -187,16 +192,40 @@ public class PlayerData {
         teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> teleportToFocusedPlayer(), 0L, 1L);
     }
 
-    public void startTickCounter(IronCraftPlugin plugin){
-        if(tickCounter != null){
-            tickCounter.cancel();
+    /**
+     * Starts the task that keeps track of how many minutes the player has been in the game.
+     * @param plugin An instance of the plugin.
+     */
+    public void startGameTimeTracker(IronCraftPlugin plugin){
+        if(gameTimeTracker != null){
+            gameTimeTracker.cancel();
         }
-        tickCounter = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        gameTimeTracker = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+
             minutesInGame++;
             if(minutesInGame == 7){
-                tickCounter.cancel();
+
+                gameTimeTracker.cancel();
+
+                Player player = getPlayer();
+
+                player.sendMessage(StringUtils.colorString("&cYour time is up!"));
+                player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
+
+                PlayerData managerData = plugin.getPlayerDataHandler().getData(manager);
+                if(managerData.getFocusedPlayerUUID().equals(uuid)){
+                    managerData.setFocusedPlayerUUID(null);
+                }
+                this.manager = null;
+
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    player.getPersistentDataContainer().set(NamespacedKey.minecraft("is-answering-survey"), PersistentDataType.STRING, "marker");
+                    Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(false).buildConversation(player);
+                    conv.begin();
+                }, 20L * 3);
 
             }
+
         },20 * 60L, 20 * 60L);
     }
 
@@ -282,6 +311,29 @@ public class PlayerData {
         getPlayer().teleport(tpLoc);
     }
 
+    public void initManager(IronCraftPlugin plugin){
+        Player player = getPlayer();
+        this.isManager = true;
+        player.setGravity(false);
+        player.setInvisible(true);
+        player.setAllowFlight(true);
+        player.setFlying(true);
+        startTeleporter(plugin);
+        ManagerUtil.sendManagerMessage(player);
+    }
+
+    public void initWorker(){
+        Player player = getPlayer();
+        this.isManager = false;
+        player.setGravity(true);
+        player.setInvisible(false);
+        player.setAllowFlight(false);
+        player.setFlying(false);
+        if(teleporter != null){
+            teleporter.cancel();
+        }
+    }
+
     public SurveySession getSurveySession() {
         return surveySession;
     }
@@ -312,6 +364,10 @@ public class PlayerData {
 
     public int getDurationSteps() {
         return durationSteps;
+    }
+
+    public void incrementMisuseActionSteps() {
+        misuseActionSteps++;
     }
 
     public void setHasSmeltedCoal(boolean b) {
@@ -441,6 +497,14 @@ public class PlayerData {
 
     public UUID getManager() {
         return manager;
+    }
+
+    public String getManagerFeedback() {
+        return managerFeedback;
+    }
+
+    public void setManagerFeedback(String managerFeedback) {
+        this.managerFeedback = managerFeedback;
     }
 
     public void writeDataToFile(IronCraftPlugin plugin) throws IOException {
