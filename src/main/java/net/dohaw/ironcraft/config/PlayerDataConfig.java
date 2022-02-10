@@ -2,7 +2,7 @@ package net.dohaw.ironcraft.config;
 
 import net.dohaw.corelib.Config;
 import net.dohaw.ironcraft.Objective;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 
 import java.io.File;
 import java.util.UUID;

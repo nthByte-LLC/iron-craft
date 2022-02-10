@@ -5,7 +5,7 @@ import net.dohaw.ironcraft.event.AssignManagerEvent;
 import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import net.dohaw.ironcraft.prompt.IDPrompt;
 import net.dohaw.ironcraft.prompt.AutonomySurveyPrompt;
 import org.bukkit.*;
@@ -108,11 +108,9 @@ public class PlayerWatcher implements Listener {
     public void onManagerInteract(PlayerInteractEvent e){
 
         PlayerData pd = plugin.getPlayerDataHandler().getData(e.getPlayer());
-        if(pd.isManager()) {
-            e.setCancelled(true);
-        }else{
-            return;
-        }
+        if(!pd.isManager()) return;
+
+        e.setCancelled(true);
 
         Action action = e.getAction();
         if(action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK){
@@ -141,7 +139,6 @@ public class PlayerWatcher implements Listener {
 
         Player player = e.getPlayer();
         player.sendTitle("Input your ID", "Press T on your keyboard", 5, 100, 20);
-        //player.sendMessage("Once you press T, you should be allowed to type in chat and input your ID!");
 
         ConversationFactory conversationFactory = new ConversationFactory(plugin);
         Conversation conversation = conversationFactory.withFirstPrompt(new IDPrompt(plugin)).withLocalEcho(false).buildConversation(player);
@@ -207,36 +204,13 @@ public class PlayerWatcher implements Listener {
 
     }
 
-    @EventHandler
-    public void onPlayerMineDiamond(BlockBreakEvent e) {
-
-        Player player = e.getPlayer();
-        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
-        PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-
-        if(playerData.isManager()) {
-            e.setCancelled(true);
-            return;
-        }
-
-        Block blockMined = e.getBlock();
-        if (blockMined.getType() == Material.DIAMOND_ORE) {
-
-            if (!playerData.isInTutorial()) {
-
-            }
-        }
-
-    }
-
-    /**
+    /*
      * Listens for the end of the game. Sets the necessary data fields within the player's data & starts the autonomy survey.
      */
     @EventHandler
     public void onEndGame(EndGameEvent e) {
 
         PlayerData playerData = e.getPlayerData();
-        playerData.setEquipmentMisuseRatio((float) playerData.getMisuseActionSteps() / playerData.getDurationSteps());
 
         Player player = playerData.getPlayer();
         player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));

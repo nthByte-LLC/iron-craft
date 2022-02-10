@@ -3,7 +3,7 @@ package net.dohaw.ironcraft.prompt;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.Objective;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;

@@ -3,7 +3,7 @@ package net.dohaw.ironcraft.manager;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.event.AssignManagerEvent;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

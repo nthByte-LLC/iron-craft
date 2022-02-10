@@ -1,4 +1,4 @@
-package net.dohaw.ironcraft.playerdata;
+package net.dohaw.ironcraft;
 
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
@@ -52,14 +52,18 @@ public class PlayerData {
      */
     private UUID focusedPlayerUUID;
 
-    private BukkitTask teleporter;
+    private BukkitTask teleporter, tickCounter;
+
+    /**
+     * How many minutes the player has been playing the game.
+     */
+    private int minutesInGame;
 
     /*
         Data collection variables
      */
 
     // Use in python model
-    private double equipmentMisuseRatio;
     private int misuseActionSteps;
     private boolean hasSmeltedCoal;
 
@@ -148,7 +152,12 @@ public class PlayerData {
     /**
      * The amount of items placed.
      */
-    private Map<String, Integer> itemToAmountPlaced = new HashMap<>();
+    private Map<String, Integer> itemToAmountPlaced = new HashMap<String, Integer>(){{
+        put("torch", 0);
+        put("cobblestone", 0);
+        put("dirt", 0);
+        put("stone", 0);
+    }};
 
     // Bad name. Can't figure out how else to explain it though.
     private HashSet<String> firstPickItems = new HashSet<>();
@@ -178,6 +187,19 @@ public class PlayerData {
         teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> teleportToFocusedPlayer(), 0L, 1L);
     }
 
+    public void startTickCounter(IronCraftPlugin plugin){
+        if(tickCounter != null){
+            tickCounter.cancel();
+        }
+        tickCounter = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            minutesInGame++;
+            if(minutesInGame == 7){
+                tickCounter.cancel();
+
+            }
+        },20 * 60L, 20 * 60L);
+    }
+
     public boolean isManager() {
         return isManager;
     }
@@ -204,7 +226,6 @@ public class PlayerData {
 
     public void saveData() {
         playerDataConfig.saveData(this);
-//        objectiveReminder.cancel();
     }
 
     public boolean hasMovedCamera(Vector currentDirection) {
@@ -249,6 +270,9 @@ public class PlayerData {
         return currentHighestGain + 1;
     }
 
+    /**
+     * Teleports the player to the player they are currently focused on. This method is usually only used if this player is a manager.
+     */
     public void teleportToFocusedPlayer(){
         Player focusedPlayer = Bukkit.getPlayer(focusedPlayerUUID);
         if(focusedPlayer == null) return;
@@ -265,10 +289,6 @@ public class PlayerData {
     public void setSurveySession(SurveySession surveySession) {
         this.surveySession = surveySession;
     }
-
-//    public void addInventoryData(TreeMap<String, Integer> inventoryData) {
-//        inventoryDataList.add(inventoryData);
-//    }
 
     public Map<String, Boolean> getIsUselessToolCrafted() {
         return isUselessToolCrafted;
@@ -292,39 +312,6 @@ public class PlayerData {
 
     public int getDurationSteps() {
         return durationSteps;
-    }
-
-    public Map<String, Integer> getItemToAccumulatedAmount() {
-        return itemToAccumulatedAmount;
-    }
-
-    /**
-     * Increments the amount of times the player has misused a tool.
-     */
-    public void incrementMisuseActionSteps() {
-        misuseActionSteps++;
-    }
-
-    /**
-     * Gets the amount of times the player has misused a tool.
-     *
-     * @return the amount of times the player has misused a tool
-     */
-    public int getMisuseActionSteps() {
-        return misuseActionSteps;
-    }
-
-    /**
-     * Sets the equipment misuse ratio to the given value.
-     *
-     * @param equipmentMisuseRatio The new equipment misuse ratio
-     */
-    public void setEquipmentMisuseRatio(double equipmentMisuseRatio) {
-        this.equipmentMisuseRatio = equipmentMisuseRatio;
-    }
-
-    public boolean hasSmeltedCoal() {
-        return hasSmeltedCoal;
     }
 
     public void setHasSmeltedCoal(boolean b) {
@@ -393,14 +380,6 @@ public class PlayerData {
 
     public int getDenseTotalReward() {
         return denseRewardSequence.get(denseRewardSequence.size() - 1);
-    }
-
-    public Vector getPreviousStepCameraDirection() {
-        return previousStepCameraDirection;
-    }
-
-    public Location getPreviousStepLocation() {
-        return previousStepLocation;
     }
 
     public void setPreviousStepLocation(Location previousStepLocation) {

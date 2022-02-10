@@ -1,20 +1,14 @@
 package net.dohaw.ironcraft.prompt;
 
-import net.dohaw.corelib.StringUtils;
-import net.dohaw.ironcraft.manager.ManagerUtil;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.conversations.Conversable;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
-import org.bukkit.event.world.WorldUnloadEvent;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 public class ManagerSurvey extends StringPrompt {
 

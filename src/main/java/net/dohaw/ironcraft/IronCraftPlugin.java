@@ -16,7 +16,6 @@ import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.listener.ItemWatcher;
 import net.dohaw.ironcraft.listener.ObjectiveWatcher;
 import net.dohaw.ironcraft.listener.PlayerWatcher;
-import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.dohaw.ironcraft.prompt.IDPrompt;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,7 +32,6 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
-import java.io.File;
 import java.util.*;
 
 /**
@@ -64,6 +62,7 @@ public final class IronCraftPlugin extends JavaPlugin {
     public void onEnable() {
 
         CoreLib.setInstance(this);
+
         instance = this;
         protocolManager = ProtocolLibrary.getProtocolManager();
 
@@ -84,7 +83,7 @@ public final class IronCraftPlugin extends JavaPlugin {
         JPUtils.registerEvents(new ObjectiveWatcher(this));
         JPUtils.registerEvents(new ItemWatcher(this));
 
-        // Only useful if there are players on the server, and /plugman reload DiamondCraft gets ran
+        // Only useful if there are players on the server, and /plugman reload IronCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.isConversing()) {
                 player.kickPlayer("Please rejoin the server!");

@@ -3,7 +3,7 @@ package net.dohaw.ironcraft.listener;
 import net.dohaw.ironcraft.CraftUtil;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;

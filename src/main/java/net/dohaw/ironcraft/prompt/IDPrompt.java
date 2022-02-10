@@ -1,10 +1,9 @@
 package net.dohaw.ironcraft.prompt;
 
 import net.dohaw.ironcraft.IronCraftPlugin;
-import net.dohaw.ironcraft.manager.ManagementType;
 import net.dohaw.ironcraft.manager.ManagerUtil;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.conversations.ConversationContext;

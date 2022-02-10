@@ -3,7 +3,7 @@ package net.dohaw.ironcraft.handler;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

@@ -1,7 +1,7 @@
 package net.dohaw.ironcraft.data_collection;
 
 import net.dohaw.ironcraft.IronCraftPlugin;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

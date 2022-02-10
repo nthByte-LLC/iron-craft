@@ -6,7 +6,7 @@ import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.event.CompleteObjectiveEvent;
 import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import net.dohaw.ironcraft.prompt.RepeatTutorialPrompt;
 import org.bukkit.*;
 import org.bukkit.conversations.Conversation;

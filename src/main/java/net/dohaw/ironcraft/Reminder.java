@@ -1,7 +1,6 @@
 package net.dohaw.ironcraft;
 
 import net.dohaw.corelib.StringUtils;
-import net.dohaw.ironcraft.playerdata.PlayerData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;

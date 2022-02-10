@@ -1,6 +1,6 @@
 package net.dohaw.ironcraft.event;
 
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

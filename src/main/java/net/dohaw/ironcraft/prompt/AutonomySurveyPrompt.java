@@ -1,19 +1,20 @@
 package net.dohaw.ironcraft.prompt;
 
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.corelib.helpers.MathHelper;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.manager.ManagementType;
-import net.dohaw.ironcraft.playerdata.PlayerData;
+import net.dohaw.ironcraft.PlayerData;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.bukkit.NamespacedKey;
 import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -28,11 +29,11 @@ public class AutonomySurveyPrompt extends StringPrompt {
     );
 
     private final List<String> VALID_ANSWERS = Arrays.asList(
-        "Not at all",
-        "Slightly",
-        "Moderately",
-        "Very",
-        "Extremely"
+        "&e[1]&7 Not at all",
+        "&e[2]&7 Slightly",
+        "&e[3]&7 Moderately",
+        "&e[4]&7 Very",
+        "&e[5]&7 Extremely"
     );
 
     private String question;
@@ -50,10 +51,10 @@ public class AutonomySurveyPrompt extends StringPrompt {
             answers += answer;
             // if it's not the last one
             if (!VALID_ANSWERS.get(VALID_ANSWERS.size() - 1).equalsIgnoreCase(answer)) {
-                answers += "/";
+                answers += "\n";
             }
         }
-        return StringUtils.colorString("&l" + question + "\n" + answers);
+        return StringUtils.colorString("\n&l" + question + "\n \n" + answers + "\n \nEnter a number");
     }
 
     @Override
@@ -84,15 +85,15 @@ public class AutonomySurveyPrompt extends StringPrompt {
             playerData.setSurveySession(null);
             player.getInventory().clear();
 
+            // Write their data to file and calculate their proficiency score.
+            try {
+                playerData.writeDataToFile(plugin);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            calculateProficiencyScore(player);
+
             if(playerData.getManagementType() == ManagementType.HUMAN){
-
-                try {
-                    playerData.writeDataToFile(plugin);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                runAlgorithm();
                 // Starts the survey with the manager.
                 UUID managerUUID = playerData.getManager();
                 PlayerData managerData = playerDataHandler.getData(managerUUID);
@@ -109,26 +110,39 @@ public class AutonomySurveyPrompt extends StringPrompt {
     }
 
     private boolean isValidAnswer(String answerGiven) {
-        for (String answer : VALID_ANSWERS) {
-            if (answer.equalsIgnoreCase(answerGiven)) {
-                return true;
-            }
-        }
-        return false;
+        if(!MathHelper.isInt(answerGiven)) return false;
+        int num = Integer.parseInt(answerGiven);
+        return num > 0 && num <= VALID_ANSWERS.size();
     }
 
-    private void runAlgorithm(){
+    /**
+     * Calculates the player's proficiency score by feeding data to a Python algorithm.
+     * @return
+     */
+    private int calculateProficiencyScore(Player player){
 
-        String s;
+        UUID playerUUID = player.getUniqueId();
+        String inputFilePath = plugin.getDataFolder() + "\\end_game_data\\input_" + playerUUID.toString() + ".yml";
+        String pythonFilePath = plugin.getDataFolder() + "\\end_game_data\\algo\\" + "classifier.py";
+        String line = "py " + pythonFilePath + " " + inputFilePath;
+
+        CommandLine cmdLine = CommandLine.parse(line);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+
+        DefaultExecutor executor = new DefaultExecutor();
+        executor.setStreamHandler(streamHandler);
+
+        int exitCode;
         try {
-            Process process = Runtime.getRuntime().exec("python D:\\Max Planck\\IronCraft\\Documentation\\final version to developer\\classifier.py");
-            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while((s = in.readLine()) != null){
-                System.out.println(s);
-            }
+            exitCode = executor.execute(cmdLine);
         } catch (IOException e) {
             e.printStackTrace();
+            return 0;
         }
+
+        return exitCode;
 
     }
 
