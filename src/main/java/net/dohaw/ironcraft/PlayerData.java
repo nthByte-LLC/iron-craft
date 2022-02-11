@@ -507,6 +507,14 @@ public class PlayerData {
         this.managerFeedback = managerFeedback;
     }
 
+    public int getMinutesInGame() {
+        return minutesInGame;
+    }
+
+    public void setMinutesInGame(int minutesInGame) {
+        this.minutesInGame = minutesInGame;
+    }
+
     public void writeDataToFile(IronCraftPlugin plugin) throws IOException {
 
         File file = new File(plugin.getDataFolder() + File.separator + "end_game_data", "input_" + uuid.toString() + ".yml");

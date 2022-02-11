@@ -107,7 +107,7 @@ public class ObjectiveWatcher implements Listener {
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
         Material blockPlacedType = e.getBlockPlaced().getType();
-        if (playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && blockPlacedType == Material.TORCH || blockPlacedType == Material.WALL_TORCH) {
+        if (playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && (blockPlacedType == Material.TORCH || blockPlacedType == Material.WALL_TORCH) ) {
             playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.PLACE_A_TORCH));
             Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
         }

@@ -53,6 +53,12 @@ public class Reminder extends BukkitRunnable {
                 message = PLAYER_REMINDERS.get(currentIndexReminder);
                 playerIndexReminders.put(uuid, currentIndexReminder);
 
+                // Reminds them of how much time they have left if they are in the actual game.
+                if(!data.isInTutorial()){
+                    int minutesInGame = data.getMinutesInGame();
+                    player.sendMessage(StringUtils.colorString("&7You have &e" + (7 - minutesInGame) + "&7 minutes to complete the game!"));
+                }
+
             }
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(StringUtils.colorString(message)));
 

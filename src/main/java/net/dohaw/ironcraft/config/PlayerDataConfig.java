@@ -24,6 +24,7 @@ public class PlayerDataConfig extends Config {
         playerData.setInTutorial(config.getBoolean("Is In Tutorial"));
         playerData.setChamberLocation(config.getLocation("Chamber Location"));
         playerData.setCurrentTutorialObjective(Objective.valueOf(config.getString("Tutorial Objective")));
+        playerData.setMinutesInGame(config.getInt("Minutes In Game"));
 
         return playerData;
     }
@@ -34,6 +35,7 @@ public class PlayerDataConfig extends Config {
         config.set("Is In Tutorial", data.isInTutorial());
         config.set("Chamber Location", data.getChamberLocation());
         config.set("Tutorial Objective", data.getCurrentTutorialObjective().toString());
+        config.set("Minutes In Game", data.getMinutesInGame());
         saveConfig();
     }
 

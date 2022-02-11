@@ -161,7 +161,6 @@ public final class IronCraftPlugin extends JavaPlugin {
     }
 
     public Location getRandomJourneySpawnPoint() {
-        System.out.println("SPAWN LOCATIONS: " + journeySpawnPoints);
         return journeySpawnPoints.get(new Random().nextInt(journeySpawnPoints.size()));
     }
 
@@ -177,8 +176,14 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         if(!playerData.isManager()){
 
+            // If they aren't in the tutorial, then they don't need the objectives on the side of their screen.
+            if(!playerData.isInTutorial()){
+                player.setScoreboard(manager.getNewScoreboard());
+                return;
+            }
+
             int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
-            int counter = 4;
+            int counter = 1;
             for (Objective objective : Objective.values()) {
 
                 Score objScore;
