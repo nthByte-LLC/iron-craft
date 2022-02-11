@@ -132,7 +132,9 @@ public final class IronCraftPlugin extends JavaPlugin {
                                 // If they try to complete the objective and clicking the recipe menu button while it's open, it'll close it and that'll leave them confused.
                                 if (isRecipeMenuOpen) {
                                     playerData.setCurrentTutorialObjective(getNextObjective(Objective.OPEN_RECIPE_MENU));
-                                    Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
+                                    Bukkit.getScheduler().runTask(instance, () -> {
+                                        Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
+                                    });
                                 } else {
                                     player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
                                 }
