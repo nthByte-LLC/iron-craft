@@ -3,6 +3,7 @@ package net.dohaw.ironcraft.listener;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.Reason;
 import net.dohaw.ironcraft.event.CompleteObjectiveEvent;
 import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
@@ -81,7 +82,7 @@ public class ObjectiveWatcher implements Listener {
     @EventHandler
     public void onCraftSticks(CraftItemEvent e) {
         checkIfPassedCraftingObjective(e, Objective.MAKE_STICKS, Material.STICK);
-        checkIfPassedCraftingObjective(e, Objective.MAKE_PLANKS, Material.OAK_PLANKS, Material.SPRUCE_PLANKS, Material.ACACIA_PLANKS, Material.DARK_OAK_PLANKS, Material.JUNGLE_PLANKS);
+        checkIfPassedCraftingObjective(e, Objective.MAKE_PLANKS, Material.OAK_PLANKS, Material.BIRCH_PLANKS, Material.SPRUCE_PLANKS, Material.ACACIA_PLANKS, Material.DARK_OAK_PLANKS, Material.JUNGLE_PLANKS);
         checkIfPassedCraftingObjective(e, Objective.MAKE_CRAFTING_TABLE, Material.CRAFTING_TABLE);
         checkIfPassedCraftingObjective(e, Objective.MAKE_WOODEN_PICKAXE, Material.WOODEN_PICKAXE);
         checkIfPassedCraftingObjective(e, Objective.MAKE_STONE_PICKAXE, Material.STONE_PICKAXE);
@@ -171,7 +172,8 @@ public class ObjectiveWatcher implements Listener {
     @EventHandler
     public void onCompleteObjective(CompleteObjectiveEvent e){
 
-        Player player = e.getPlayerData().getPlayer();
+        PlayerData playerData = e.getPlayerData();
+        Player player = playerData.getPlayer();
         World world = player.getWorld();
         world.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 
@@ -183,6 +185,8 @@ public class ObjectiveWatcher implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             firework.detonate();
         }, 10L);
+
+        player.sendTitle("Objective Complete!", "New Objective: " + playerData.getCurrentTutorialObjective().toProperName(), 10, 100, 10);
 
     }
 
@@ -216,7 +220,7 @@ public class ObjectiveWatcher implements Listener {
                         // End of the tutorial. They have just crafted an iron pickaxe
                         concludeTutorial(player);
                     }else{
-                        Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(playerData));
+                        Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(Reason.GAME_COMPLETE, playerData));
                     }
                 } else {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(objective));

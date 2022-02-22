@@ -34,11 +34,11 @@ public class IDPrompt extends StringPrompt {
 
         player.setGravity(true);
 
+        PlayerData data;
         if (playerDataHandler.hasExistingPlayerData(providedID)) {
-            PlayerData data = playerDataHandler.loadData(providedID);
+            data = playerDataHandler.loadData(providedID);
             if(!data.isManager()){
-                ManagerUtil.assignManager(data);
-                data.initWorker();
+                data.initWorker(plugin);
                 // Delayed because data#sendObjectiveHelperMessage does not send a raw message.
                 // You can only send raw messages to the player if they are conversing. The player will not be conversing 2 ticks from now.
                 Bukkit.getScheduler().runTaskLater(plugin, data::sendObjectiveHelperMessage, 2);
@@ -53,7 +53,7 @@ public class IDPrompt extends StringPrompt {
                 player.sendRawMessage("There was an error! Please contact an administrator...");
             } else {
 
-                PlayerData data = playerDataHandler.getData(player);
+                data = playerDataHandler.getData(player);
                 int numOnlinePlayers = Bukkit.getOnlinePlayers().size();
                 boolean isManager = numOnlinePlayers == 1 ? false : ThreadLocalRandom.current().nextBoolean();
                 if(isManager){
@@ -61,15 +61,13 @@ public class IDPrompt extends StringPrompt {
                     // Should we switch certain players from AI managers to Human managers?
                 }else{
 
-                    data.initWorker();
+                    data.initWorker(plugin);
                     Location randomChamberLocation = plugin.getRandomChamber();
                     if (randomChamberLocation == null) {
                         plugin.getLogger().severe("There has been an error trying to teleport a player to a training chamber");
                         player.sendRawMessage("You could not be teleported to a training chamber at this moment. Please contact an administrator...");
                         return null;
                     }
-
-                    ManagerUtil.assignManager(data);
 
                     player.getInventory().clear();
                     plugin.giveEssentialItems(player);
@@ -87,9 +85,18 @@ public class IDPrompt extends StringPrompt {
 
         }
 
+        player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
+
+        // Ensures that all player's have a manager.
+        for(PlayerData pd : playerDataHandler.getPlayerDataList()){
+            if(pd.getManager() == null){
+                ManagerUtil.assignManager(pd);
+            }
+        }
+
         plugin.updateScoreboard(player);
 
-        return null;
+        return END_OF_CONVERSATION;
 
     }
 

@@ -64,7 +64,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
                     player.getInventory().clear();
                     plugin.giveEssentialItems(player);
                     player.teleport(randomSpawnPoint);
-                    playerData.startGameTimeTracker(plugin);
+                    playerData.initWorker(plugin);
                 }, 20L * 3);
 
             }

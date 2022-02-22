@@ -65,6 +65,7 @@ public class PlayerDataHandler {
 
     public void saveAllData() {
         for (PlayerData data : allPlayerData.values()) {
+            data.getPlayer().getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
             data.saveData();
         }
     }

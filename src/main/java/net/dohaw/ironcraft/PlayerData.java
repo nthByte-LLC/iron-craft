@@ -197,36 +197,47 @@ public class PlayerData {
      * @param plugin An instance of the plugin.
      */
     public void startGameTimeTracker(IronCraftPlugin plugin){
+
         if(gameTimeTracker != null){
             gameTimeTracker.cancel();
         }
+
         gameTimeTracker = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
 
+            if(isInTutorial){
+                gameTimeTracker.cancel();
+                return;
+            }
+
             minutesInGame++;
-            if(minutesInGame == 7){
+
+            Player player = getPlayer();
+
+            if(minutesInGame >= 7){
 
                 gameTimeTracker.cancel();
-
-                Player player = getPlayer();
 
                 player.sendMessage(StringUtils.colorString("&cYour time is up!"));
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
 
                 PlayerData managerData = plugin.getPlayerDataHandler().getData(manager);
-                if(managerData.getFocusedPlayerUUID().equals(uuid)){
+                if(managerData != null && managerData.getFocusedPlayerUUID().equals(uuid)){
                     managerData.setFocusedPlayerUUID(null);
+                    this.manager = null;
                 }
-                this.manager = null;
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    player.getPersistentDataContainer().set(NamespacedKey.minecraft("is-answering-survey"), PersistentDataType.STRING, "marker");
+                    player.getPersistentDataContainer().set(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING, "marker");
                     Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(false).buildConversation(player);
                     conv.begin();
                 }, 20L * 3);
 
+            }else{
+                player.sendMessage(StringUtils.colorString("&7You have &e" + (7 - minutesInGame) + "&7 minute(s) to complete the game!"));
             }
 
         },20 * 60L, 20 * 60L);
+
     }
 
     public boolean isManager() {
@@ -254,6 +265,12 @@ public class PlayerData {
     }
 
     public void saveData() {
+        if(gameTimeTracker != null){
+            gameTimeTracker.cancel();
+        }
+        if(teleporter != null){
+            teleporter.cancel();
+        }
         playerDataConfig.saveData(this);
     }
 
@@ -322,7 +339,7 @@ public class PlayerData {
         ManagerUtil.sendManagerMessage(player);
     }
 
-    public void initWorker(){
+    public void initWorker(IronCraftPlugin plugin){
         Player player = getPlayer();
         this.isManager = false;
         player.setGravity(true);
@@ -332,6 +349,7 @@ public class PlayerData {
         if(teleporter != null){
             teleporter.cancel();
         }
+        startGameTimeTracker(plugin);
     }
 
     public SurveySession getSurveySession() {
@@ -431,10 +449,12 @@ public class PlayerData {
     }
 
     public int getSparseTotalReward() {
+        if(sparseRewardSequence.size() == 0) return 0;
         return sparseRewardSequence.get(sparseRewardSequence.size() - 1);
     }
 
     public int getDenseTotalReward() {
+        if(denseRewardSequence.size() == 0) return 0;
         return denseRewardSequence.get(denseRewardSequence.size() - 1);
     }
 

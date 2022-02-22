@@ -1,5 +1,7 @@
 package net.dohaw.ironcraft;
 
+import net.dohaw.corelib.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -22,16 +24,18 @@ public class IronCraftCommand implements CommandExecutor {
         if (args.length > 0 && sender instanceof Player && sender.hasPermission("diamondcraft.admin")) {
 
             Player playerSender = (Player) sender;
-            if (args[0].equalsIgnoreCase("create")) {
+            String firstArg = args[0];
+            if (firstArg.equalsIgnoreCase("create")) {
 
                 Location senderLocation = playerSender.getLocation();
-                if (args[1].equalsIgnoreCase("chamber")) {
+                String secondArg = args[1];
+                if (secondArg.equalsIgnoreCase("chamber")) {
                     if (!isUniqueLocation(senderLocation, plugin.getAvailableChamberLocations())) {
                         sender.sendMessage("This is not a unique location!");
                         return false;
                     }
                     plugin.getAvailableChamberLocations().add(senderLocation);
-                } else if (args[1].equalsIgnoreCase("spawn")) {
+                } else if (secondArg.equalsIgnoreCase("spawn")) {
                     if (!isUniqueLocation(senderLocation, plugin.getJourneySpawnPoints())) {
                         sender.sendMessage("This is not a unique location!");
                         return false;
@@ -43,6 +47,43 @@ public class IronCraftCommand implements CommandExecutor {
 
                 sender.sendMessage("This location has been set!");
 
+            }else if(firstArg.equalsIgnoreCase("set")){
+                String secondArg = args[1];
+                if(args.length == 4){
+                    String targetPlayerName = args[2];
+                    String fourthArg = args[3];
+                    if(secondArg.equalsIgnoreCase("obj") || secondArg.equalsIgnoreCase("ingame")){
+
+                        Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+                        if(targetPlayer == null){
+                            sender.sendMessage(StringUtils.colorString("&cThis is not a valid player!"));
+                            return false;
+                        }
+
+                        PlayerData targetPlayerData = plugin.getPlayerDataHandler().getData(targetPlayer);
+                        if(secondArg.equalsIgnoreCase("obj")){
+                            Objective objective;
+                            try{
+                                objective = Objective.valueOf(fourthArg.toUpperCase());
+                            }catch(IllegalArgumentException e){
+                                sender.sendMessage(StringUtils.colorString("&cThis is not a valid objective!"));
+                                return false;
+                            }
+                            targetPlayerData.setCurrentTutorialObjective(objective);
+                        }else{
+                            boolean isInGame;
+                            try{
+                                isInGame = Boolean.parseBoolean(fourthArg);
+                            }catch(IllegalArgumentException e){
+                                sender.sendMessage(StringUtils.colorString("&cThis is not a valid argument! It must be \"true\" or \"false\""));
+                                return false;
+                            }
+                            targetPlayerData.setInTutorial(isInGame);
+                            targetPlayerData.initWorker(plugin);
+                        }
+
+                    }
+                }
             }
 
         }

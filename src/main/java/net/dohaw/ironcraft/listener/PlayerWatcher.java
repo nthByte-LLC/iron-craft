@@ -1,9 +1,10 @@
 package net.dohaw.ironcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.ironcraft.Reason;
 import net.dohaw.ironcraft.event.AssignManagerEvent;
-import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.PlayerData;
 import net.dohaw.ironcraft.manager.ManagementType;
@@ -54,10 +55,9 @@ public class PlayerWatcher implements Listener {
     @EventHandler
     public static void onPlayerMoveDuringSurvey(PlayerMoveEvent e) {
         PersistentDataContainer pdc = e.getPlayer().getPersistentDataContainer();
-        NamespacedKey key = NamespacedKey.minecraft("is-answering-survey");
-//        if (pdc.has(key, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
-//            e.setCancelled(true);
-//        }
+        if (pdc.has(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING) && hasMoved(e.getTo(), e.getFrom(), true)) {
+            e.setCancelled(true);
+        }
     }
 
     /**
@@ -158,6 +158,8 @@ public class PlayerWatcher implements Listener {
             plugin.getPlayerDataHandler().saveData(playerUUID);
         }
 
+        player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
+
     }
 
     /**
@@ -210,7 +212,7 @@ public class PlayerWatcher implements Listener {
      * Listens for the end of the game. Sets the necessary data fields within the player's data & starts the autonomy survey.
      */
     @EventHandler
-    public void onEndGame(EndGameEvent e) {
+    public void onGameEnd(EndGameEvent e) {
 
         PlayerData playerData = e.getPlayerData();
 
@@ -218,7 +220,7 @@ public class PlayerWatcher implements Listener {
         player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
         player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.getPersistentDataContainer().set(NamespacedKey.minecraft("is-answering-survey"), PersistentDataType.STRING, "marker");
+            player.getPersistentDataContainer().set(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING, "marker");
             Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(false).buildConversation(player);
             conv.begin();
         }, 20L * 3);
@@ -229,6 +231,11 @@ public class PlayerWatcher implements Listener {
             PlayerData managerData = plugin.getPlayerDataHandler().getData(managerUUID);
             Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
             conv.begin();
+        }
+
+        Reason reason = e.getReason();
+        if(reason == Reason.OUT_OF_TIME){
+            player.sendTitle("Game Over", "You ran out of time!", 10, 100, 10);
         }
 
     }

@@ -17,10 +17,7 @@ import net.dohaw.ironcraft.listener.ItemWatcher;
 import net.dohaw.ironcraft.listener.ObjectiveWatcher;
 import net.dohaw.ironcraft.listener.PlayerWatcher;
 import net.dohaw.ironcraft.prompt.IDPrompt;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
@@ -40,6 +37,8 @@ import java.util.*;
  * @author Caleb Owens, Ayush Chivate
  */
 public final class IronCraftPlugin extends JavaPlugin {
+
+    public static final NamespacedKey IN_SURVEY_PDC_KEY = NamespacedKey.minecraft("is-answering-survey");
 
     private static IronCraftPlugin instance;
 
@@ -85,7 +84,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         // Only useful if there are players on the server, and /plugman reload IronCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.isConversing()) {
+            if (player.isConversing() ) {
                 player.kickPlayer("Please rejoin the server!");
                 continue;
             }
@@ -136,7 +135,10 @@ public final class IronCraftPlugin extends JavaPlugin {
                                         Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                                     });
                                 } else {
-                                    player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
+                                    player.closeInventory();
+                                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                        player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
+                                    }, 5);
                                 }
 
                             }

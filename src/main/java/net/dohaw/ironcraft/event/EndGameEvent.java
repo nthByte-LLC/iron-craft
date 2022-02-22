@@ -1,19 +1,28 @@
 package net.dohaw.ironcraft.event;
 
 import net.dohaw.ironcraft.PlayerData;
+import net.dohaw.ironcraft.Reason;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * The event that fires when the game ends.
+ * The event that is fired when the game has stopped. This doesn't always mean that the game was completed successfully.
+ * @see CompleteGameEvent
  */
 public class EndGameEvent extends Event {
 
     private static final HandlerList HANDLERS_LIST = new HandlerList();
-    private PlayerData playerData;
 
-    public EndGameEvent(PlayerData playerData) {
+    private PlayerData playerData;
+    private Reason reason;
+
+    public EndGameEvent(Reason reason, PlayerData playerData){
+        this.reason = reason;
         this.playerData = playerData;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS_LIST;
     }
 
     @Override
@@ -21,8 +30,8 @@ public class EndGameEvent extends Event {
         return HANDLERS_LIST;
     }
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS_LIST;
+    public Reason getReason() {
+        return reason;
     }
 
     public PlayerData getPlayerData() {
@@ -30,4 +39,3 @@ public class EndGameEvent extends Event {
     }
 
 }
-

@@ -44,9 +44,6 @@ public class BaseConfig extends Config {
             spawnLocations.add(locationSerializer.toLocation(strLocation));
         }
 
-        System.out.println("STR LOCATIONS: " + strLocations);
-        System.out.println("SPAWN LOCATIONS: " + spawnLocations);
-
         return spawnLocations;
 
     }
