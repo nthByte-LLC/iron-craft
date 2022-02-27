@@ -3,6 +3,7 @@ package net.dohaw.ironcraft.prompt;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.corelib.helpers.MathHelper;
 import net.dohaw.ironcraft.IronCraftPlugin;
+import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.SurveySession;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
 import net.dohaw.ironcraft.manager.ManagementType;
@@ -11,6 +12,7 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
@@ -101,12 +103,36 @@ public class AutonomySurveyPrompt extends StringPrompt {
             }
 
             // Write their data to file and calculate their proficiency score.
-            try {
-                playerData.writeDataToFile(plugin);
-            } catch (IOException e) {
-                e.printStackTrace();
+//            try {
+//                playerData.writeDataToFile(plugin);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            calculateProficiencyScore(player);
+
+            int roundsPlayed = playerData.getRoundsPlayed();
+            System.out.println("Rounds played: " + roundsPlayed);
+            if(playerData.getRoundsPlayed() < 3){
+
+                player.sendRawMessage("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!");
+                Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
+                if (randomSpawnPoint == null) {
+                    plugin.getLogger().severe("There has been an error trying to teleport a player to a random spawn point");
+                    player.sendRawMessage("You could not be teleported to a random spawn point at this moment. Please contact an administrator...");
+                    return END_OF_CONVERSATION;
+                }
+
+                // Lets them play the game again.
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
+                    player.teleport(randomSpawnPoint);
+                    playerData.setMinutesInGame(0);
+                    playerData.initWorker(plugin);
+                }, 20 * 3);
+
+            }else{
+                player.sendRawMessage("Congratulations. You are finished.");
             }
-            calculateProficiencyScore(player);
 
             return END_OF_CONVERSATION;
 
@@ -141,15 +167,13 @@ public class AutonomySurveyPrompt extends StringPrompt {
         DefaultExecutor executor = new DefaultExecutor();
         executor.setStreamHandler(streamHandler);
 
-        int exitCode;
         try {
-            exitCode = executor.execute(cmdLine);
+            executor.execute(cmdLine);
         } catch (IOException e) {
             e.printStackTrace();
-            return 0;
         }
 
-        return exitCode;
+        return 0;
 
     }
 

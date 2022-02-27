@@ -225,6 +225,7 @@ public class PlayerData {
         gameTimeTracker = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
 
             if(isInTutorial){
+                this.minutesInGame = 0;
                 gameTimeTracker.cancel();
                 return;
             }

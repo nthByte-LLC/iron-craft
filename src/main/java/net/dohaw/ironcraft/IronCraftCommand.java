@@ -47,9 +47,10 @@ public class IronCraftCommand implements CommandExecutor {
 
                 sender.sendMessage("This location has been set!");
 
+                // ic set obj
             }else if(firstArg.equalsIgnoreCase("set")){
                 String secondArg = args[1];
-                if(args.length == 4){
+                if(args.length >= 3){
                     String targetPlayerName = args[2];
                     String fourthArg = args[3];
                     if(secondArg.equalsIgnoreCase("obj") || secondArg.equalsIgnoreCase("ingame")){

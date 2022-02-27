@@ -80,6 +80,7 @@ public class ManagerUtil {
         CitizensNPC npc = (CitizensNPC) CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "C10_MC");
         user.setManagerNPC(npc);
         npc.spawn(getNPCManagerTPLocation(user.getPlayer()));
+        npc.setAlwaysUseNameHologram(false);
 
         LivingEntity entity = (LivingEntity) npc.getEntity();
         entity.setAI(false);
@@ -94,12 +95,8 @@ public class ManagerUtil {
      */
     public static void ensurePlayersHaveManagers(IronCraftPlugin plugin){
         for(PlayerData pd : plugin.getPlayerDataHandler().getPlayerDataList()){
-            System.out.println("Looping");
             if(pd.getManager() == null && !pd.isManager() && !pd.isInTutorial()){
-                System.out.println("Assign him!");
                 ManagerUtil.assignManager(pd);
-                System.out.println("Managerment type: " + pd.getManagementType());
-                System.out.println("Manager: " + pd.getManagerNPC());
             }
         }
     }

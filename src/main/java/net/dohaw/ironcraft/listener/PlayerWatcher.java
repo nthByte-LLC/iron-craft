@@ -252,6 +252,8 @@ public class PlayerWatcher implements Listener {
         PlayerData playerData = e.getPlayerData();
         Player player = playerData.getPlayer();
 
+        playerData.incrementRoundsPlayed();
+
         Reason reason = e.getReason();
         if(reason == Reason.OUT_OF_TIME){
             player.sendTitle("Game Over", "You ran out of time!", 10, 50, 9);
@@ -271,31 +273,6 @@ public class PlayerWatcher implements Listener {
             PlayerData managerData = plugin.getPlayerDataHandler().getData(managerUUID);
             Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
             conv.begin();
-        }
-
-        playerData.incrementRoundsPlayed();
-        int roundsPlayed = playerData.getRoundsPlayed();
-        System.out.println("Rounds played: " + roundsPlayed);
-        if(playerData.getRoundsPlayed() < 3){
-
-            player.sendMessage(StringUtils.colorString("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!"));
-            Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
-            if (randomSpawnPoint == null) {
-                plugin.getLogger().severe("There has been an error trying to teleport a player to a random spawn point");
-                player.sendRawMessage("You could not be teleported to a random spawn point at this moment. Please contact an administrator...");
-                return;
-            }
-
-            // Lets them play the game again.
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                playerData.setCurrentTutorialObjective(Objective.MOVE);
-                player.teleport(randomSpawnPoint);
-                playerData.setMinutesInGame(0);
-                playerData.initWorker(plugin);
-            }, 20 * 3);
-
-        }else{
-            player.sendMessage(StringUtils.colorString("Congratulations. You are finished."));
         }
 
     }
