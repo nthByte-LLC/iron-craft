@@ -23,6 +23,7 @@ import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Score;
@@ -98,7 +99,9 @@ public final class IronCraftPlugin extends JavaPlugin {
         new Reminder(this).runTaskTimer(this, 0L, 20 * 10);
 
         // collect data every tick
-        new DataCollector(this).runTaskTimer(this, 0L, 40);
+        new DataCollector(this).runTaskTimer(this, 0L, 1);
+
+        startSurveyWarner();
 
         formPacketListeners();
 
@@ -237,6 +240,19 @@ public final class IronCraftPlugin extends JavaPlugin {
     public Objective getNextObjective(Objective currentObjective) {
         int ordinal = currentObjective.ordinal();
         return Objective.values()[ordinal + 1];
+    }
+
+    /**
+     * Starts the runnable that sends a title to players telling them that they are being surveyed.
+     */
+    private void startSurveyWarner(){
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for(Player player : Bukkit.getOnlinePlayers()){
+                if(player.getPersistentDataContainer().has(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING) && player.isConversing()){
+                    player.sendTitle("Take the survey", "Look in chat", 2, 20, 5);
+                }
+            }
+        }, 0, 20);
     }
 
     public List<Location> getJourneySpawnPoints() {

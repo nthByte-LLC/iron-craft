@@ -6,6 +6,7 @@ import net.dohaw.ironcraft.config.PlayerDataConfig;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import net.dohaw.ironcraft.manager.ManagerUtil;
 import net.dohaw.ironcraft.prompt.AutonomySurveyPrompt;
+import net.dohaw.ironcraft.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,6 +15,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -167,6 +169,13 @@ public class PlayerData {
     // Bad name. Can't figure out how else to explain it though.
     private HashSet<String> firstPickItems = new HashSet<>();
 
+    private int roundsPlayed;
+
+    /**
+     * The player's manager NPC.
+     */
+    private NPC managerNPC;
+
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
@@ -189,7 +198,15 @@ public class PlayerData {
         if(teleporter != null){
             teleporter.cancel();
         }
-        teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> teleportToFocusedPlayer(), 0L, 1L);
+        teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if(isManager){
+                teleportToFocusedPlayer();
+            }else{
+                if(managementType == ManagementType.AI){
+                    managerNPC.teleport(LocationUtil.getRelativeManagerLocation(getPlayer()));
+                }
+            }
+        }, 0L, 1L);
     }
 
     /**
@@ -322,10 +339,7 @@ public class PlayerData {
     public void teleportToFocusedPlayer(){
         Player focusedPlayer = Bukkit.getPlayer(focusedPlayerUUID);
         if(focusedPlayer == null) return;
-        Location focusedPlayerLoc = focusedPlayer.getLocation();
-        Location clone = focusedPlayerLoc.clone();
-        Location tpLoc = clone.clone().add(clone.getDirection().multiply(-2.5)).add(0, 0.5, 0);
-        getPlayer().teleport(tpLoc);
+        getPlayer().teleport(LocationUtil.getRelativeManagerLocation(focusedPlayer));
     }
 
     public void initManager(IronCraftPlugin plugin){
@@ -342,6 +356,7 @@ public class PlayerData {
     public void initWorker(IronCraftPlugin plugin){
         Player player = getPlayer();
         this.isManager = false;
+        player.getInventory().clear();
         player.setGravity(true);
         player.setInvisible(false);
         player.setAllowFlight(false);
@@ -349,6 +364,7 @@ public class PlayerData {
         if(teleporter != null){
             teleporter.cancel();
         }
+        plugin.giveEssentialItems(player);
         startGameTimeTracker(plugin);
     }
 
@@ -374,6 +390,14 @@ public class PlayerData {
 
     public void incrementCurrentStep() {
         durationSteps++;
+    }
+
+    public void incrementRoundsPlayed(){
+        this.roundsPlayed++;
+    }
+
+    public int getRoundsPlayed() {
+        return roundsPlayed;
     }
 
     public Map<String, Integer> getItemToTimeStepGained() {
@@ -533,6 +557,14 @@ public class PlayerData {
 
     public void setMinutesInGame(int minutesInGame) {
         this.minutesInGame = minutesInGame;
+    }
+
+    public void setManagerNPC(NPC managerNPC) {
+        this.managerNPC = managerNPC;
+    }
+
+    public NPC getManagerNPC() {
+        return managerNPC;
     }
 
     public void writeDataToFile(IronCraftPlugin plugin) throws IOException {

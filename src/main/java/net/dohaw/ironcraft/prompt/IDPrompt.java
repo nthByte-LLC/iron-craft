@@ -69,8 +69,6 @@ public class IDPrompt extends StringPrompt {
                         return null;
                     }
 
-                    player.getInventory().clear();
-                    plugin.giveEssentialItems(player);
                     player.teleport(randomChamberLocation);
                     data.setChamberLocation(randomChamberLocation);
 

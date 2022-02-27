@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Fires when a user gets assigned a manager.
+ * Fires when a user gets assigned a human manager.
  */
 public class AssignManagerEvent extends Event {
 

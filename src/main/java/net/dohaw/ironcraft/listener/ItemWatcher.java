@@ -1,6 +1,6 @@
 package net.dohaw.ironcraft.listener;
 
-import net.dohaw.ironcraft.CraftUtil;
+import net.dohaw.ironcraft.util.CraftUtil;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import net.dohaw.ironcraft.PlayerData;

@@ -4,6 +4,7 @@ main: net.dohaw.ironcraft.IronCraftPlugin
 api-version: 1.16
 depend:
   - ProtocolLib
+  - Citizens
 
 commands:
   ironcraft:

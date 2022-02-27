@@ -1,4 +1,4 @@
-package net.dohaw.ironcraft;
+package net.dohaw.ironcraft.util;
 
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;

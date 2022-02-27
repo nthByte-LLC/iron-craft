@@ -61,8 +61,6 @@ public class RepeatTutorialPrompt extends StringPrompt {
                 playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
                 playerData.setInTutorial(false);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    player.getInventory().clear();
-                    plugin.giveEssentialItems(player);
                     player.teleport(randomSpawnPoint);
                     playerData.initWorker(plugin);
                 }, 20L * 3);

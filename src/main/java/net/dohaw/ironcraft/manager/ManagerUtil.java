@@ -1,10 +1,14 @@
 package net.dohaw.ironcraft.manager;
 
+import net.citizensnpcs.api.CitizensAPI;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.event.AssignManagerEvent;
 import net.dohaw.ironcraft.PlayerData;
+import net.dohaw.ironcraft.util.LocationUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -62,6 +66,18 @@ public class ManagerUtil {
 
         manager.sendMessage(StringUtils.colorString("You are now managing &e" + data.getPlayer().getName()));
         Bukkit.getServer().getPluginManager().callEvent(new AssignManagerEvent(managerData, data));
+
+    }
+
+    private static void setupNPCManager(PlayerData user){
+
+        NPC npc = (NPC) CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "C10_MC");
+        user.setManagerNPC(npc);
+
+        npc.setAI(false);
+        npc.setGravity(false);
+        npc.setCollidable(false);
+        npc.setAware(false);
 
     }
 

@@ -1,6 +1,7 @@
 package net.dohaw.ironcraft.listener;
 
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.ironcraft.Objective;
 import net.dohaw.ironcraft.Reason;
 import net.dohaw.ironcraft.event.AssignManagerEvent;
 import net.dohaw.ironcraft.IronCraftPlugin;
@@ -215,8 +216,13 @@ public class PlayerWatcher implements Listener {
     public void onGameEnd(EndGameEvent e) {
 
         PlayerData playerData = e.getPlayerData();
-
         Player player = playerData.getPlayer();
+
+        Reason reason = e.getReason();
+        if(reason == Reason.OUT_OF_TIME){
+            player.sendTitle("Game Over", "You ran out of time!", 10, 50, 9);
+        }
+
         player.sendMessage(StringUtils.colorString("&aCongratulations! &fYou have successfully completed the game!"));
         player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -233,9 +239,28 @@ public class PlayerWatcher implements Listener {
             conv.begin();
         }
 
-        Reason reason = e.getReason();
-        if(reason == Reason.OUT_OF_TIME){
-            player.sendTitle("Game Over", "You ran out of time!", 10, 100, 10);
+        playerData.incrementRoundsPlayed();
+        int roundsPlayed = playerData.getRoundsPlayed();
+        if(playerData.getRoundsPlayed() < 3){
+
+            player.sendMessage(StringUtils.colorString("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!"));
+            Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
+            if (randomSpawnPoint == null) {
+                plugin.getLogger().severe("There has been an error trying to teleport a player to a random spawn point");
+                player.sendRawMessage("You could not be teleported to a random spawn point at this moment. Please contact an administrator...");
+                return;
+            }
+
+            // Lets them play the game again.
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                playerData.setCurrentTutorialObjective(Objective.MOVE);
+                player.teleport(randomSpawnPoint);
+                playerData.setMinutesInGame(0);
+                playerData.initWorker(plugin);
+            }, 20 * 3);
+
+        }else{
+            player.sendMessage(StringUtils.colorString("Congratulations. You are finished."));
         }
 
     }
