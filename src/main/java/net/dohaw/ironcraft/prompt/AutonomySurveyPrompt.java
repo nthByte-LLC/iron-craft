@@ -124,6 +124,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
 
                 // Lets them play the game again.
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    player.getInventory().clear();
                     playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
                     player.teleport(randomSpawnPoint);
                     playerData.setMinutesInGame(0);
@@ -132,6 +133,8 @@ public class AutonomySurveyPrompt extends StringPrompt {
 
             }else{
                 player.sendRawMessage("Congratulations. You are finished.");
+                playerData.setRoundsPlayed(0);
+                playerData.setCurrentTutorialObjective(null);
             }
 
             return END_OF_CONVERSATION;

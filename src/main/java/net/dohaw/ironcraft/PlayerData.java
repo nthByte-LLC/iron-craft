@@ -360,7 +360,6 @@ public class PlayerData {
     public void initWorker(IronCraftPlugin plugin){
         Player player = getPlayer();
         this.isManager = false;
-        player.getInventory().clear();
         player.setGravity(true);
         player.setInvisible(false);
         player.setAllowFlight(false);

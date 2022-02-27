@@ -53,6 +53,7 @@ public class IDPrompt extends StringPrompt {
                 player.sendRawMessage("There was an error! Please contact an administrator...");
             } else {
 
+                player.getInventory().clear();
                 data = playerDataHandler.getData(player);
                 int numOnlinePlayers = Bukkit.getOnlinePlayers().size();
                 boolean isManager = numOnlinePlayers == 1 ? false : ThreadLocalRandom.current().nextBoolean();
