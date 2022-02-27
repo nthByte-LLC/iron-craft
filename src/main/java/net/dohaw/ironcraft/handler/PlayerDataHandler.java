@@ -74,6 +74,10 @@ public class PlayerDataHandler {
         return allPlayerData.containsKey(uuid);
     }
 
+    public boolean hasDataLoaded(Player player){
+        return allPlayerData.containsKey(player.getUniqueId());
+    }
+
     public PlayerData getData(UUID uuid) {
         return allPlayerData.get(uuid);
     }
@@ -94,6 +98,11 @@ public class PlayerDataHandler {
         List<PlayerData> list = new ArrayList<>(allPlayerData.values());
         list.removeIf(pd -> pd.getUuid().equals(player.getUniqueId()));
         return list;
+    }
+
+    public boolean isManager(Player player){
+        if(!hasDataLoaded(player)) return false;
+        return getData(player).isManager();
     }
 
 }

@@ -1,20 +1,20 @@
 package net.dohaw.ironcraft;
 
+import net.citizensnpcs.npc.CitizensNPC;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.ironcraft.manager.ManagementType;
 import net.dohaw.ironcraft.config.PlayerDataConfig;
 import net.dohaw.ironcraft.data_collection.DataCollectionUtil;
 import net.dohaw.ironcraft.manager.ManagerUtil;
 import net.dohaw.ironcraft.prompt.AutonomySurveyPrompt;
-import net.dohaw.ironcraft.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -174,7 +174,7 @@ public class PlayerData {
     /**
      * The player's manager NPC.
      */
-    private NPC managerNPC;
+    private CitizensNPC managerNPC;
 
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
@@ -201,10 +201,13 @@ public class PlayerData {
         teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if(isManager){
                 teleportToFocusedPlayer();
-            }else{
-                if(managementType == ManagementType.AI){
-                    managerNPC.teleport(LocationUtil.getRelativeManagerLocation(getPlayer()));
-                }
+            }else if(managementType == ManagementType.AI){
+                Entity entity = managerNPC.getEntity();
+                Location tpLocation = ManagerUtil.getNPCManagerTPLocation(getPlayer());
+                Vector direction = getPlayer().getLocation().getDirection().clone().multiply(-1);
+                // Makes it to where the npc is looking at the user.
+                tpLocation.setDirection(direction);
+                entity.teleport(tpLocation);
             }
         }, 0L, 1L);
     }
@@ -339,7 +342,7 @@ public class PlayerData {
     public void teleportToFocusedPlayer(){
         Player focusedPlayer = Bukkit.getPlayer(focusedPlayerUUID);
         if(focusedPlayer == null) return;
-        getPlayer().teleport(LocationUtil.getRelativeManagerLocation(focusedPlayer));
+        getPlayer().teleport(ManagerUtil.getHumanManagerTPLocation(focusedPlayer));
     }
 
     public void initManager(IronCraftPlugin plugin){
@@ -361,9 +364,7 @@ public class PlayerData {
         player.setInvisible(false);
         player.setAllowFlight(false);
         player.setFlying(false);
-        if(teleporter != null){
-            teleporter.cancel();
-        }
+        startTeleporter(plugin);
         plugin.giveEssentialItems(player);
         startGameTimeTracker(plugin);
     }
@@ -398,6 +399,11 @@ public class PlayerData {
 
     public int getRoundsPlayed() {
         return roundsPlayed;
+    }
+
+    public void setRoundsPlayed(int roundsPlayed) {
+        System.out.println("Rounds played: " + roundsPlayed);
+        this.roundsPlayed = roundsPlayed;
     }
 
     public Map<String, Integer> getItemToTimeStepGained() {
@@ -559,11 +565,11 @@ public class PlayerData {
         this.minutesInGame = minutesInGame;
     }
 
-    public void setManagerNPC(NPC managerNPC) {
+    public void setManagerNPC(CitizensNPC managerNPC) {
         this.managerNPC = managerNPC;
     }
 
-    public NPC getManagerNPC() {
+    public CitizensNPC getManagerNPC() {
         return managerNPC;
     }
 

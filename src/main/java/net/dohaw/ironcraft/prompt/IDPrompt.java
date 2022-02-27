@@ -85,12 +85,7 @@ public class IDPrompt extends StringPrompt {
 
         player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
 
-        // Ensures that all player's have a manager.
-        for(PlayerData pd : playerDataHandler.getPlayerDataList()){
-            if(pd.getManager() == null){
-                ManagerUtil.assignManager(pd);
-            }
-        }
+        ManagerUtil.ensurePlayersHaveManagers(plugin);
 
         plugin.updateScoreboard(player);
 

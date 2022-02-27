@@ -1,16 +1,17 @@
 package net.dohaw.ironcraft.listener;
 
+import net.citizensnpcs.npc.CitizensNPC;
 import net.dohaw.corelib.StringUtils;
+import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.Objective;
+import net.dohaw.ironcraft.PlayerData;
 import net.dohaw.ironcraft.Reason;
 import net.dohaw.ironcraft.event.AssignManagerEvent;
-import net.dohaw.ironcraft.IronCraftPlugin;
 import net.dohaw.ironcraft.event.EndGameEvent;
 import net.dohaw.ironcraft.handler.PlayerDataHandler;
-import net.dohaw.ironcraft.PlayerData;
 import net.dohaw.ironcraft.manager.ManagementType;
-import net.dohaw.ironcraft.prompt.IDPrompt;
 import net.dohaw.ironcraft.prompt.AutonomySurveyPrompt;
+import net.dohaw.ironcraft.prompt.IDPrompt;
 import net.dohaw.ironcraft.prompt.ManagerSurvey;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -25,6 +26,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -33,7 +35,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 
 public class PlayerWatcher implements Listener {
 
@@ -149,14 +154,43 @@ public class PlayerWatcher implements Listener {
 
     }
 
+    /*
+        Ensures that the manager npc is removed when the player is kicked (The PlayerQuitEvent doesn't fire when they are kicked).
+     */
+    @EventHandler
+    public void onPlayerKick(PlayerKickEvent e){
+
+        Player player = e.getPlayer();
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        if(playerDataHandler.hasDataLoaded(player)){
+            PlayerData playerData = playerDataHandler.getData(player);
+            CitizensNPC managerNPC = playerData.getManagerNPC();
+            if(managerNPC != null){
+                managerNPC.despawn();
+                managerNPC.destroy();
+            }
+        }
+
+    }
+
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
 
         Player player = e.getPlayer();
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        PlayerData data = playerDataHandler.getData(player);
         UUID playerUUID = player.getUniqueId();
-        if (playerDataHandler.hasDataLoaded(playerUUID)) {
-            plugin.getPlayerDataHandler().saveData(playerUUID);
+        if (playerDataHandler.hasDataLoaded(player)) {
+
+            playerDataHandler.saveData(playerUUID);
+
+            CitizensNPC managerNPC = data.getManagerNPC();
+            // this works
+            if(managerNPC != null){
+                managerNPC.despawn();
+                managerNPC.destroy();
+            }
+
         }
 
         player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
@@ -241,6 +275,7 @@ public class PlayerWatcher implements Listener {
 
         playerData.incrementRoundsPlayed();
         int roundsPlayed = playerData.getRoundsPlayed();
+        System.out.println("Rounds played: " + roundsPlayed);
         if(playerData.getRoundsPlayed() < 3){
 
             player.sendMessage(StringUtils.colorString("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!"));
@@ -340,6 +375,23 @@ public class PlayerWatcher implements Listener {
 
         playerData.incrementAttackSteps();
 
+    }
+
+    /*
+        Doesn't allow managers to pickup items.
+     */
+    @EventHandler
+    public void onManagerPickupItem(EntityPickupItemEvent e){
+        Entity entity = e.getEntity();
+        if(!(entity instanceof Player)) return;
+        Player player = (Player) entity;
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        if(playerDataHandler.hasDataLoaded(player)){
+            PlayerData playerData = playerDataHandler.getData(player);
+            if(playerData.isManager()){
+                e.setCancelled(true);
+            }
+        }
     }
 
     /**

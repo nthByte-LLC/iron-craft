@@ -25,6 +25,7 @@ public class PlayerDataConfig extends Config {
         playerData.setChamberLocation(config.getLocation("Chamber Location"));
         playerData.setCurrentTutorialObjective(Objective.valueOf(config.getString("Tutorial Objective")));
         playerData.setMinutesInGame(config.getInt("Minutes In Game"));
+        playerData.setRoundsPlayed(config.getInt("Rounds Played"));
 
         return playerData;
     }
@@ -36,6 +37,7 @@ public class PlayerDataConfig extends Config {
         config.set("Chamber Location", data.getChamberLocation());
         config.set("Tutorial Objective", data.getCurrentTutorialObjective().toString());
         config.set("Minutes In Game", data.getMinutesInGame());
+        config.set("Rounds Played", data.getRoundsPlayed());
         saveConfig();
     }
 

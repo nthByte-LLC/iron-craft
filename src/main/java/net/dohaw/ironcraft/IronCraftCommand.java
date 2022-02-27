@@ -69,6 +69,7 @@ public class IronCraftCommand implements CommandExecutor {
                                 sender.sendMessage(StringUtils.colorString("&cThis is not a valid objective!"));
                                 return false;
                             }
+                            targetPlayer.sendMessage("Your objective has been set to " + objective);
                             targetPlayerData.setCurrentTutorialObjective(objective);
                         }else{
                             boolean isInGame;
@@ -78,6 +79,7 @@ public class IronCraftCommand implements CommandExecutor {
                                 sender.sendMessage(StringUtils.colorString("&cThis is not a valid argument! It must be \"true\" or \"false\""));
                                 return false;
                             }
+                            targetPlayer.sendMessage("You have been moved to the game stage");
                             targetPlayerData.setInTutorial(isInGame);
                             targetPlayerData.initWorker(plugin);
                         }

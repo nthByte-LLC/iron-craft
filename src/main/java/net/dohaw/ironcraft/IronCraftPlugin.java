@@ -6,6 +6,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import net.citizensnpcs.npc.CitizensNPC;
 import net.dohaw.corelib.CoreLib;
 import net.dohaw.corelib.JPUtils;
 import net.dohaw.corelib.StringUtils;
@@ -109,9 +110,19 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
+        for(PlayerData pd : playerDataHandler.getPlayerDataList()){
+            CitizensNPC npc = pd.getManagerNPC();
+            if(npc != null){
+                npc.despawn();
+                npc.destroy();
+            }
+        }
+
         baseConfig.saveChamberLocations(availableChamberLocations);
         baseConfig.saveSpawnLocations(journeySpawnPoints);
         playerDataHandler.saveAllData();
+
     }
 
     private void formPacketListeners() {
