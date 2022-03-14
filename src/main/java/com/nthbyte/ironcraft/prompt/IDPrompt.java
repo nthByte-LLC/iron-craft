@@ -29,8 +29,14 @@ public class IDPrompt extends StringPrompt {
     @Override
     public Prompt acceptInput(ConversationContext context, String providedID) {
 
-        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         Player player = (Player) context.getForWhom();
+        PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
+        // Allows admin player data.
+        if(providedID.contains("admin") && player.isOp()){
+            playerDataHandler.getAllPlayerData().put(player.getUniqueId(), PlayerData.createAdminData(player));
+            player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
+            return END_OF_CONVERSATION;
+        }
 
         player.setGravity(true);
 
@@ -41,7 +47,9 @@ public class IDPrompt extends StringPrompt {
                 data.initWorker(plugin);
                 // Delayed because data#sendObjectiveHelperMessage does not send a raw message.
                 // You can only send raw messages to the player if they are conversing. The player will not be conversing 2 ticks from now.
-                Bukkit.getScheduler().runTaskLater(plugin, data::sendObjectiveHelperMessage, 2);
+                if(data.isInTutorial()){
+                    Bukkit.getScheduler().runTaskLater(plugin, data::sendObjectiveHelperMessage, 2);
+                }
             }else{
                 data.initManager(plugin);
             }
@@ -56,7 +64,7 @@ public class IDPrompt extends StringPrompt {
                 player.getInventory().clear();
                 data = playerDataHandler.getData(player);
                 int numOnlinePlayers = Bukkit.getOnlinePlayers().size();
-                boolean isManager = numOnlinePlayers == 1 ? false : ThreadLocalRandom.current().nextBoolean();
+                boolean isManager = /*(numOnlinePlayers != 1 && ThreadLocalRandom.current().nextBoolean()) ||*/ providedID.contains("_manager");
                 if(isManager){
                     data.initManager(plugin);
                     // Should we switch certain players from AI managers to Human managers?

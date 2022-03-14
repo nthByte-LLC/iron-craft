@@ -20,6 +20,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -39,6 +40,12 @@ public class ObjectiveWatcher implements Listener {
     public ObjectiveWatcher(IronCraftPlugin plugin) {
         this.plugin = plugin;
         this.playerDataHandler = plugin.getPlayerDataHandler();
+    }
+
+    // Removes the player from the hashset to prevent any future issues (In case they left, WHILE they were in the act of completing the Move objective)
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent e){
+        hasMovedForFirstTime.remove(e.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -70,6 +77,9 @@ public class ObjectiveWatcher implements Listener {
             if (playerData.getCurrentTutorialObjective() == Objective.MOVE && !hasMovedForFirstTime.contains(player.getUniqueId())) {
                 hasMovedForFirstTime.add(player.getUniqueId());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if(!player.isOnline() || !player.isValid()){
+                        return;
+                    }
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.MOVE));
                     hasMovedForFirstTime.remove(player.getUniqueId());
                     Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
@@ -81,6 +91,19 @@ public class ObjectiveWatcher implements Listener {
 
     @EventHandler
     public void onCraftSticks(CraftItemEvent e) {
+
+        Player player = (Player) e.getWhoClicked();
+        PlayerData pd = playerDataHandler.getData(player);
+        Material craftedItemType = e.getRecipe().getResult().getType();
+        boolean isInTutorial = pd.isInTutorial();
+        // End of the game. They have just crafted an iron pick-axe.
+        if(!isInTutorial && craftedItemType == Material.IRON_PICKAXE){
+            Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(Reason.GAME_COMPLETE, pd));
+            return;
+        }
+
+        if(!isInTutorial) return;
+
         checkIfPassedCraftingObjective(e, Objective.MAKE_STICKS, Material.STICK);
         checkIfPassedCraftingObjective(e, Objective.MAKE_PLANKS, Material.OAK_PLANKS, Material.BIRCH_PLANKS, Material.SPRUCE_PLANKS, Material.ACACIA_PLANKS, Material.DARK_OAK_PLANKS, Material.JUNGLE_PLANKS);
         checkIfPassedCraftingObjective(e, Objective.MAKE_CRAFTING_TABLE, Material.CRAFTING_TABLE);
@@ -213,20 +236,16 @@ public class ObjectiveWatcher implements Listener {
             Objective currentObjective = playerData.getCurrentTutorialObjective();
             List<Material> checkedMaterialsList = Arrays.asList(checkedMaterials);
             Material craftedItemType = e.getRecipe().getResult().getType();
-            if (currentObjective == objective && checkedMaterialsList.contains(craftedItemType)) {
 
+            if (currentObjective == objective && checkedMaterialsList.contains(craftedItemType)) {
                 if (currentObjective == Objective.MAKE_IRON_PICKAXE) {
-                    if(playerData.isInTutorial()){
-                        // End of the tutorial. They have just crafted an iron pickaxe
-                        concludeTutorial(player);
-                    }else{
-                        Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(Reason.GAME_COMPLETE, playerData));
-                    }
-                } else {
+                    // End of the tutorial. They have just crafted an iron pickaxe.
+                    concludeTutorial(player);
+                }else{
+                    // Advances them forward to the next objective.
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(objective));
                     Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                 }
-
             }
 
         }

@@ -29,9 +29,9 @@ public class DataCollector extends BukkitRunnable {
     @Override
     public void run() {
         for (PlayerData data : plugin.getPlayerDataHandler().getAllPlayerData().values()) {
-            // We only want to collect data for players that are playing the actual game, and aren't managers.
+            // We only want to collect data for players that are playing the actual game, and aren't managers & admins.
             // Player would be null if the player isn't online.
-            if (data.isInTutorial() || data.isManager() || data.getPlayer() == null) continue;
+            if (data.isInTutorial() || data.isManager() || data.getPlayer() == null || data.isAdmin()) continue;
             data.incrementCurrentStep();
             compileSparseRewardSequence(data);
             compileDenseRewardSequence(data);

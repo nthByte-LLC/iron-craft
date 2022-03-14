@@ -62,11 +62,11 @@ public class IronCraftCommand implements CommandExecutor {
                         }
 
                         PlayerData targetPlayerData = plugin.getPlayerDataHandler().getData(targetPlayer);
-                        if(secondArg.equalsIgnoreCase("obj")){
+                        if(secondArg.equalsIgnoreCase("obj")) {
                             Objective objective;
-                            try{
+                            try {
                                 objective = Objective.valueOf(fourthArg.toUpperCase());
-                            }catch(IllegalArgumentException e){
+                            } catch (IllegalArgumentException e) {
                                 sender.sendMessage(StringUtils.colorString("&cThis is not a valid objective!"));
                                 return false;
                             }

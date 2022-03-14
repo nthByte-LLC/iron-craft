@@ -149,7 +149,11 @@ public class PlayerWatcher implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
 
         Player player = e.getPlayer();
-        player.sendTitle("Input your ID", "Press T on your keyboard", 5, 100, 20);
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if(!plugin.getPlayerDataHandler().hasDataLoaded(player)){
+                player.sendTitle("Input your ID", "Press T on your keyboard", 0, 23, 0);
+            }
+        }, 0,  20);
 
         ConversationFactory conversationFactory = new ConversationFactory(plugin);
         Conversation conversation = conversationFactory.withFirstPrompt(new IDPrompt(plugin)).withLocalEcho(false).buildConversation(player);
@@ -192,6 +196,16 @@ public class PlayerWatcher implements Listener {
             if(managerNPC != null){
                 managerNPC.despawn();
                 managerNPC.destroy();
+            }
+
+            UUID managerUUID = data.getManager();
+            // If the player had a manager, it removes the player from the list of workers the manager is managing.
+            if(managerUUID != null){
+                if(playerDataHandler.hasDataLoaded(managerUUID)){
+                    PlayerData managerData = playerDataHandler.getData(managerUUID);
+                    managerData.getUsersOverseeing().remove(player.getUniqueId());
+                    managerData.setFocusedPlayerUUID(null);
+                }
             }
 
         }

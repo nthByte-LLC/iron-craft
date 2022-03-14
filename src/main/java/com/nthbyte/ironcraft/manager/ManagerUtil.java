@@ -9,6 +9,7 @@ import com.nthbyte.ironcraft.PlayerData;
 import com.nthbyte.ironcraft.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -19,6 +20,8 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ManagerUtil {
+
+    private static final String[] RANDOM_NPC_NAMES = {"md_5", "WolverineX15", "Santa", "Bilbow", "Steve"};
 
     /**
      * How many users you can manager at once.
@@ -31,7 +34,7 @@ public class ManagerUtil {
      */
     public static void assignManager(PlayerData data) {
 
-        if(data.isManager()) return;
+        if(data.isManager() || data.isAdmin()) return;
 
         ThreadLocalRandom current = ThreadLocalRandom.current();
         // TODO: switch this back
@@ -43,7 +46,9 @@ public class ManagerUtil {
             data.setManagementType(ManagementType.HUMAN);
         }
 
-        setupNPCManager(data);
+        if(data.getManagerNPC() == null){
+            setupNPCManager(data);
+        }
 
         List<PlayerData> allPlayerData = new ArrayList<>(IronCraftPlugin.getInstance().getPlayerDataHandler().getAllPlayerData().values());
 
@@ -51,9 +56,11 @@ public class ManagerUtil {
         allPlayerData.removeIf(playerData -> !playerData.isManager()
             || playerData.getUsersOverseeing().size() == OVERSEEING_USER_LIMIT
             || playerData.getUuid().equals(data.getUuid())
+            || playerData.isAdmin()
         );
 
         if(allPlayerData.size() == 0) {
+            System.out.println("Remaining is 0");
             data.setManagementType(ManagementType.AI);
             return;
         }
@@ -64,6 +71,7 @@ public class ManagerUtil {
 
         UUID uuid = data.getUuid();
         usersOverseeing.add(uuid);
+        // Sets their the only player they're managing as their focus
         if(usersOverseeing.size() == 1){
             managerData.setFocusedPlayerUUID(uuid);
         }
@@ -77,15 +85,21 @@ public class ManagerUtil {
 
     private static void setupNPCManager(PlayerData user){
 
-        CitizensNPC npc = (CitizensNPC) CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, "C10_MC");
+        if(!CitizensAPI.hasImplementation()){
+            return;
+        }
+
+        CitizensNPC npc = (CitizensNPC) CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, RANDOM_NPC_NAMES[ThreadLocalRandom.current().nextInt(RANDOM_NPC_NAMES.length)]);
         user.setManagerNPC(npc);
-        npc.spawn(getNPCManagerTPLocation(user.getPlayer()));
+        Location spawnLocation = getNPCManagerTPLocation(user.getPlayer());
+        npc.spawn(spawnLocation);
         npc.setAlwaysUseNameHologram(false);
 
         LivingEntity entity = (LivingEntity) npc.getEntity();
         entity.setAI(false);
         entity.setGravity(false);
         entity.setCollidable(false);
+        entity.setCustomNameVisible(false);
 
     }
 
@@ -95,7 +109,8 @@ public class ManagerUtil {
      */
     public static void ensurePlayersHaveManagers(IronCraftPlugin plugin){
         for(PlayerData pd : plugin.getPlayerDataHandler().getPlayerDataList()){
-            if(pd.getManager() == null && !pd.isManager() && !pd.isInTutorial()){
+            if(pd.getManager() == null && !pd.isManager()){
+                System.out.println("Assigning " + pd.getPlayer().getName());
                 ManagerUtil.assignManager(pd);
             }
         }

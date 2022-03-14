@@ -175,6 +175,17 @@ public class PlayerData {
      */
     private CitizensNPC managerNPC;
 
+    private boolean isAdmin;
+
+    /**
+     * For admins
+     * @param uuid The uuid of the player.
+     */
+    private PlayerData(UUID uuid){
+        this.providedID = "";
+        this.uuid = uuid;
+    }
+
     public PlayerData(UUID uuid, String providedID) {
         this.providedID = providedID;
         this.uuid = uuid;
@@ -200,7 +211,7 @@ public class PlayerData {
         teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if(isManager){
                 teleportToFocusedPlayer();
-            }else if(managementType == ManagementType.AI){
+            }else{
                 Entity entity = managerNPC.getEntity();
                 Location tpLocation = ManagerUtil.getNPCManagerTPLocation(getPlayer());
                 Vector direction = getPlayer().getLocation().getDirection().clone().multiply(-1);
@@ -291,7 +302,9 @@ public class PlayerData {
         if(teleporter != null){
             teleporter.cancel();
         }
-        playerDataConfig.saveData(this);
+        if(!isAdmin){
+            playerDataConfig.saveData(this);
+        }
     }
 
     public boolean hasMovedCamera(Vector currentDirection) {
@@ -364,8 +377,24 @@ public class PlayerData {
         player.setAllowFlight(false);
         player.setFlying(false);
         startTeleporter(plugin);
-        plugin.giveEssentialItems(player);
+        if(!hasTorches(player)){
+            plugin.giveEssentialItems(player);
+        }
         startGameTimeTracker(plugin);
+    }
+
+    /**
+     * Whether the player has torches or not.
+     * @param player The player we are checking.
+     * @return If they have at least 1 torch in their inventory.
+     */
+    private boolean hasTorches(Player player){
+        for(ItemStack stack : player.getInventory().getContents()){
+            if(stack != null && stack.getType() == Material.TORCH){
+                return true;
+            }
+        }
+        return false;
     }
 
     public SurveySession getSurveySession() {
@@ -574,6 +603,14 @@ public class PlayerData {
         return managerNPC;
     }
 
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
     public void writeDataToFile(IronCraftPlugin plugin) throws IOException {
 
         File file = new File(plugin.getDataFolder() + File.separator + "end_game_data", "input_" + uuid.toString() + ".yml");
@@ -606,6 +643,16 @@ public class PlayerData {
     @Override
     public String toString() {
         return "PlayerData{ " + uuid.toString() + "; isManager: " + isManager + "; isInTutorial: " + isInTutorial + "}";
+    }
+
+    public static PlayerData createAdminData(Player player){
+        PlayerData pd = new PlayerData(player.getUniqueId());
+        player.setAllowFlight(true);
+        player.setInvisible(false);
+        player.setGravity(true);
+        pd.isAdmin = true;
+        pd.providedID = "admin-" + player.getName();
+        return pd;
     }
 
 }

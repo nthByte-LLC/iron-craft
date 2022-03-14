@@ -33,6 +33,12 @@ public class Reminder extends BukkitRunnable {
 
         for (PlayerData data : plugin.getPlayerDataHandler().getPlayerDataList()) {
 
+            // They are playing the actual game.
+            // We don't want to send reminders to those players.
+            if(!data.isInTutorial() && !data.isManager()){
+                continue;
+            }
+
             boolean isManager = data.isManager();
             Player player = data.getPlayer();
             if(player.isConversing()) continue;

@@ -149,7 +149,8 @@ public final class IronCraftPlugin extends JavaPlugin {
                                         Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
                                     });
                                 } else {
-                                    player.closeInventory();
+                                    // Need this on sync delay to fix issue #11
+                                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, player::closeInventory);
                                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                                         player.sendMessage(ChatColor.RED + "Oops! Looks like you just closed it. Try opening the recipe menu again...");
                                     }, 5);
@@ -186,7 +187,7 @@ public final class IronCraftPlugin extends JavaPlugin {
         Scoreboard board = manager.getNewScoreboard();
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
 
-        String title = playerData.isManager() ? "&bPlayers Managing" : "&bObjectives";
+        String title = playerData.isManager() ? "&ePlayers Managing" : "&eObjectives";
         org.bukkit.scoreboard.Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
@@ -218,9 +219,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         }else{
 
-            Score score = obj.getScore(StringUtils.colorString("&6&lPlayers Managing"));
-            score.setScore(3);
-
+            Score score;
             List<UUID> usersOverseeing = playerData.getUsersOverseeing();
             for (int i = 0; i < usersOverseeing.size(); i++) {
                 Player p = Bukkit.getPlayer(usersOverseeing.get(i));
@@ -229,8 +228,8 @@ public final class IronCraftPlugin extends JavaPlugin {
                     continue;
                 }
                 String userName = Bukkit.getPlayer(usersOverseeing.get(i)).getName();
-                score = obj.getScore(StringUtils.colorString("&b- " + userName));
-                score.setScore(3 - (i+1));
+                score = obj.getScore(StringUtils.colorString("&7&l- " + userName));
+                score.setScore(2 - (i+1));
             }
 
         }
@@ -260,7 +259,7 @@ public final class IronCraftPlugin extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             for(Player player : Bukkit.getOnlinePlayers()){
                 if(player.getPersistentDataContainer().has(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING) && player.isConversing()){
-                    player.sendTitle("Take the survey", "Look in chat", 2, 20, 5);
+                    player.sendTitle("Take the survey", "Look in chat", 0, 23, 0);
                 }
             }
         }, 0, 20);
