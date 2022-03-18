@@ -35,7 +35,9 @@ public class PlayerDataConfig extends Config {
         config.set("Is Manager", data.isManager());
         config.set("Is In Tutorial", data.isInTutorial());
         config.set("Chamber Location", data.getChamberLocation());
-        config.set("Tutorial Objective", data.getCurrentTutorialObjective().toString());
+        if(data.getCurrentTutorialObjective() != null){
+            config.set("Tutorial Objective", data.getCurrentTutorialObjective().toString());
+        }
         config.set("Minutes In Game", data.getMinutesInGame());
         config.set("Rounds Played", data.getRoundsPlayed());
         saveConfig();

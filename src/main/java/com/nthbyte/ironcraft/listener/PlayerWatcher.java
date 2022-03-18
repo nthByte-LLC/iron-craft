@@ -149,6 +149,7 @@ public class PlayerWatcher implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
 
         Player player = e.getPlayer();
+        player.setAllowFlight(true);
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if(!plugin.getPlayerDataHandler().hasDataLoaded(player)){
                 player.sendTitle("Input your ID", "Press T on your keyboard", 0, 23, 0);

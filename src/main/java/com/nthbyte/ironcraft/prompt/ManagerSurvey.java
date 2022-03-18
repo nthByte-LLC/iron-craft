@@ -7,6 +7,7 @@ import org.bukkit.conversations.Conversable;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.conversations.StringPrompt;
+import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,10 +36,15 @@ public class ManagerSurvey extends StringPrompt {
             return this;
         }
 
+        String answer = VALID_REPLIES.get(Integer.parseInt(input) - 1).split(" ")[1];
+        Player managedUser = managedUserData.getPlayer();
+        if(managedUser.isConversing()){
+            managedUserData.setCachedManagerFeedback(answer);
+        }else{
+            managedUser.sendRawMessage("Your manager has given you a proficiency level of " + answer);
+        }
         who.sendRawMessage("Thank you for rating the user!");
 
-        String answer = VALID_REPLIES.get(Integer.parseInt(input) - 1).split(" ")[1];
-        managedUserData.setManagerFeedback(answer);
         return END_OF_CONVERSATION;
 
     }

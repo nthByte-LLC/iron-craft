@@ -191,6 +191,11 @@ public final class IronCraftPlugin extends JavaPlugin {
         org.bukkit.scoreboard.Objective obj = tutorialScoreBoard.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
+        if(playerData.isAdmin() || playerData.isFinished()){
+            player.setScoreboard(manager.getNewScoreboard());
+            return;
+        }
+
         if(!playerData.isManager()){
 
             boolean isInTutorial = playerData.isInTutorial();
@@ -208,7 +213,7 @@ public final class IronCraftPlugin extends JavaPlugin {
                 score = obj2.getScore(StringUtils.colorString("&eYour goal is to make an iron pickaxe"));
                 score.setScore(2);
 
-                score = obj2.getScore(StringUtils.colorString("&eGood luck"));
+                score = obj2.getScore(StringUtils.colorString("&e&oGood luck"));
                 score.setScore(1);
 
                 player.setScoreboard(gameScoreboard);

@@ -87,17 +87,9 @@ public class AutonomySurveyPrompt extends StringPrompt {
             playerData.setSurveySession(null);
             player.getInventory().clear();
 
-            String managerFeedback = playerData.getManagerFeedback();
-            if(managerFeedback != null){
-                player.sendRawMessage("Your manager has given you a proficiency level of " + managerFeedback);
-            }else{
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    String currentManagerFeedback = playerData.getManagerFeedback();
-                    if(currentManagerFeedback == null || !player.isOnline()){
-                        return;
-                    }
-                    player.sendRawMessage("Your manager has given you a proficiency level of " + currentManagerFeedback);
-                }, 10 * 20L);
+            String cachedManagerFeedback = playerData.getCachedManagerFeedback();
+            if(cachedManagerFeedback != null){
+                player.sendRawMessage("Your manager has given you a proficiency level of " + cachedManagerFeedback);
             }
 
             // Write their data to file and calculate their proficiency score.
@@ -109,7 +101,6 @@ public class AutonomySurveyPrompt extends StringPrompt {
 //            calculateProficiencyScore(player);
 
             int roundsPlayed = playerData.getRoundsPlayed();
-            System.out.println("Rounds played: " + ++roundsPlayed);
             if(roundsPlayed < 3){
 
                 player.sendRawMessage("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!");
@@ -134,6 +125,8 @@ public class AutonomySurveyPrompt extends StringPrompt {
                 playerData.setRoundsPlayed(0);
                 playerData.setCurrentTutorialObjective(null);
             }
+
+            player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
 
             return END_OF_CONVERSATION;
 

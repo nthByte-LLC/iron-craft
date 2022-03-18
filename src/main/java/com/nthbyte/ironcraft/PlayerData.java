@@ -63,7 +63,7 @@ public class PlayerData {
      */
     private int minutesInGame;
 
-    private String managerFeedback;
+    private String cachedManagerFeedback;
 
     /*
         Data collection variables
@@ -176,6 +176,8 @@ public class PlayerData {
     private CitizensNPC managerNPC;
 
     private boolean isAdmin;
+
+    private boolean isFinished;
 
     /**
      * For admins
@@ -582,12 +584,12 @@ public class PlayerData {
         return manager;
     }
 
-    public String getManagerFeedback() {
-        return managerFeedback;
+    public String getCachedManagerFeedback() {
+        return cachedManagerFeedback;
     }
 
-    public void setManagerFeedback(String managerFeedback) {
-        this.managerFeedback = managerFeedback;
+    public void setCachedManagerFeedback(String cachedManagerFeedback) {
+        this.cachedManagerFeedback = cachedManagerFeedback;
     }
 
     public int getMinutesInGame() {
@@ -612,6 +614,14 @@ public class PlayerData {
 
     public boolean isAdmin() {
         return isAdmin;
+    }
+
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public void setFinished(boolean finished) {
+        isFinished = finished;
     }
 
     public void writeDataToFile(IronCraftPlugin plugin) throws IOException {
