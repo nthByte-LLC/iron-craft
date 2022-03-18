@@ -24,10 +24,10 @@ import java.util.UUID;
 public class AutonomySurveyPrompt extends StringPrompt {
 
     private final List<String> QUESTIONS = Arrays.asList(
-        "Did you enjoy this task?",
-        "Did you put a lot of effort into this task?",
-        "Did you feel pressured while doing this task?",
-        "Did you feel that you have some choice about doing this task?"
+        "1.) Did you enjoy this task?",
+        "2.) Did you put a lot of effort into this task?",
+        "3.) Did you feel pressured while doing this task?",
+        "4.) Did you feel that you have some choice about doing this task?"
     );
 
     private final List<String> VALID_ANSWERS = Arrays.asList(
@@ -109,8 +109,8 @@ public class AutonomySurveyPrompt extends StringPrompt {
 //            calculateProficiencyScore(player);
 
             int roundsPlayed = playerData.getRoundsPlayed();
-            System.out.println("Rounds played: " + roundsPlayed);
-            if(playerData.getRoundsPlayed() < 3){
+            System.out.println("Rounds played: " + ++roundsPlayed);
+            if(roundsPlayed < 3){
 
                 player.sendRawMessage("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!");
                 Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
@@ -139,6 +139,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
 
         }
 
+        player.sendRawMessage("Your answer: [" + input.trim() + "]");
         return new AutonomySurveyPrompt(session.getCurrentNumQuestion(), plugin);
 
     }

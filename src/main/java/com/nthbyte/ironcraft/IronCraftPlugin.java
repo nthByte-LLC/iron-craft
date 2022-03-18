@@ -184,36 +184,51 @@ public final class IronCraftPlugin extends JavaPlugin {
     public void updateScoreboard(Player player) {
 
         ScoreboardManager manager = Bukkit.getScoreboardManager();
-        Scoreboard board = manager.getNewScoreboard();
+        Scoreboard tutorialScoreBoard = manager.getNewScoreboard();
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
 
         String title = playerData.isManager() ? "&ePlayers Managing" : "&eObjectives";
-        org.bukkit.scoreboard.Objective obj = board.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString(title));
+        org.bukkit.scoreboard.Objective obj = tutorialScoreBoard.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString(title));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         if(!playerData.isManager()){
 
+            boolean isInTutorial = playerData.isInTutorial();
             // If they aren't in the tutorial, then they don't need the objectives on the side of their screen.
-            if(!playerData.isInTutorial()){
-                player.setScoreboard(manager.getNewScoreboard());
+            if(!isInTutorial){
+
+                int minutesRemaining = 7 - playerData.getMinutesInGame();
+                Scoreboard gameScoreboard = manager.getNewScoreboard();
+                org.bukkit.scoreboard.Objective obj2 = gameScoreboard.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString("&bTime Remaining"));
+                obj2.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                Score score = obj2.getScore(StringUtils.colorString("&f" + minutesRemaining + " &eminutes remaining"));
+                score.setScore(0);
+
+                score = obj2.getScore(StringUtils.colorString("&eYour goal is to make an iron pickaxe"));
+                score.setScore(2);
+
+                score = obj2.getScore(StringUtils.colorString("&eGood luck"));
+                score.setScore(1);
+
+                player.setScoreboard(gameScoreboard);
                 return;
             }
 
             int currentObjectiveOrdinal = playerData.getCurrentTutorialObjective().ordinal();
-            int counter = 1;
+            int counter = 0;
+            Score score;
             for (Objective objective : Objective.values()) {
 
-                Score objScore;
                 if (objective.ordinal() > currentObjectiveOrdinal) {
-                    objScore = obj.getScore(StringUtils.colorString("&8&o" + objective.toProperName()));
+                    score = obj.getScore(StringUtils.colorString("&8&o" + objective.toProperName()));
                 } else if (objective.ordinal() == currentObjectiveOrdinal) {
-                    objScore = obj.getScore(StringUtils.colorString("&6&l" + objective.toProperName()));
+                    score = obj.getScore(StringUtils.colorString("&6&l" + objective.toProperName()));
                 } else {
-                    objScore = obj.getScore(StringUtils.colorString("&2&m" + objective.toProperName()));
+                    score = obj.getScore(StringUtils.colorString("&2&m" + objective.toProperName()));
                 }
 
-                objScore.setScore(counter);
-                counter -= -1;
+                score.setScore(++counter);
 
             }
 
@@ -234,7 +249,7 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         }
 
-        player.setScoreboard(board);
+        player.setScoreboard(tutorialScoreBoard);
 
     }
 
@@ -259,7 +274,7 @@ public final class IronCraftPlugin extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             for(Player player : Bukkit.getOnlinePlayers()){
                 if(player.getPersistentDataContainer().has(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING) && player.isConversing()){
-                    player.sendTitle("Take the survey", "Look in chat", 0, 23, 0);
+                    player.sendTitle("Look in chat", "Press T", 0, 23, 0);
                 }
             }
         }, 0, 20);

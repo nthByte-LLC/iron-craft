@@ -212,12 +212,15 @@ public class PlayerData {
             if(isManager){
                 teleportToFocusedPlayer();
             }else{
-                Entity entity = managerNPC.getEntity();
-                Location tpLocation = ManagerUtil.getNPCManagerTPLocation(getPlayer());
-                Vector direction = getPlayer().getLocation().getDirection().clone().multiply(-1);
-                // Makes it to where the npc is looking at the user.
-                tpLocation.setDirection(direction);
-                entity.teleport(tpLocation);
+                // Could be null if they don't have a manager.
+                if(managerNPC != null){
+                    Entity entity = managerNPC.getEntity();
+                    Location tpLocation = ManagerUtil.getNPCManagerTPLocation(getPlayer());
+                    Vector direction = getPlayer().getLocation().getDirection().clone().multiply(-1);
+                    // Makes it to where the npc is looking at the user.
+                    tpLocation.setDirection(direction);
+                    entity.teleport(tpLocation);
+                }
             }
         }, 0L, 1L);
     }
@@ -240,9 +243,8 @@ public class PlayerData {
                 return;
             }
 
-            minutesInGame++;
-
             Player player = getPlayer();
+            plugin.updateScoreboard(player);
 
             if(minutesInGame >= 7){
 
@@ -259,15 +261,16 @@ public class PlayerData {
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     player.getPersistentDataContainer().set(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING, "marker");
-                    Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(false).buildConversation(player);
+                    Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(true).buildConversation(player);
                     conv.begin();
                 }, 20L * 3);
 
             }else{
+                minutesInGame++;
                 player.sendMessage(StringUtils.colorString("&7You have &e" + (7 - minutesInGame) + "&7 minute(s) to complete the game!"));
             }
 
-        },20 * 60L, 20 * 60L);
+        },0, 20 * 60L);
 
     }
 

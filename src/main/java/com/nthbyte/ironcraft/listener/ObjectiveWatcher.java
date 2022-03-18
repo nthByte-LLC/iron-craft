@@ -24,6 +24,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -262,6 +263,7 @@ public class ObjectiveWatcher implements Listener {
 
     private void concludeTutorial(Player player) {
 
+        player.getPersistentDataContainer().set(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING, "marker");
         player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);
         player.sendMessage(StringUtils.colorString("&bCongratulations! &fYou have completed the tutorial. You will now be teleported and given the opportunity to play on your own. Good luck!"));

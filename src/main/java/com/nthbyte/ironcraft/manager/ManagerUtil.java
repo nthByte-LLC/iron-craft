@@ -109,7 +109,7 @@ public class ManagerUtil {
      */
     public static void ensurePlayersHaveManagers(IronCraftPlugin plugin){
         for(PlayerData pd : plugin.getPlayerDataHandler().getPlayerDataList()){
-            if(pd.getManager() == null && !pd.isManager()){
+            if(pd.getManager() == null && !pd.isManager() && !pd.isInTutorial()){
                 System.out.println("Assigning " + pd.getPlayer().getName());
                 ManagerUtil.assignManager(pd);
             }

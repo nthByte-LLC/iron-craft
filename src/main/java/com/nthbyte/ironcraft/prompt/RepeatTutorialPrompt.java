@@ -2,6 +2,7 @@ package com.nthbyte.ironcraft.prompt;
 
 import com.nthbyte.ironcraft.IronCraftPlugin;
 import com.nthbyte.ironcraft.Objective;
+import com.nthbyte.ironcraft.manager.ManagerUtil;
 import net.dohaw.corelib.StringUtils;
 import com.nthbyte.ironcraft.PlayerData;
 import org.bukkit.Bukkit;
@@ -58,10 +59,12 @@ public class RepeatTutorialPrompt extends StringPrompt {
                     return null;
                 }
 
-                playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
-                playerData.setInTutorial(false);
-                player.getInventory().clear();
+                player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
+                    playerData.setInTutorial(false);
+                    player.getInventory().clear();
+                    ManagerUtil.ensurePlayersHaveManagers(plugin);
                     player.teleport(randomSpawnPoint);
                     playerData.initWorker(plugin);
                 }, 20L * 3);
@@ -72,4 +75,5 @@ public class RepeatTutorialPrompt extends StringPrompt {
 
         return END_OF_CONVERSATION;
     }
+
 }

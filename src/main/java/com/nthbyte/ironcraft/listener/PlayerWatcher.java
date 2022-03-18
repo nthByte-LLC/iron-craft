@@ -288,7 +288,7 @@ public class PlayerWatcher implements Listener {
         if(playerData.getManagementType() == ManagementType.HUMAN){
             UUID managerUUID = playerData.getManager();
             PlayerData managerData = plugin.getPlayerDataHandler().getData(managerUUID);
-            Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(playerData)).withLocalEcho(false).buildConversation(managerData.getPlayer());
+            Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(playerData)).withLocalEcho(true).buildConversation(managerData.getPlayer());
             conv.begin();
         }
 
