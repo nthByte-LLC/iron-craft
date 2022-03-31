@@ -26,6 +26,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityToggleSwimEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -34,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import javax.xml.soap.DetailEntry;
 import java.util.*;
 
 public class PlayerWatcher implements Listener {
@@ -75,7 +77,7 @@ public class PlayerWatcher implements Listener {
         ItemStack itemInHand = p.getEquipment().getItemInMainHand();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
 
-        if(playerData.isInTutorial() || playerData.isManager()) return;
+        if(playerData == null || playerData.isInTutorial() || playerData.isManager()) return;
 
         if (block.getType() == Material.IRON_ORE && itemInHand.getType() == Material.WOODEN_PICKAXE) {
             playerData.incrementMisuseActionSteps();
@@ -97,10 +99,26 @@ public class PlayerWatcher implements Listener {
         Material tool = itemInHand.getType();
         PlayerData playerData = plugin.getPlayerDataHandler().getData(p.getUniqueId());
 
-        if(playerData.isInTutorial() || playerData.isManager()) return;
+        if(playerData == null || playerData.isInTutorial() || playerData.isManager()) return;
 
         if (block == Material.OAK_LOG || block == Material.ACACIA_LOG || block == Material.BIRCH_LOG || block == Material.DARK_OAK_LOG || block == Material.JUNGLE_LOG || block == Material.SPRUCE_LOG && tool == Material.STONE_PICKAXE) {
             playerData.incrementMisuseActionSteps();
+        }
+
+    }
+
+    @EventHandler
+    public void onManagerSwim(EntityToggleSwimEvent e){
+
+        Entity entity = e.getEntity();
+        if(!(entity instanceof Player)){
+            return;
+        }
+
+        Player player = (Player) entity;
+        PlayerData pd = plugin.getPlayerDataHandler().getData(player);
+        if(pd != null && pd.isManager()){
+            e.setCancelled(true);
         }
 
     }

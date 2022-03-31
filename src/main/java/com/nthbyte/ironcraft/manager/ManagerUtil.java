@@ -14,6 +14,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +22,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ManagerUtil {
-
-    private static final String[] RANDOM_NPC_NAMES = {"md_5", "WolverineX15", "Santa", "Bilbow", "Steve"};
 
     /**
      * How many users you can manager at once.
@@ -144,14 +143,15 @@ public class ManagerUtil {
 
         float distance = -2.5f;
         Location maxDistanceLocation = clone.clone().add(clone.getDirection().multiply(distance)).add(0, 0.5, 0);
-        Block locationBlock = maxDistanceLocation.getBlock();
-        while(locationBlock.getType().isSolid()){
-            distance += 0.05f;
+
+        Vector temp = clone.getDirection().multiply(-0.3);
+        boolean isInSolidBlock = maxDistanceLocation.clone().add(temp).getBlock().getType().isSolid();
+        while(isInSolidBlock){
+            distance += 0.1f;
             maxDistanceLocation = clone.clone().add(clone.getDirection().multiply(distance)).add(0, 0.5, 0);
-            locationBlock = maxDistanceLocation.getBlock();
+            isInSolidBlock = maxDistanceLocation.clone().add(temp).getBlock().getType().isSolid();
         }
-//        System.out.println("BLOCK: " + locationBlock.getType());
-//        System.out.println("Distance: " + distance);
+        System.out.println("Distance: " + distance);
 
         return maxDistanceLocation;
 
