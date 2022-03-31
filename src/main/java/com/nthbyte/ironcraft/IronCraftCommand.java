@@ -84,7 +84,7 @@ public class IronCraftCommand implements CommandExecutor {
                             targetPlayer.sendMessage("You have been moved to the game stage");
                             sender.sendMessage("This player has been moved to the game stage");
                             targetPlayerData.setInTutorial(!isInGame);
-                            targetPlayerData.initWorker(plugin);
+                            targetPlayerData.init(plugin, targetPlayerData.isManager());
                         }
 
                     }

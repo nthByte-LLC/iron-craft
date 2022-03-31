@@ -239,6 +239,10 @@ public class PlayerData {
 
         gameTimeTracker = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
 
+            if(isFinished){
+                return;
+            }
+
             if(isInTutorial){
                 this.minutesInGame = 0;
                 gameTimeTracker.cancel();
@@ -248,6 +252,11 @@ public class PlayerData {
             Player player = getPlayer();
             plugin.updateScoreboard(player);
 
+            UUID managerUUID = getManager();
+            if(managerUUID != null){
+                plugin.updateScoreboard(Bukkit.getPlayer(managerUUID));
+            }
+
             if(minutesInGame >= 7){
 
                 gameTimeTracker.cancel();
@@ -256,9 +265,12 @@ public class PlayerData {
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
 
                 PlayerData managerData = plugin.getPlayerDataHandler().getData(manager);
-                if(managerData != null && managerData.getFocusedPlayerUUID().equals(uuid)){
-                    managerData.setFocusedPlayerUUID(null);
-                    this.manager = null;
+                if(managerData != null){
+                    UUID focusedPlayerUUID = managerData.getFocusedPlayerUUID();
+                    if(focusedPlayerUUID != null && focusedPlayerUUID.equals(uuid)){
+                        managerData.setFocusedPlayerUUID(null);
+                        this.manager = null;
+                    }
                 }
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -269,7 +281,12 @@ public class PlayerData {
 
             }else{
                 minutesInGame++;
-                player.sendMessage(StringUtils.colorString("&7You have &e" + (7 - minutesInGame) + "&7 minute(s) to complete the game!"));
+                int minutesLeft = 7 - minutesInGame;
+                if(minutesLeft != 0){
+                    player.sendMessage(StringUtils.colorString("&7You have &e" + (7 - minutesInGame) + "&7 minute(s) to complete the game!"));
+                }else{
+                    player.sendMessage(StringUtils.colorString("&7You have &eless than 1 minute&7 to complete the game!"));
+                }
             }
 
         },0, 20 * 60L);
@@ -363,29 +380,31 @@ public class PlayerData {
         getPlayer().teleport(ManagerUtil.getHumanManagerTPLocation(focusedPlayer));
     }
 
-    public void initManager(IronCraftPlugin plugin){
-        Player player = getPlayer();
-        this.isManager = true;
-        player.setGravity(false);
-        player.setInvisible(true);
-        player.setAllowFlight(true);
-        player.setFlying(true);
-        startTeleporter(plugin);
-        ManagerUtil.sendManagerMessage(player);
-    }
+    public void init(IronCraftPlugin plugin, boolean isManager){
 
-    public void initWorker(IronCraftPlugin plugin){
         Player player = getPlayer();
-        this.isManager = false;
-        player.setGravity(true);
-        player.setInvisible(false);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        startTeleporter(plugin);
-        if(!hasTorches(player)){
+        this.isManager = isManager;
+        if(!isInTutorial){
+            player.setGravity(!isManager);
+            player.setInvisible(isManager);
+            player.setAllowFlight(isManager);
+            player.setFlying(isManager);
+            startTeleporter(plugin);
+        }
+
+        if(!hasTorches(player) && ( (isManager && isInTutorial) || !isManager) ){
             plugin.giveEssentialItems(player);
         }
-        startGameTimeTracker(plugin);
+
+        if(!isManager){
+            startGameTimeTracker(plugin);
+        }else{
+            startTeleporter(plugin);
+            ManagerUtil.sendManagerMessage(player);
+        }
+
+        plugin.updateScoreboard(player);
+
     }
 
     /**

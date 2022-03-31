@@ -9,7 +9,6 @@ import com.nthbyte.ironcraft.PlayerData;
 import com.nthbyte.ironcraft.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -34,8 +33,6 @@ public class ManagerUtil {
      */
     public static void assignManager(PlayerData data) {
 
-        if(data.isManager() || data.isAdmin()) return;
-
         ThreadLocalRandom current = ThreadLocalRandom.current();
         // TODO: switch this back
         boolean hasAIManager = false /*current.nextBoolean()*/;
@@ -44,10 +41,6 @@ public class ManagerUtil {
             return;
         } else {
             data.setManagementType(ManagementType.HUMAN);
-        }
-
-        if(data.getManagerNPC() == null){
-            setupNPCManager(data);
         }
 
         List<PlayerData> allPlayerData = new ArrayList<>(IronCraftPlugin.getInstance().getPlayerDataHandler().getAllPlayerData().values());
@@ -73,7 +66,17 @@ public class ManagerUtil {
         usersOverseeing.add(uuid);
         // Sets their the only player they're managing as their focus
         if(usersOverseeing.size() == 1){
+
             managerData.setFocusedPlayerUUID(uuid);
+
+            if(data.getManagerNPC() == null){
+                if(data.getManagementType() == ManagementType.AI){
+                    setupNPCManager(data, null);
+                }else{
+                    setupNPCManager(data, manager.getName());
+                }
+            }
+
         }
 
         data.setManager(managerData.getUuid());
@@ -83,15 +86,19 @@ public class ManagerUtil {
 
     }
 
-    private static void setupNPCManager(PlayerData user){
+    private static void setupNPCManager(PlayerData worker, String managerName){
 
         if(!CitizensAPI.hasImplementation()){
             return;
         }
 
-        CitizensNPC npc = (CitizensNPC) CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, RANDOM_NPC_NAMES[ThreadLocalRandom.current().nextInt(RANDOM_NPC_NAMES.length)]);
-        user.setManagerNPC(npc);
-        Location spawnLocation = getNPCManagerTPLocation(user.getPlayer());
+        if(managerName == null){
+            managerName = "Robot";
+        }
+
+        CitizensNPC npc = (CitizensNPC) CitizensAPI.getNPCRegistry().createNPC(EntityType.PLAYER, managerName);
+        worker.setManagerNPC(npc);
+        Location spawnLocation = getNPCManagerTPLocation(worker.getPlayer());
         npc.spawn(spawnLocation);
         npc.setAlwaysUseNameHologram(false);
 
@@ -109,7 +116,7 @@ public class ManagerUtil {
      */
     public static void ensurePlayersHaveManagers(IronCraftPlugin plugin){
         for(PlayerData pd : plugin.getPlayerDataHandler().getPlayerDataList()){
-            if(pd.getManager() == null && !pd.isManager() && !pd.isInTutorial()){
+            if(pd.getManager() == null && !pd.isManager() && !pd.isInTutorial() && !pd.isAdmin()){
                 System.out.println("Assigning " + pd.getPlayer().getName());
                 ManagerUtil.assignManager(pd);
             }

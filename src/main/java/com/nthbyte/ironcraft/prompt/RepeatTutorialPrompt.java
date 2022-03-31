@@ -66,7 +66,7 @@ public class RepeatTutorialPrompt extends StringPrompt {
                     player.getInventory().clear();
                     ManagerUtil.ensurePlayersHaveManagers(plugin);
                     player.teleport(randomSpawnPoint);
-                    playerData.initWorker(plugin);
+                    playerData.init(plugin, playerData.isManager());
                 }, 20L * 3);
 
             }

@@ -24,7 +24,7 @@ public class ManagerSurvey extends StringPrompt {
 
     @Override
     public String getPromptText(ConversationContext context) {
-        return StringUtils.colorString("Please rate the user's proficiency (" + managedUserData.getPlayer().getName() + "). \n \nValid Responses:\n&e[1] &7Beginner \n&e[2] &7Intermediate \n&e[3] &7Advanced\n \n&7(Enter a number)");
+        return StringUtils.colorString("Please rate the user's proficiency (" + managedUserData.getPlayer().getName() + "). \n \nValid Responses:\n&e[1] &7Beginner \n&e[2] &7Intermediate \n&e[3] &7Advanced\n \n&7(Press T and enter a number)");
     }
 
     @Override

@@ -57,6 +57,10 @@ public class ObjectiveWatcher implements Listener {
 
             Player player = (Player) entity;
             PlayerData playerData = getPlayerData(player);
+            if(playerData.isAdmin() || playerData.isManager()) {
+                return;
+            }
+
             Material itemType = e.getItem().getItemStack().getType();
             if (isOnObjective(playerData, Objective.COLLECT_WOOD) && itemType.toString().toLowerCase().contains("log")) {
                 if (getCountItem(player.getInventory(), itemType) >= 4) {
@@ -75,6 +79,9 @@ public class ObjectiveWatcher implements Listener {
         Player player = e.getPlayer();
         if (playerDataHandler.hasDataLoaded(player.getUniqueId())) {
             PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
+            if(playerData.isAdmin() || playerData.isManager()) {
+                return;
+            }
             if (playerData.getCurrentTutorialObjective() == Objective.MOVE && !hasMovedForFirstTime.contains(player.getUniqueId())) {
                 hasMovedForFirstTime.add(player.getUniqueId());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -95,6 +102,11 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = (Player) e.getWhoClicked();
         PlayerData pd = playerDataHandler.getData(player);
+
+        if(pd.isAdmin() || pd.isManager()) {
+            return;
+        }
+
         Material craftedItemType = e.getRecipe().getResult().getType();
         boolean isInTutorial = pd.isInTutorial();
         // End of the game. They have just crafted an iron pick-axe.
@@ -119,6 +131,11 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
+
+        if(playerData.isAdmin() || playerData.isManager()) {
+            return;
+        }
+
         if (playerData.getCurrentTutorialObjective() == Objective.PLACE_CRAFTING_TABLE && e.getBlockPlaced().getType() == Material.CRAFTING_TABLE) {
             playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.PLACE_CRAFTING_TABLE));
             Bukkit.getServer().getPluginManager().callEvent(new CompleteObjectiveEvent(playerData));
@@ -131,6 +148,11 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
+
+        if(playerData.isAdmin() || playerData.isManager()) {
+            return;
+        }
+
         Material blockPlacedType = e.getBlockPlaced().getType();
         if (playerData.getCurrentTutorialObjective() == Objective.PLACE_A_TORCH && (blockPlacedType == Material.TORCH || blockPlacedType == Material.WALL_TORCH) ) {
             playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.PLACE_A_TORCH));
@@ -147,6 +169,11 @@ public class ObjectiveWatcher implements Listener {
 
             Player player = (Player) entity;
             PlayerData playerData = getPlayerData(player);
+
+            if(playerData.isAdmin() || playerData.isManager()) {
+                return;
+            }
+
             if (isOnObjective(playerData, Objective.COLLECT_STONE) && e.getItem().getItemStack().getType() == Material.COBBLESTONE) {
                 if (getCountItem(player.getInventory(), Material.COBBLESTONE) >= 15) {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.COLLECT_STONE));
@@ -166,6 +193,11 @@ public class ObjectiveWatcher implements Listener {
 
             Player player = (Player) entity;
             PlayerData playerData = getPlayerData(player);
+
+            if(playerData.isAdmin() || playerData.isManager()) {
+                return;
+            }
+
             if (isOnObjective(playerData, Objective.COLLECT_IRON) && e.getItem().getItemStack().getType() == Material.RAW_IRON) {
                 if (getCountItem(player.getInventory(), Material.RAW_IRON) >= 3) {
                     playerData.setCurrentTutorialObjective(plugin.getNextObjective(Objective.COLLECT_IRON));
@@ -182,6 +214,11 @@ public class ObjectiveWatcher implements Listener {
 
         Player player = e.getPlayer();
         PlayerData playerData = getPlayerData(player);
+
+        if(playerData.isAdmin() || playerData.isManager()) {
+            return;
+        }
+
         if (isOnObjective(playerData, Objective.SMELT_IRON) && e.getItemType() == Material.IRON_INGOT) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (getCountItem(player.getInventory(), Material.IRON_INGOT) + e.getItemAmount() >= 3) {
@@ -197,6 +234,11 @@ public class ObjectiveWatcher implements Listener {
     public void onCompleteObjective(CompleteObjectiveEvent e){
 
         PlayerData playerData = e.getPlayerData();
+
+        if(playerData.isAdmin() || playerData.isManager()) {
+            return;
+        }
+
         if(playerData.isInTutorial()){
 
             Player player = playerData.getPlayer();

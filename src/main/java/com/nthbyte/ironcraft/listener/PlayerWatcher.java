@@ -34,10 +34,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerWatcher implements Listener {
 
@@ -162,6 +159,16 @@ public class PlayerWatcher implements Listener {
 
     }
 
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent e){
+        Set<Player> recipients = e.getRecipients();
+        for(Player p : recipients){
+            if(!plugin.getPlayerDataHandler().getData(p).isAdmin()){
+                recipients.remove(p);
+            }
+        }
+    }
+
     /*
         Ensures that the manager npc is removed when the player is kicked (The PlayerQuitEvent doesn't fire when they are kicked).
      */
@@ -230,7 +237,14 @@ public class PlayerWatcher implements Listener {
         }
 
         PlayerData playerData = playerDataHandler.getData(player.getUniqueId());
-        if (playerData.isInTutorial() && !playerData.isManager() && !BREAKABLE_TUTORIAL_BLOCKS.contains(e.getBlock().getType())) {
+
+        if(playerData.isManager()){
+            e.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Managers can't break blocks!");
+            return;
+        }
+
+        if (playerData.isInTutorial() && !BREAKABLE_TUTORIAL_BLOCKS.contains(e.getBlock().getType())) {
             e.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You can't break that block. Focus on the objectives!");
         }

@@ -56,7 +56,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
                 answers += "\n";
             }
         }
-        return StringUtils.colorString("\n&l" + question + "\n \n" + answers + "\n \nEnter a number");
+        return StringUtils.colorString("\n&l" + question + "\n \n" + answers + "\n \nPress T and enter a number");
     }
 
     @Override
@@ -117,7 +117,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
                     playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
                     player.teleport(randomSpawnPoint);
                     playerData.setMinutesInGame(0);
-                    playerData.initWorker(plugin);
+                    playerData.init(plugin, false);
                 }, 20 * 3);
 
             }else{

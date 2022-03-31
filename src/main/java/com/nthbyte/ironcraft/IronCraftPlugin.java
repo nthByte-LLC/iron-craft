@@ -178,10 +178,17 @@ public final class IronCraftPlugin extends JavaPlugin {
     }
 
     public Location getRandomJourneySpawnPoint() {
-        return journeySpawnPoints.get(new Random().nextInt(journeySpawnPoints.size()));
+        if(journeySpawnPoints.isEmpty()){
+            return null;
+        }
+        return journeySpawnPoints.remove(new Random().nextInt(journeySpawnPoints.size()));
     }
 
     public void updateScoreboard(Player player) {
+
+        if(player == null || !player.isValid()){
+            return;
+        }
 
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard tutorialScoreBoard = manager.getNewScoreboard();
@@ -207,14 +214,21 @@ public final class IronCraftPlugin extends JavaPlugin {
                 org.bukkit.scoreboard.Objective obj2 = gameScoreboard.registerNewObjective("DCScoreboard", "dummy", StringUtils.colorString("&bTime Remaining"));
                 obj2.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-                Score score = obj2.getScore(StringUtils.colorString("&f" + minutesRemaining + " &eminutes remaining"));
+                Score score = obj2.getScore(StringUtils.colorString("&eRounds Played: &f" + playerData.getRoundsPlayed()));
                 score.setScore(0);
 
-                score = obj2.getScore(StringUtils.colorString("&eYour goal is to make an iron pickaxe"));
-                score.setScore(2);
+                if(minutesRemaining != 0){
+                    score = obj2.getScore(StringUtils.colorString("&f" + minutesRemaining + " &eminutes remaining"));
+                }else{
+                    score = obj2.getScore(StringUtils.colorString("&eLess than &f1 minute&e remaining"));
+                }
+                score.setScore(1);
+
+                score = obj2.getScore(StringUtils.colorString("&eGoal: Make an iron pickaxe"));
+                score.setScore(3);
 
                 score = obj2.getScore(StringUtils.colorString("&e&oGood luck"));
-                score.setScore(1);
+                score.setScore(2);
 
                 player.setScoreboard(gameScoreboard);
                 return;
@@ -243,12 +257,14 @@ public final class IronCraftPlugin extends JavaPlugin {
             List<UUID> usersOverseeing = playerData.getUsersOverseeing();
             for (int i = 0; i < usersOverseeing.size(); i++) {
                 Player p = Bukkit.getPlayer(usersOverseeing.get(i));
-                if(p == null) {
+                if(p == null || !p.isValid()) {
                     usersOverseeing.remove(i);
                     continue;
                 }
+                PlayerData pd = playerDataHandler.getData(p);
                 String userName = Bukkit.getPlayer(usersOverseeing.get(i)).getName();
-                score = obj.getScore(StringUtils.colorString("&7&l- " + userName));
+                int minutesLeft = 7 - pd.getMinutesInGame();
+                score = obj.getScore(StringUtils.colorString("&7&l- " + userName + "&f&l [Minutes Left: " + minutesLeft + "]"));
                 score.setScore(2 - (i+1));
             }
 
