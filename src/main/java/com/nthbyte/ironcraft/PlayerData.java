@@ -2,9 +2,9 @@ package com.nthbyte.ironcraft;
 
 import com.nthbyte.ironcraft.config.PlayerDataConfig;
 import com.nthbyte.ironcraft.data_collection.DataCollectionUtil;
+import com.nthbyte.ironcraft.event.EndGameEvent;
 import com.nthbyte.ironcraft.manager.ManagementType;
 import com.nthbyte.ironcraft.manager.ManagerUtil;
-import com.nthbyte.ironcraft.prompt.AutonomySurveyPrompt;
 import net.citizensnpcs.npc.CitizensNPC;
 import net.dohaw.corelib.StringUtils;
 import org.bukkit.Bukkit;
@@ -12,12 +12,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationFactory;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
@@ -179,6 +176,8 @@ public class PlayerData {
 
     private boolean isFinished;
 
+    private boolean hasRecentlyJoined = true;
+
     /**
      * For admins
      * @param uuid The uuid of the player.
@@ -207,24 +206,42 @@ public class PlayerData {
     }
 
     public void startTeleporter(IronCraftPlugin plugin){
+
         if(teleporter != null){
             teleporter.cancel();
         }
+
         teleporter = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if(isManager){
                 teleportToFocusedPlayer();
             }else{
                 // Could be null if they don't have a manager.
                 if(managerNPC != null){
-                    Entity entity = managerNPC.getEntity();
-                    Location tpLocation = ManagerUtil.getNPCManagerTPLocation(getPlayer());
-                    Vector direction = getPlayer().getLocation().getDirection().clone().multiply(-1);
-                    // Makes it to where the npc is looking at the user.
-                    tpLocation.setDirection(direction);
-                    entity.teleport(tpLocation);
+
+                    if(managementType == ManagementType.HUMAN){
+
+                        LivingEntity dollEntity = (LivingEntity) managerNPC.getEntity();
+                        PlayerData managerData = plugin.getPlayerDataHandler().getData(manager);
+                        UUID managerFocusedPlayer = managerData.getFocusedPlayerUUID();
+                        // If the manager is currently focused on this player.
+                        if(managerFocusedPlayer != null && managerFocusedPlayer.equals(this.uuid)){
+                            dollEntity.setInvisible(false);
+                            Location tpLocation = ManagerUtil.getNPCManagerTPLocation(getPlayer());
+                            Vector direction = getPlayer().getLocation().getDirection().clone().multiply(-1);
+                            // Makes it to where the npc is looking at the user.
+                            tpLocation.setDirection(direction);
+                            dollEntity.teleport(tpLocation);
+                        }else{
+                            dollEntity.setInvisible(true);
+                        }
+
+                    }
+
                 }
+
             }
         }, 0L, 1L);
+
     }
 
     /**
@@ -237,9 +254,13 @@ public class PlayerData {
             gameTimeTracker.cancel();
         }
 
+        Bukkit.getScheduler().runTaskLater(plugin, () -> this.hasRecentlyJoined = false, 20L * 5);
+
         gameTimeTracker = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
 
-            if(isFinished){
+            Player player = getPlayer();
+            boolean isAnsweringSurvey = IronCraftPlugin.isAnsweringSurvey(player);
+            if(isFinished || isAnsweringSurvey){
                 return;
             }
 
@@ -249,7 +270,6 @@ public class PlayerData {
                 return;
             }
 
-            Player player = getPlayer();
             plugin.updateScoreboard(player);
 
             UUID managerUUID = getManager();
@@ -264,20 +284,7 @@ public class PlayerData {
                 player.sendMessage(StringUtils.colorString("&cYour time is up!"));
                 player.sendMessage("You will now take a survey. You won't be able to move for the duration of this survey. Don't worry, it'll be quick!");
 
-                PlayerData managerData = plugin.getPlayerDataHandler().getData(manager);
-                if(managerData != null){
-                    UUID focusedPlayerUUID = managerData.getFocusedPlayerUUID();
-                    if(focusedPlayerUUID != null && focusedPlayerUUID.equals(uuid)){
-                        managerData.setFocusedPlayerUUID(null);
-                        this.manager = null;
-                    }
-                }
-
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    player.getPersistentDataContainer().set(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING, "marker");
-                    Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new AutonomySurveyPrompt(0, plugin)).withLocalEcho(true).buildConversation(player);
-                    conv.begin();
-                }, 20L * 3);
+                Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(Reason.OUT_OF_TIME, this));
 
             }else{
                 minutesInGame++;
@@ -289,7 +296,7 @@ public class PlayerData {
                 }
             }
 
-        },0, 20 * 60L);
+        },0, 20L * 60L/*60L*/);
 
     }
 
@@ -403,6 +410,7 @@ public class PlayerData {
             ManagerUtil.sendManagerMessage(player);
         }
 
+        player.setCollidable(false);
         plugin.updateScoreboard(player);
 
     }
@@ -488,6 +496,10 @@ public class PlayerData {
 
     public void incrementMoveSteps() {
         moveSteps++;
+    }
+
+    public boolean hasRecentlyJoined() {
+        return hasRecentlyJoined;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.nthbyte.ironcraft.prompt;
 
+import com.nthbyte.ironcraft.IronCraftPlugin;
 import net.dohaw.corelib.StringUtils;
 import net.dohaw.corelib.helpers.MathHelper;
 import com.nthbyte.ironcraft.PlayerData;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class ManagerSurvey extends StringPrompt {
 
-    private final List<String> VALID_REPLIES = Arrays.asList("[1] Beginner", "[2] Intermediate", "[3] Advanced");
+    private final List<String> OPTIONS = Arrays.asList("[1] Beginner", "[2] Intermediate", "[3] Advanced");
 
     private PlayerData managedUserData;
 
@@ -36,14 +37,16 @@ public class ManagerSurvey extends StringPrompt {
             return this;
         }
 
-        String answer = VALID_REPLIES.get(Integer.parseInt(input) - 1).split(" ")[1];
+        String answer = OPTIONS.get(Integer.parseInt(input) - 1).split(" ")[1];
         Player managedUser = managedUserData.getPlayer();
-        if(managedUser.isConversing()){
+        if(IronCraftPlugin.isAnsweringSurvey(managedUser)){
             managedUserData.setCachedManagerFeedback(answer);
         }else{
             managedUser.sendRawMessage("Your manager has given you a proficiency level of " + answer);
         }
         who.sendRawMessage("Thank you for rating the user!");
+
+        ((Player)who).getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
 
         return END_OF_CONVERSATION;
 
@@ -52,7 +55,7 @@ public class ManagerSurvey extends StringPrompt {
     private boolean isValidAnswer(String answerGiven) {
         if(!MathHelper.isInt(answerGiven)) return false;
         int num = Integer.parseInt(answerGiven);
-        return num > 0 && num <= VALID_REPLIES.size();
+        return num > 0 && num <= OPTIONS.size();
     }
 
 }

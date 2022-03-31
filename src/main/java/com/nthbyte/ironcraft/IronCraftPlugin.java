@@ -86,8 +86,8 @@ public final class IronCraftPlugin extends JavaPlugin {
 
         // Only useful if there are players on the server, and /plugman reload IronCraft gets ran
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.isConversing() ) {
-                player.kickPlayer("Please rejoin the server!");
+            if (player.isConversing()) {
+                player.kickPlayer("Please re-join the server!");
                 continue;
             }
             player.sendMessage("Please re-verify your ID!");
@@ -319,6 +319,10 @@ public final class IronCraftPlugin extends JavaPlugin {
 
     public static IronCraftPlugin getInstance() {
         return instance;
+    }
+
+    public static boolean isAnsweringSurvey(Player player){
+        return player.getPersistentDataContainer().has(IN_SURVEY_PDC_KEY, PersistentDataType.STRING);
     }
 
 }

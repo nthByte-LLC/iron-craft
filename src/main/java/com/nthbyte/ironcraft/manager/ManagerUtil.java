@@ -9,6 +9,8 @@ import com.nthbyte.ironcraft.PlayerData;
 import com.nthbyte.ironcraft.util.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -136,9 +138,23 @@ public class ManagerUtil {
      * @return The location that the NPC manager is supposed to be relative to the user.
      */
     public static Location getHumanManagerTPLocation(Player relativeUser){
+
         Location focusedPlayerLoc = relativeUser.getLocation();
         Location clone = focusedPlayerLoc.clone();
-        return clone.clone().add(clone.getDirection().multiply(-2.5)).add(0, 0.5, 0);
+
+        float distance = -2.5f;
+        Location maxDistanceLocation = clone.clone().add(clone.getDirection().multiply(distance)).add(0, 0.5, 0);
+        Block locationBlock = maxDistanceLocation.getBlock();
+        while(locationBlock.getType().isSolid()){
+            distance += 0.05f;
+            maxDistanceLocation = clone.clone().add(clone.getDirection().multiply(distance)).add(0, 0.5, 0);
+            locationBlock = maxDistanceLocation.getBlock();
+        }
+//        System.out.println("BLOCK: " + locationBlock.getType());
+//        System.out.println("Distance: " + distance);
+
+        return maxDistanceLocation;
+
     }
 
     /**

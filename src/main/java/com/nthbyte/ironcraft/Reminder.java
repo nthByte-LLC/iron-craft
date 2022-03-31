@@ -41,7 +41,7 @@ public class Reminder extends BukkitRunnable {
 
             boolean isManager = data.isManager();
             Player player = data.getPlayer();
-            if(player.isConversing()) continue;
+            if(IronCraftPlugin.isAnsweringSurvey(player)) continue;
 
             String message;
             if(isManager){

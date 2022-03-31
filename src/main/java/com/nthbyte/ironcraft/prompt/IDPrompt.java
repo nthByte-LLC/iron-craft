@@ -69,7 +69,7 @@ public class IDPrompt extends StringPrompt {
             return END_OF_CONVERSATION;
         }
 
-        boolean isManager = /*(numOnlinePlayers != 1 && ThreadLocalRandom.current().nextBoolean()) ||*/ providedID.contains("_manager");
+        boolean isManager = needsDataCreated ?/*(numOnlinePlayers != 1 && ThreadLocalRandom.current().nextBoolean()) ||*/ providedID.contains("_manager") : data.isManager();
         data.init(plugin, isManager);
         if(needsDataCreated) {
 

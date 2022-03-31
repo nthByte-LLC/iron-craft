@@ -112,6 +112,10 @@ public class PlayerWatcher implements Listener {
     public void onManagerInteract(PlayerInteractEvent e){
 
         Player player = e.getPlayer();
+        if(IronCraftPlugin.isAnsweringSurvey(player)){
+            return;
+        }
+
         PlayerDataHandler playerDataHandler = plugin.getPlayerDataHandler();
         if(!playerDataHandler.hasDataLoaded(player)) return;
 
@@ -131,9 +135,20 @@ public class PlayerWatcher implements Listener {
             if(currentFocusedPlayer == null){
                 nextFocusedPlayer = overseeingUsers.get(0);
             }else{
+
                 int currentIndexFocusedPlayer = overseeingUsers.indexOf(currentFocusedPlayer);
-                int nextIndexFocusedPlayer = currentIndexFocusedPlayer == overseeingUsers.size() - 1 ? 0 : currentIndexFocusedPlayer + 1;
-                nextFocusedPlayer = overseeingUsers.get(nextIndexFocusedPlayer);
+                int nextIndexFocusedPlayer = currentIndexFocusedPlayer + 1;
+                if( (nextIndexFocusedPlayer + 1) > overseeingUsers.size()){
+                    nextFocusedPlayer = null;
+                    player.sendMessage(StringUtils.colorString("&9!!INFO!! &fYou aren't watching any workers. You are now free to roam. Left-click again to spectate a player."));
+                }else{
+                    nextFocusedPlayer = overseeingUsers.get(nextIndexFocusedPlayer);
+                }
+
+            }
+
+            if(nextFocusedPlayer != null){
+                player.sendMessage(StringUtils.colorString("&9!!INFO!! &fYou are now watching " + Bukkit.getPlayer(nextFocusedPlayer).getName()));
             }
 
             pd.setFocusedPlayerUUID(nextFocusedPlayer);
@@ -159,12 +174,17 @@ public class PlayerWatcher implements Listener {
 
     }
 
+    /*
+        Prevents dialogue from occurring between players. The only players that will receive other player's messages are admins.
+     */
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent e){
         Set<Player> recipients = e.getRecipients();
-        for(Player p : recipients){
-            if(!plugin.getPlayerDataHandler().getData(p).isAdmin()){
-                recipients.remove(p);
+        if(recipients != null){
+            for(Player p : recipients){
+                if(!plugin.getPlayerDataHandler().getData(p).isAdmin()){
+                    recipients.remove(p);
+                }
             }
         }
     }
@@ -222,9 +242,8 @@ public class PlayerWatcher implements Listener {
 
     }
 
-    /**
-     * Prevents players from breaking blocks if their data isn't loaded or if they're in a tutorial & isn't a permitted block to break.
-     * @param e
+    /*
+        Prevents players from breaking blocks if their data isn't loaded or if they're in a tutorial & isn't a permitted block to break.
      */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
@@ -261,22 +280,24 @@ public class PlayerWatcher implements Listener {
         }
     }
 
+    /*
+        Prevents anyone from taking damage.
+     */
     @EventHandler
     public void onPlayerTakeDamage(EntityDamageEvent e) {
 
         World applicableWorld = plugin.getBaseConfig().getWorld();
         if(applicableWorld == null) return;
 
-        String applicableWorldName = applicableWorld.getName();
-        Entity entity = e.getEntity();
-        if (entity instanceof Player && entity.getLocation().getWorld().getName().equalsIgnoreCase(applicableWorldName)) {
+        Entity damagedEntity = e.getEntity();
+        if (damagedEntity instanceof Player) {
             e.setCancelled(true);
         }
 
     }
 
     /*
-     * Listens for the end of the game. Sets the necessary data fields within the player's data & starts the autonomy survey.
+        Listens for the end of the game. Sets the necessary data fields within the player's data & starts the autonomy survey.
      */
     @EventHandler
     public void onGameEnd(EndGameEvent e) {
@@ -284,7 +305,11 @@ public class PlayerWatcher implements Listener {
         PlayerData playerData = e.getPlayerData();
         Player player = playerData.getPlayer();
 
-        playerData.incrementRoundsPlayed();
+        // If the player leaves the game and joins back when they previously had 0 minutes left,
+        // the plugin would increment the rounds played right when they join again. This fixes it.
+        if(!playerData.hasRecentlyJoined()){
+            playerData.incrementRoundsPlayed();
+        }
 
         Reason reason = e.getReason();
         if(reason == Reason.OUT_OF_TIME){
@@ -303,8 +328,19 @@ public class PlayerWatcher implements Listener {
         if(playerData.getManagementType() == ManagementType.HUMAN){
             UUID managerUUID = playerData.getManager();
             PlayerData managerData = plugin.getPlayerDataHandler().getData(managerUUID);
+            managerData.getPlayer().getPersistentDataContainer().set(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING, "marker");
             Conversation conv = new ConversationFactory(plugin).withFirstPrompt(new ManagerSurvey(playerData)).withLocalEcho(true).buildConversation(managerData.getPlayer());
             conv.begin();
+        }
+
+        // Removes the current player as their focused player if they are done with the game completely.
+        if(reason == Reason.GAME_COMPLETE || (playerData.getRoundsPlayed() == 3 && reason == Reason.OUT_OF_TIME)){
+            UUID managerUUID = playerData.getManager();
+            if(playerData.getManagementType() == ManagementType.HUMAN){
+                PlayerData managerData = plugin.getPlayerDataHandler().getData(managerUUID);
+                managerData.setFocusedPlayerUUID(null);
+                managerData.getUsersOverseeing().remove(player.getUniqueId());
+            }
         }
 
     }
@@ -410,7 +446,7 @@ public class PlayerWatcher implements Listener {
     public void onManagerMove(PlayerMoveEvent e){
         PlayerData playerData = plugin.getPlayerDataHandler().getData(e.getPlayer());
         if(playerData == null) return;
-        if(playerData.isManager() && !playerData.getUsersOverseeing().isEmpty() && hasMoved(e.getTo(), e.getFrom(), true)) e.setCancelled(true);
+        if(playerData.isManager() && playerData.getFocusedPlayerUUID() != null && hasMoved(e.getTo(), e.getFrom(), true)) e.setCancelled(true);
     }
 
     @EventHandler

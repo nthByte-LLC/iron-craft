@@ -111,7 +111,12 @@ public class ObjectiveWatcher implements Listener {
         boolean isInTutorial = pd.isInTutorial();
         // End of the game. They have just crafted an iron pick-axe.
         if(!isInTutorial && craftedItemType == Material.IRON_PICKAXE){
-            Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(Reason.GAME_COMPLETE, pd));
+            // It's about to turn to 3.
+            if(pd.getRoundsPlayed() == 2){
+                Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(Reason.GAME_COMPLETE, pd));
+            }else{
+                Bukkit.getServer().getPluginManager().callEvent(new EndGameEvent(Reason.ROUND_COMPLETE, pd));
+            }
             return;
         }
 
@@ -308,7 +313,7 @@ public class ObjectiveWatcher implements Listener {
         player.getPersistentDataContainer().set(IronCraftPlugin.IN_SURVEY_PDC_KEY, PersistentDataType.STRING, "marker");
         player.spawnParticle(Particle.FIREWORKS_SPARK, player.getLocation(), 30, 1, 1, 1);
         player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_SHOOT, 0.5f, 1);
-        player.sendMessage(StringUtils.colorString("&bCongratulations! &fYou have completed the tutorial. You will now be teleported and given the opportunity to play on your own. Good luck!"));
+        player.sendMessage(StringUtils.colorString("&bCongratulations. &fYou have completed the tutorial!"));
 
         ConversationFactory cf = new ConversationFactory(plugin);
         Conversation conversation = cf.withFirstPrompt(new RepeatTutorialPrompt(plugin)).withLocalEcho(false).buildConversation(player);

@@ -11,7 +11,13 @@ public enum Reason {
     OUT_OF_TIME,
 
     /**
-     * The player has completed the game.
+     * The player has completed a round of the game.
      */
-    GAME_COMPLETE;
+    ROUND_COMPLETE,
+
+    /**
+     * The player has completed a specified amount of rounds to complete the game (Currently 3)
+     */
+    GAME_COMPLETE
+
 }

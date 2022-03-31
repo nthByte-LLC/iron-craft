@@ -7,7 +7,6 @@ import org.bukkit.event.HandlerList;
 
 /**
  * The event that is fired when the game has stopped. This doesn't always mean that the game was completed successfully.
- * @see CompleteGameEvent
  */
 public class EndGameEvent extends Event {
 
