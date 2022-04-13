@@ -1,5 +1,6 @@
 package com.nthbyte.ironcraft;
 
+import com.nthbyte.ironcraft.manager.ManagerUtil;
 import net.dohaw.corelib.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,6 +21,14 @@ public class IronCraftCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if(args.length == 0) {
+            sender.sendMessage("/ic create chamber");
+            sender.sendMessage("/ic create spawn");
+            sender.sendMessage("/ic set obj <player name> <objective>");
+            sender.sendMessage("/ic set ingame <player name> <true | false>");
+            return true;
+        }
 
         if (args.length > 0 && sender instanceof Player && sender.hasPermission("diamondcraft.admin")) {
 
@@ -86,6 +95,8 @@ public class IronCraftCommand implements CommandExecutor {
                             targetPlayerData.setInTutorial(!isInGame);
                             targetPlayerData.init(plugin, targetPlayerData.isManager());
                         }
+
+                        ManagerUtil.ensurePlayersHaveManagers(plugin);
 
                     }
                 }

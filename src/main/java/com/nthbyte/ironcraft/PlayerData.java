@@ -391,13 +391,11 @@ public class PlayerData {
 
         Player player = getPlayer();
         this.isManager = isManager;
-        if(!isInTutorial){
-            player.setGravity(!isManager);
-            player.setInvisible(isManager);
-            player.setAllowFlight(isManager);
-            player.setFlying(isManager);
-            startTeleporter(plugin);
-        }
+        player.setGravity(!(isManager && !isInTutorial));
+        player.setInvisible((isManager && !isInTutorial));
+        player.setAllowFlight((isManager && !isInTutorial));
+        player.setFlying((isManager && !isInTutorial));
+        startTeleporter(plugin);
 
         if(!hasTorches(player) && ( (isManager && isInTutorial) || !isManager) ){
             plugin.giveEssentialItems(player);

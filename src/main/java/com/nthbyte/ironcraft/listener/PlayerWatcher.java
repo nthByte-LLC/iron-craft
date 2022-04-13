@@ -251,6 +251,7 @@ public class PlayerWatcher implements Listener {
                     PlayerData managerData = playerDataHandler.getData(managerUUID);
                     managerData.getUsersOverseeing().remove(player.getUniqueId());
                     managerData.setFocusedPlayerUUID(null);
+                    managerData.setManagementType(null);
                 }
             }
 

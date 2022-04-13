@@ -29,7 +29,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3.1</version>
                 <configuration>
-                    <outputDirectory>D:\Minecraft Servers\Regular\1.18\plugins</outputDirectory>
+                    <outputDirectory>D:\Minecraft Servers\Regular\1.18.2\plugins</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>

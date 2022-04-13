@@ -13,6 +13,8 @@ import org.apache.commons.exec.PumpStreamHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.conversations.*;
 import org.bukkit.entity.Player;
 
@@ -98,35 +100,48 @@ public class AutonomySurveyPrompt extends StringPrompt {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//            calculateProficiencyScore(player);
 
-            int roundsPlayed = playerData.getRoundsPlayed();
-            if(roundsPlayed < 3){
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                try {
+                    runAlgorithm(player);
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }, 5);
 
-                player.sendRawMessage("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!");
-                Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
-                if (randomSpawnPoint == null) {
-                    plugin.getLogger().severe("There has been an error trying to teleport a player to a random spawn point");
-                    player.sendRawMessage("You could not be teleported to a random spawn point at this moment. Please contact an administrator...");
-                    return END_OF_CONVERSATION;
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+
+                int performanceScore = getPerformanceScore(player);
+                player.sendRawMessage("You manager has given you a performance score of " + performanceScore);
+                int roundsPlayed = playerData.getRoundsPlayed();
+                if(roundsPlayed < 3){
+
+                    player.sendRawMessage("You have played " + roundsPlayed + " rounds. You have " + (3 - roundsPlayed) + " more round(s) to go!");
+                    Location randomSpawnPoint = plugin.getRandomJourneySpawnPoint();
+                    if (randomSpawnPoint == null) {
+                        plugin.getLogger().severe("There has been an error trying to teleport a player to a random spawn point");
+                        player.sendRawMessage("You could not be teleported to a random spawn point at this moment. Please contact an administrator...");
+                        return;
+                    }
+
+                    // Lets them play the game again.
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        player.getInventory().clear();
+                        playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
+                        player.teleport(randomSpawnPoint);
+                        playerData.setMinutesInGame(0);
+                        playerData.init(plugin, false);
+                    }, 20 * 3);
+
+                }else{
+                    player.sendRawMessage("Congratulations. You are finished.");
+                    playerData.setRoundsPlayed(0);
+                    playerData.setCurrentTutorialObjective(null);
                 }
 
-                // Lets them play the game again.
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    player.getInventory().clear();
-                    playerData.setCurrentTutorialObjective(Objective.COLLECT_WOOD);
-                    player.teleport(randomSpawnPoint);
-                    playerData.setMinutesInGame(0);
-                    playerData.init(plugin, false);
-                }, 20 * 3);
+                player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
 
-            }else{
-                player.sendRawMessage("Congratulations. You are finished.");
-                playerData.setRoundsPlayed(0);
-                playerData.setCurrentTutorialObjective(null);
-            }
-
-            player.getPersistentDataContainer().remove(IronCraftPlugin.IN_SURVEY_PDC_KEY);
+            }, 20L);
 
             return END_OF_CONVERSATION;
 
@@ -147,28 +162,50 @@ public class AutonomySurveyPrompt extends StringPrompt {
      * Calculates the player's proficiency score by feeding data to a Python algorithm.
      * @return
      */
-    private int calculateProficiencyScore(Player player){
+    private int runAlgorithm(Player player) throws IOException, InterruptedException {
 
         UUID playerUUID = player.getUniqueId();
-        String inputFilePath = plugin.getDataFolder() + "\\end_game_data\\input_" + playerUUID.toString() + ".yml";
-        String pythonFilePath = plugin.getDataFolder() + "\\end_game_data\\algo\\" + "classifier.py";
-        String line = "py " + pythonFilePath + " " + inputFilePath;
+        String pythonFilePath = "plugins\\IronCraft\\end_game_data\\algo\\modded_classifier.py";
+        String inputFilePath = "plugins/IronCraft/end_game_data/input_" + playerUUID.toString() + ".yml";
 
-        CommandLine cmdLine = CommandLine.parse(line);
+        ProcessBuilder pb = new ProcessBuilder()
+                .command("py", pythonFilePath, inputFilePath);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+        File logsFile = new File("algorithm_logs.txt");
+        logsFile.createNewFile();
 
-        DefaultExecutor executor = new DefaultExecutor();
-        executor.setStreamHandler(streamHandler);
+        pb.redirectOutput(logsFile);
+        pb.redirectError(logsFile);
 
-        try {
-            executor.execute(cmdLine);
-        } catch (IOException e) {
-            e.printStackTrace();
+        Process p = pb.start();
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(p.getInputStream()));
+        StringBuilder buffer = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null){
+            buffer.append(line);
         }
 
+        int exitCode = p.waitFor();
+        in.close();
+
         return 0;
+
+    }
+
+    private int getPerformanceScore(Player player){
+
+        File outputFile = new File(plugin.getDataFolder() + File.separator + "end_game_data", "output.yml");
+        if(!outputFile.exists()){
+            player.sendMessage("Your performance score could not be gotten at this time! Please contact an administrator");
+            return -1;
+        }
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(outputFile);
+        String score = config.getString(player.getUniqueId().toString());
+        System.out.println("Score: " + score);
+        return 1;
 
     }
 
