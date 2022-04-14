@@ -112,6 +112,7 @@ public class AutonomySurveyPrompt extends StringPrompt {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
 
                 int performanceScore = getPerformanceScore(player);
+                System.out.println("Performance score: " + performanceScore);
                 player.sendRawMessage("You manager has given you a performance score of " + performanceScore);
                 int roundsPlayed = playerData.getRoundsPlayed();
                 if(roundsPlayed < 3){
@@ -187,7 +188,6 @@ public class AutonomySurveyPrompt extends StringPrompt {
             buffer.append(line);
         }
 
-        int exitCode = p.waitFor();
         in.close();
 
         return 0;
@@ -203,9 +203,8 @@ public class AutonomySurveyPrompt extends StringPrompt {
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(outputFile);
-        String score = config.getString(player.getUniqueId().toString());
-        System.out.println("Score: " + score);
-        return 1;
+        String score = config.getString("input_" + player.getUniqueId().toString());
+        return Integer.parseInt(score.replace("[","").replace("]","").replace(".",""));
 
     }
 
