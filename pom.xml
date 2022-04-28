@@ -29,7 +29,8 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3.1</version>
                 <configuration>
-                    <outputDirectory>D:\Minecraft Servers\Regular\1.18.2\plugins</outputDirectory>
+                    <outputDirectory>output</outputDirectory>
+		    <finalName>IronCraft</finalName>
                 </configuration>
             </plugin>
             <plugin>
@@ -87,7 +88,7 @@
         </repository>
         <repository>
             <id>everything</id>
-            <url>http://repo.citizensnpcs.co/</url>
+            <url>https://repo.citizensnpcs.co/</url>
         </repository>
     </repositories>
 
